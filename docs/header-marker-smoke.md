@@ -41,7 +41,8 @@ e revela o texto abaixo conforme a cadeira colorida avança:
 1. No topo da home, o texto explicativo fica dentro da largura do título, mas
    permanece recortado; o contorno inferior corresponde à altura recolhida.
 2. Role até a metade e depois até o fim. A altura visível, o contorno, o texto
-   e o fundo avançam juntos. O amarelo final usa `var(--color-surface-brand)`.
+   e o fundo acompanham a cadeira com atraso real de 500 ms. O amarelo final
+   usa `var(--color-surface-brand)`.
 3. Role de volta ao topo e confira a reversão proporcional: a badge retorna ao
    estado recolhido e o fundo volta a `var(--color-surface)`.
 4. Abra um drawer com progresso parcial. A badge deve ficar oculta e o
@@ -55,6 +56,11 @@ e revela o texto abaixo conforme a cadeira colorida avança:
 O sincronismo usa o progresso do `ScrollTrigger` existente em
 `src/components/ChairDraw.astro`, publicado como `fibramfer:chair-progress`;
 não há um segundo trigger nem cálculo paralelo baseado em `window.scrollY`.
+
+Existe também uma segunda cópia desktop, ancorada 16 px acima e à esquerda da
+caixa da cadeira. Ela usa temporariamente o mesmo título/texto e um atraso de
+250 ms; a badge do CTA mantém o atraso de 500 ms. Essa segunda cópia fica oculta
+em larguras mobile até receber conteúdo e posicionamento próprios.
 
 O ciclo é controlado em `src/components/Header.astro`, por presença real do
 painel, estado por instância e cancelamento dos frames/fontes pendentes.
@@ -86,6 +92,11 @@ painel, estado por instância e cancelamento dos frames/fontes pendentes.
   `rgb(255, 251, 235)` sem scroll-driven animation.
 - Mobile 390×844 com menu aberto: a cópia visível recebeu o mesmo progresso
   (`0,375939`) e revelou o texto explicativo.
+- Atraso scroll-driven: a badge do header usa `500 ms` e a badge da cadeira
+  usa `250 ms`; os endpoints chegam a `1` após as respectivas amostras
+  atrasadas.
+- A expansão e o recolhimento das duas badges usam a curva `power2.inOut`;
+  os endpoints continuam respeitando os atrasos configurados.
 - `npx astro check`: 0 erros; permanece o hint anterior sobre `home` não usado.
 - `npm run build`: 9 páginas geradas.
 

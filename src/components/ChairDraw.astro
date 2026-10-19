@@ -71,15 +71,15 @@ const chairDrawSvg = rawSvg
       }, { once: true });
     }
 
-    const publishChairProgress = (progress: number) => {
+    const publishChairProgress = (progress: number, immediate = false) => {
       const normalized = Math.min(1, Math.max(0, progress));
       document.documentElement.style.setProperty('--fibramfer-chair-progress', String(normalized));
       window.dispatchEvent(new CustomEvent('fibramfer:chair-progress', {
-        detail: { progress: normalized },
+        detail: { progress: normalized, immediate },
       }));
     };
 
-    publishChairProgress(0);
+    publishChairProgress(0, true);
 
     // O replay usa a posição atual como início, sem mover a página. Se o
     // usuário voltar antes desse ponto (inclusive após fechar no fim da home),
@@ -94,7 +94,7 @@ const chairDrawSvg = rawSvg
       if (!fill || drawerOpen) return;
 
       if (prefersReducedMotion.matches) {
-        publishChairProgress(1);
+        publishChairProgress(1, true);
         gsap.set(fill, { '--chair-reveal-front': '118%' });
         gsap.set(svg, { opacity: 0 });
         return;
@@ -103,7 +103,7 @@ const chairDrawSvg = rawSvg
       if (!track || fill.dataset.scrollReady === 'true') return;
       fill.dataset.scrollReady = 'true';
       replayScrollStart = replayAfterDrawer ? window.scrollY : null;
-      publishChairProgress(0);
+      publishChairProgress(0, true);
 
       scrollTimeline = gsap
         .timeline({
@@ -204,7 +204,7 @@ const chairDrawSvg = rawSvg
 
         window.removeEventListener('scroll', rebaseReplayScroll);
         replayScrollStart = null;
-        publishChairProgress(0);
+        publishChairProgress(0, true);
 
         if (homeChromeResizeHandler) {
           window.removeEventListener('fibramfer:home-chrome-resize', homeChromeResizeHandler);
