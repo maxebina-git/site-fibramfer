@@ -25,8 +25,8 @@ const nav = navItems.map((item) => ({
   {nav}
   size="lg"
   bordered={false}
-  position={homeRoute ? 'fixed' : undefined}
-  sticky={!homeRoute}
+  position="fixed"
+  sticky={false}
   data-fibramfer-header="true"
   class={panelOpen ? 'panel-open' : undefined}
   data-panel-open={String(panelOpen)}
