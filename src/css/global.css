@@ -201,6 +201,15 @@ body.home-page .home-scroll-track {
   aspect-ratio: 1;
   margin-inline: auto;
   isolation: isolate;
+  transition-property: none;
+}
+
+/* Preserve a coluna da cadeira durante toda a saída do painel, inclusive no
+   carregamento direto. O aside só sai do DOM ao terminar a transição do DS. */
+body.home-page:has([data-fibramfer-drawers] aside[role='dialog']) .home-true-hero-media {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* O viewBox 555x449 preenche a caixa como o object-fit: contain do PNG colorido.
@@ -219,6 +228,14 @@ body.home-page .home-scroll-track {
   width: 100%;
   height: 100%;
   color: var(--color-ink);
+}
+
+/* O GSAP controla esses estados. Evite transições CSS implícitas no reset,
+   principalmente a duração mínima do modo de movimento reduzido do DS. */
+.chair-draw-svg,
+.chair-draw-svg path,
+.chair-draw-fill {
+  transition-property: none;
 }
 
 /* Reveal por máscara com gradiente: a cadeira dissolve numa faixa de 18% da
@@ -310,10 +327,16 @@ header[data-fibramfer-header='true'] {
   border-bottom: 0;
 }
 
-/* Os ícones de referência (marker do hero) ficam ocultos enquanto um drawer
- * (painel principal ou legal) está aberto. */
-body.home-page:has(header[data-fibramfer-header='true'][data-panel-open='true']) .home-hero-marker {
-  display: none;
+/* A visibilidade do grupo é instantânea, inclusive com movimento reduzido. */
+.home-hero-marker {
+  transition-property: none;
+}
+
+/* O estado SSR cobre o primeiro paint. Depois, o painel mantém o grupo oculto
+   até o fim da saída, sem depender da volta antecipada do header à home. */
+body.home-page:is([data-panel-drawer-open='true'], :has([data-fibramfer-drawers] aside[role='dialog'])) .home-hero-marker {
+  visibility: hidden;
+  opacity: 0;
 }
 
 /* O monograma Fibramfer precisa de mais área que o Home padrão do DS. */
