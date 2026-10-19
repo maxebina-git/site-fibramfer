@@ -1,0 +1,44 @@
+{
+  "name": "site-fibramfer",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "astro dev --port 4334",
+    "build": "astro build",
+    "preview": "astro preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "@astrojs/vue": "^7.0.3",
+    "@bruits/satteri-wasm32-wasi": "^0.10.5",
+    "@tailwindcss/typography": "^0.5.20",
+    "@tailwindcss/vite": "^4.3.3",
+    "@types/node": "^26.6.3",
+    "astro": "^7.3.5",
+    "decap-cms-app": "^3.16.3",
+    "eslint": "^10.11.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-astro": "^3.2.1",
+    "prettier": "^3.9.9",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.4.5",
+    "vue": "^3.5.43"
+  },
+  "dependencies": {
+    "@lordicon/element": "^3.0.2",
+    "ds-grupo-rkb": "file:../ds-grupo-rkb",
+    "gsap": "^3.15.0"
+  }
+}

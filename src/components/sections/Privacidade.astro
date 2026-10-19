@@ -1,0 +1,61 @@
+---
+const { class: className = '' } = Astro.props;
+---
+
+<section class={`py-12 ${className}`}>
+  <div class="max-w-3xl mx-auto">
+    <h2 class="font-display text-3xl font-bold mb-2 text-ink">Política de Privacidade</h2>
+    <p class="text-text-secondary mb-8">
+      Última atualização: outubro de 2026. Esta política descreve como a Fibramfer coleta, usa e protege
+      as informações pessoais fornecidas por você em nosso site.
+    </p>
+
+    <div class="space-y-8 text-text-secondary">
+      <div>
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">1. Informações que coletamos</h3>
+        <p class="mb-2">
+          Podemos coletar informações que você fornece diretamente ao entrar em contato conosco, como nome,
+          e-mail, telefone e o conteúdo da sua mensagem. Também coletamos dados de navegação de forma
+          automática (como páginas visitadas e dispositivo utilizado) para melhorar sua experiência.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">2. Como usamos suas informações</h3>
+        <p class="mb-2">Utilizamos os dados coletados para:</p>
+        <ul class="list-disc pl-6 space-y-1">
+          <li>Responder às suas solicitações de orçamento e atendimento;</li>
+          <li>Enviar informações técnicas e comerciais sobre nossas soluções;</li>
+          <li>Melhorar continuamente nosso site e nossos serviços;</li>
+          <li>Cumprir obrigações legais e regulatórias.</li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">3. Compartilhamento de dados</h3>
+        <p>
+          A Fibramfer não vende nem aluga suas informações pessoais. Compartilhamos dados apenas com
+          prestadores de serviço que nos auxiliam na operação do site, sempre sob acordos de
+          confidencialidade, ou quando exigido por lei.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">4. Seus direitos</h3>
+        <p>
+          Você pode solicitar acesso, correção ou exclusão dos seus dados pessoais a qualquer momento.
+          Para exercer esses direitos ou esclarecer dúvidas sobre esta política, entre em contato pelo
+          e-mail informado na página de Contato.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">5. Segurança e alterações</h3>
+        <p>
+          Adotamos medidas técnicas e organizacionais para proteger suas informações. Esta política pode
+          ser atualizada periodicamente; alterações relevantes serão publicadas nesta página.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,22 @@
+---
+import TrueHero from './sections/TrueHero.astro';
+
+interface Props {
+  home?: boolean;
+}
+
+const { home = false } = Astro.props;
+---
+
+<div
+  id="hero"
+  class:list={[
+    'w-full bg-surface',
+    home ? 'home-hero flex min-h-0 flex-1 flex-col items-center justify-start' : 'min-h-screen flex items-center justify-center',
+  ]  }
+>
+  <div class:list={['max-w-7xl mx-auto w-full px-6', { 'flex min-h-0 flex-1 flex-col': home }]}>
+    <TrueHero home={home} />
+  </div>
+</div>
+{home && <div class="home-scroll-track" data-home-scroll-track aria-hidden="true"></div>}

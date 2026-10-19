@@ -1,0 +1,66 @@
+---
+type LordIconTrigger =
+  | 'in'
+  | 'click'
+  | 'hover'
+  | 'loop'
+  | 'loop-on-hover'
+  | 'morph'
+  | 'boomerang'
+  | 'sequence'
+
+interface Props {
+  src: string
+  trigger?: LordIconTrigger
+  state?: string
+  target?: string
+  label?: string
+  decorative?: boolean
+  currentColor?: boolean
+  class?: string
+  width?: string
+  height?: string
+}
+
+const {
+  src,
+  trigger = 'hover',
+  state,
+  target,
+  label,
+  decorative = true,
+  currentColor = false,
+  class: className = '',
+  width,
+  height,
+} = Astro.props
+const iconStyle = [width && `width:${width}`, height && `height:${height}`].filter(Boolean).join(';') || undefined
+---
+
+<lord-icon
+  src={src}
+  trigger={trigger}
+  state={state}
+  target={target}
+  current-color={currentColor ? '' : undefined}
+  aria-hidden={decorative ? 'true' : undefined}
+  aria-label={!decorative ? label : undefined}
+  class={className}
+  style={iconStyle}
+></lord-icon>
+
+<script>
+  import { defineElement } from '@lordicon/element'
+
+  defineElement()
+</script>
+
+<style is:global>
+  lord-icon {
+    display: inline-block;
+    width: 1.25rem;
+    height: 1.25rem;
+    --lord-icon-primary: var(--color-primary-500);
+    --lord-icon-secondary: var(--color-accent-500);
+  }
+</style>

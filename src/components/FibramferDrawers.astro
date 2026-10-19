@@ -1,0 +1,53 @@
+---
+import { getCollection, render } from 'astro:content';
+import Hero from './sections/Hero.astro';
+import Products from './sections/Products.astro';
+import Security from './sections/Security.astro';
+import Contact from './sections/Contact.astro';
+import Privacidade from './sections/Privacidade.astro';
+import Termos from './sections/Termos.astro';
+import BlogList from './BlogList.astro';
+import BlogPostDrawer from './BlogPostDrawer.astro';
+import NavigationDrawer from './NavigationDrawer.vue';
+
+const blogPosts = (await getCollection('blog')).sort(
+  (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime(),
+);
+
+const blogPostRoutes = blogPosts.map((post) => ({
+  id: post.id,
+  title: post.data.title,
+}));
+
+const renderedBlogPosts = await Promise.all(
+  blogPosts.map(async (post) => ({
+    post,
+    Content: (await render(post)).Content,
+  })),
+);
+
+const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const currentBlogPostId = currentPath.startsWith('/blog/')
+  ? currentPath.slice('/blog/'.length)
+  : undefined;
+const initialBlogPostId = blogPosts.some((post) => post.id === currentBlogPostId)
+  ? currentBlogPostId
+  : undefined;
+---
+
+<NavigationDrawer client:load initialPath={currentPath} blogPosts={blogPostRoutes}>
+  <div slot="a-fibramfer"><Hero /></div>
+  <div slot="produtos"><Products /></div>
+  <div slot="seguranca"><Security /></div>
+  <div slot="blog"><BlogList posts={blogPosts} /></div>
+  <div slot="contato"><Contact /></div>
+  <div slot="privacidade"><Privacidade /></div>
+  <div slot="termos"><Termos /></div>
+  <div slot="blog-posts">
+    {renderedBlogPosts.map(({ post, Content }) => (
+      <div data-blog-post-id={post.id} hidden={post.id !== initialBlogPostId}>
+        <BlogPostDrawer post={post} Content={Content} />
+      </div>
+    ))}
+  </div>
+</NavigationDrawer>

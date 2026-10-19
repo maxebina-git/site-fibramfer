@@ -1,0 +1,39 @@
+---
+interface BlogPost {
+  id: string;
+  data: {
+    title: string;
+    description?: string;
+    image?: string;
+    date: Date;
+    author?: string;
+    category?: string;
+  };
+}
+
+interface Props {
+  post: BlogPost;
+  Content: any;
+}
+
+const { post, Content } = Astro.props;
+---
+
+<article class="mx-auto max-w-3xl px-6 py-16">
+  <a href="/blog/" class="font-medium text-primary-500 hover:underline decoration-accent-500 decoration-2 underline-offset-4">
+    ← Voltar para o Blog
+  </a>
+  <h1 class="mt-6 mb-4 font-display text-4xl font-bold text-ink">{post.data.title}</h1>
+  <div class="mb-8 flex items-center gap-4 text-sm text-text-secondary">
+    <time datetime={post.data.date.toISOString()}>{post.data.date.toLocaleDateString('pt-BR')}</time>
+    {post.data.author && <span>{post.data.author}</span>}
+    {post.data.category && <span>{post.data.category}</span>}
+  </div>
+  {post.data.image && (
+    <img src={post.data.image} alt={post.data.title} class="mb-8 h-auto w-full rounded-lg border border-border" />
+  )}
+  {post.data.description && <p class="mb-8 text-lg text-text-secondary">{post.data.description}</p>}
+  <div class="prose prose-lg max-w-none">
+    <Content />
+  </div>
+</article>

@@ -1,0 +1,934 @@
+@import 'tailwindcss';
+@import 'ds-grupo-rkb/style.css';
+@plugin '@tailwindcss/typography';
+
+/*
+ * Espelho dos tokens semânticos do DS — a fonte da verdade é
+ * ds-grupo-rkb/src/tokens/semantic.css (MANTER EM SINCRONIA).
+ * Existe para o Tailwind do site gerar as utilities usadas nos .astro
+ * (bg-primary-500, text-ink, rounded-button, shadow-card, text-success-500...).
+ * Em runtime, body[data-theme='fibramfer'] (Black & Gold) sobrescreve os valores.
+ */
+@theme {
+  --color-primary-50: var(--color-blue-50);
+  --color-primary-100: var(--color-blue-100);
+  --color-primary-500: var(--color-blue-500);
+  --color-primary-600: var(--color-blue-600);
+  --color-primary-700: var(--color-blue-700);
+
+  --color-on-primary: var(--color-neutral-0);
+
+  --color-accent-50: var(--color-blue-50);
+  --color-accent-100: var(--color-blue-100);
+  --color-accent-500: var(--color-blue-500);
+  --color-accent-600: var(--color-blue-600);
+  --color-accent-700: var(--color-blue-700);
+
+  --color-surface: var(--color-neutral-0);
+  --color-surface-alt: var(--color-neutral-100);
+  --color-surface-brand: var(--color-blue-50);
+  --color-surface-warm: var(--color-blue-50);
+
+  --color-ink: var(--color-neutral-900);
+  --color-deep: var(--color-neutral-900);
+  --color-on-deep: var(--color-neutral-0);
+  --color-text-secondary: var(--color-neutral-700);
+
+  --color-border: var(--color-neutral-200);
+  --color-divider: var(--color-accent-500);
+  --color-focus-ring: var(--color-primary-500);
+
+  --color-error-500: var(--color-red-500);
+  --color-error-600: var(--color-red-600);
+
+  --color-success-500: var(--color-fibra-green-500);
+  --color-success-600: var(--color-fibra-green-600);
+  --color-success-700: var(--color-fibra-green-700);
+
+  --color-footer-bg: var(--color-deep);
+  --color-footer-fg: var(--color-on-deep);
+
+  --color-overlay: rgba(0, 0, 0, 0.4);
+
+  --color-elevation-tint: var(--color-ink);
+
+  --radius-button: var(--radius-md);
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'Source Sans 3', system-ui, -apple-system, sans-serif;
+}
+
+@theme static {
+  --shadow-elevation-1: 0 1px 2px color-mix(in srgb, var(--color-elevation-tint) 8%, transparent);
+  --shadow-elevation-2:
+    0 4px 12px color-mix(in srgb, var(--color-elevation-tint) 14%, transparent),
+    0 1px 3px color-mix(in srgb, var(--color-elevation-tint) 8%, transparent);
+  --shadow-elevation-3:
+    0 16px 40px -8px color-mix(in srgb, var(--color-elevation-tint) 22%, transparent),
+    0 4px 12px color-mix(in srgb, var(--color-elevation-tint) 10%, transparent);
+  --shadow-card: var(--shadow-elevation-2);
+}
+
+body {
+  font-family: var(--font-body);
+}
+
+/* A home ocupa exatamente a viewport; o Footer permanece no fluxo, no rodapé. */
+html.home-page {
+  min-height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  --fibramfer-home-header-height: 96px;
+  --fibramfer-home-footer-height: 124px;
+}
+
+/* Reserve the measured chrome size before client scripts run. These values
+   match the rendered header/footer at the responsive breakpoints below, so
+   the hero does not jump when syncHomeChrome eventually confirms them. */
+@media (max-width: 22rem) {
+  html.home-page {
+    --fibramfer-home-footer-height: 144px;
+  }
+}
+
+@media (min-width: 40rem) {
+  html.home-page {
+    --fibramfer-home-footer-height: 88px;
+  }
+}
+
+@media (min-width: 48rem) {
+  html.home-page {
+    --fibramfer-home-header-height: 120px;
+  }
+}
+
+body.home-page {
+  min-height: 100dvh;
+  overflow: visible;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html.home-page::-webkit-scrollbar,
+body.home-page::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
+}
+
+/* Scrollbar da marca (Black & Gold): fina, quadrada, sem setas, dourado.
+   Chrome 121+ ignora os pseudos -webkit-* quando scrollbar-width/color
+   (padrão) estão presentes — por isso as propriedades padrão ficam só no
+   Firefox, onde os pseudos não existem. */
+@supports not selector(::-webkit-scrollbar) {
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-fibra-gold-500, var(--color-accent-500)) transparent;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  border-radius: 0;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--color-fibra-gold-500, var(--color-accent-500));
+  border-radius: 0;
+  border: 0;
+}
+
+::-webkit-scrollbar-button,
+::-webkit-scrollbar-button:single-button,
+::-webkit-scrollbar-button:double-button,
+::-webkit-scrollbar-button:vertical:increment,
+::-webkit-scrollbar-button:vertical:decrement,
+::-webkit-scrollbar-button:horizontal:increment,
+::-webkit-scrollbar-button:horizontal:decrement {
+  display: none;
+  width: 0;
+  height: 0;
+  background: transparent;
+  border: 0;
+}
+
+body.home-page > header,
+body.home-page > footer {
+  flex: 0 0 auto;
+}
+
+body.home-page > main.home-main {
+  min-height: 0;
+  flex: 1 1 auto;
+  padding-top: var(--fibramfer-home-header-height);
+  padding-bottom: var(--fibramfer-home-footer-height);
+}
+
+body.home-page #hero {
+  position: fixed;
+  inset-inline: 0;
+  top: var(--fibramfer-home-header-height);
+  bottom: var(--fibramfer-home-footer-height);
+  z-index: 1;
+}
+
+body.home-page .home-scroll-track {
+  height: 200svh;
+  pointer-events: none;
+}
+
+/* O Hero fica pinado durante o scroll que controla o reveal da cadeira. */
+.home-true-hero {
+  min-height: calc(100svh - var(--fibramfer-home-header-height) - var(--fibramfer-home-footer-height));
+  flex: 0 0 auto;
+  padding-block: var(--spacing) calc(var(--spacing) * 2);
+}
+
+/* Coluna da cadeira desenhável no hero da home: largura vem da track do grid
+   em md+; no celular (pilha sob o copy) o limite de altura evita empurrar o
+   hero pinado para fora da viewport. */
+.home-true-hero-media {
+  position: relative;
+  width: min(100%, 15rem, 18svh);
+  aspect-ratio: 1;
+  margin-inline: auto;
+  isolation: isolate;
+}
+
+/* O viewBox 555x449 preenche a caixa como o object-fit: contain do PNG colorido.
+   O fill entra por cima dos traços com clip-path inset — mas o ScrollTrigger
+   só é criado quando o draw termina. */
+
+.chair-draw-root {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+}
+
+.chair-draw-svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--color-ink);
+}
+
+/* Reveal por máscara com gradiente: a cadeira dissolve numa faixa de 18% da
+   altura em vez de ser cortada por uma linha reta (clip-path).
+   --chair-reveal-front = posição da frente (0% nada visível → 118% tudo visível). */
+.chair-draw-fill {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  --chair-reveal-feather: 18%;
+  --chair-reveal-front: 0%;
+  mask-image: linear-gradient(
+    to bottom,
+    #000 calc(var(--chair-reveal-front) - var(--chair-reveal-feather)),
+    transparent var(--chair-reveal-front)
+  );
+  -webkit-mask-image: linear-gradient(
+    to bottom,
+    #000 calc(var(--chair-reveal-front) - var(--chair-reveal-feather)),
+    transparent var(--chair-reveal-front)
+  );
+}
+
+.chair-draw-fill img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* Estado inicial sem FOUC: dash maior que o traço mais longo (~688px) esconde
+   todos os paths; o GSAP mede o comprimento real de cada um e anima até 0. */
+[data-chair-draw='pending'] path {
+  stroke-dasharray: 2000;
+  stroke-dashoffset: 2000;
+  will-change: stroke-dashoffset;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-chair-draw='pending'] path {
+    stroke-dashoffset: 0;
+  }
+}
+
+@media (min-width: 768px) {
+  .home-true-hero-media {
+    width: 100%;
+  }
+}
+
+@media (min-width: 768px) {
+  .home-true-hero {
+    padding-block: calc(var(--spacing) * 2);
+  }
+}
+
+/* Remove box-shadow do header em todas as páginas (evita flash de sombra no refresh) */
+header[data-fibramfer-header='true'] {
+  box-shadow: none !important;
+}
+
+body.home-page > footer {
+  position: fixed;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 30;
+}
+
+body.home-page > footer > div {
+  padding-block: calc(var(--spacing) * 4);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity;
+}
+
+/*
+ * O Drawer mantém overlay e painel nas camadas 40/50. Quando uma rota de
+ * painel está ativa, o Header continua como contexto de navegação acima do
+ * overlay; o estado vem do pathname/popstate em Header.astro.
+ */
+header[data-panel-open='true'] {
+  z-index: 60;
+}
+
+header[data-fibramfer-header='true'] {
+  z-index: 60;
+  border-bottom: 0;
+}
+
+/* Os ícones de referência (marker do hero) ficam ocultos enquanto um drawer
+ * (painel principal ou legal) está aberto. */
+body.home-page:has(header[data-fibramfer-header='true'][data-panel-open='true']) .home-hero-marker {
+  display: none;
+}
+
+/* O monograma Fibramfer precisa de mais área que o Home padrão do DS. */
+header[data-fibramfer-header='true'] a[aria-label='Home'] {
+  width: calc(var(--spacing) * 18);
+  height: calc(var(--spacing) * 18);
+  border-radius: 0;
+}
+
+header[data-fibramfer-header='true'] a[aria-label='Home']:hover {
+  transform: none;
+}
+
+header[data-fibramfer-header='true'] a[aria-label='Home']:hover,
+header[data-fibramfer-header='true'] a[aria-label='Home']:active {
+  background-color: transparent;
+}
+
+header[data-fibramfer-header='true'] .fibramfer-logo {
+  position: relative;
+  display: block;
+  width: calc(var(--spacing) * 18);
+  height: calc(var(--spacing) * 18);
+}
+
+header[data-fibramfer-header='true'] .fibramfer-logo-image,
+header[data-fibramfer-header='true'] .fibramfer-logo-accent {
+  width: calc(var(--spacing) * 18);
+  height: calc(var(--spacing) * 18);
+}
+
+header[data-fibramfer-header='true'] .fibramfer-logo-accent {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+header[data-fibramfer-header='true'] .fibramfer-logo-accent-path {
+  transform-box: fill-box;
+  transform-origin: center;
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+header[data-fibramfer-header='true'] a[aria-label='Home']:hover .fibramfer-logo-accent-path,
+header[data-fibramfer-header='true'] a[aria-label='Home']:focus-visible .fibramfer-logo-accent-path {
+  transform: scale(2);
+}
+
+@media (min-width: 768px) {
+  header[data-fibramfer-header='true'] a[aria-label='Home'] {
+    width: calc(var(--spacing) * 24);
+    height: calc(var(--spacing) * 24);
+  }
+
+  header[data-fibramfer-header='true'] .fibramfer-logo,
+  header[data-fibramfer-header='true'] .fibramfer-logo-image,
+  header[data-fibramfer-header='true'] .fibramfer-logo-accent {
+    width: calc(var(--spacing) * 24);
+    height: calc(var(--spacing) * 24);
+  }
+}
+
+/* A cortina fica dentro do painel, com respiro lateral/inferior e abaixo do Header. */
+[data-fibramfer-drawers] {
+  --fibramfer-header-height: calc(var(--spacing) * 24);
+  --fibramfer-drawer-gap: calc(var(--spacing) * 6);
+  --drawer-reveal-inset-top: calc(var(--fibramfer-header-height) + var(--fibramfer-drawer-gap));
+  --drawer-reveal-inset-right: var(--fibramfer-drawer-gap);
+  --drawer-reveal-inset-bottom: var(--fibramfer-drawer-gap);
+  --drawer-reveal-inset-left: var(--fibramfer-drawer-gap);
+  --drawer-panel-surface: var(--color-surface-alt);
+  --drawer-reveal-content-surface: var(--color-surface);
+}
+
+@media (min-width: 768px) {
+  [data-fibramfer-drawers] {
+    --fibramfer-header-height: calc(var(--spacing) * 30);
+  }
+}
+
+/* Keep a server-rendered open drawer pinned while Vue hydrates it. The
+   hydration-ready flag is released only after NavigationDrawer has mounted,
+   so an enter/leave class cannot briefly move the fixed panel off-screen. */
+body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) [data-fibramfer-drawers] aside[role='dialog'] {
+  position: fixed !important;
+  top: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  left: auto !important;
+  transform: none !important;
+  opacity: 1 !important;
+  transition: none !important;
+}
+
+body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) [data-fibramfer-drawers] [data-drawer-reveal-content] {
+  opacity: 1 !important;
+}
+
+body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) [data-fibramfer-drawers] .drawer-reveal-gates,
+body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) [data-fibramfer-drawers] .drawer-reveal-lines {
+  opacity: 1 !important;
+}
+
+body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) [data-fibramfer-drawers] .drawer-reveal-gate--top,
+body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) [data-fibramfer-drawers] .drawer-reveal-line--top {
+  transform: translateY(-100%) !important;
+}
+
+body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) [data-fibramfer-drawers] .drawer-reveal-gate--bottom,
+body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) [data-fibramfer-drawers] .drawer-reveal-line--bottom {
+  transform: translateY(100%) !important;
+}
+
+body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) [data-fibramfer-drawers] .drawer-reveal-gate--left,
+body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) [data-fibramfer-drawers] .drawer-reveal-line--left {
+  transform: translateX(-100%) !important;
+}
+
+body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) [data-fibramfer-drawers] .drawer-reveal-gate--right,
+body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) [data-fibramfer-drawers] .drawer-reveal-line--right {
+  transform: translateX(100%) !important;
+}
+
+/* O X do drawer legal fica a 24px do topo, sob a barra full-width do Header
+ * (z-60). Deixamos o Header transparente a cliques (só o logo captura) para o
+ * X (painel z-50) ser clicável. */
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'] {
+  pointer-events: none;
+}
+
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'] a[aria-label='Home'] {
+  pointer-events: auto;
+  transform: translateX(var(--fibramfer-logo-shift, 0px))
+             translateY(var(--fibramfer-logo-y-shift, 0px));
+  transition-delay: 500ms;
+}
+
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'] .fibramfer-logo {
+  transition-delay: 500ms;
+}
+
+/*
+ * Contexto legal (Privacidade/Termos). A moldura da cortina muda: topo em
+ * 24px (sem faixa do Header) e base = altura do Footer, para o conteúdo não
+ * ser coberto pela barra fixa do Footer. O Header mantém nav + CTA (deslocam
+ * ocultos enquanto o drawer está aberto; no mobile fica só o logo. Os 2
+ * links legais permanecem no Footer (fixo, z-51, na frente do drawer) e
+ * ficam dourados + deslocados -24px quando o drawer abre.
+ */
+body[data-legal-drawer='true'] [data-fibramfer-drawers] {
+  --legal-links-bottom: 3.25rem;
+  --legal-links-height: 1.3125rem;
+  --legal-links-gap: 1.5rem;
+  --drawer-reveal-inset-top: 1.5rem;
+  --drawer-reveal-inset-bottom: calc(
+    var(--legal-links-bottom) +
+    var(--legal-links-height) +
+    var(--legal-links-gap)
+  );
+}
+
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'],
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'] #header-contact-cta,
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'] button[aria-controls$='-mobile-menu'],
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'] [id$='-mobile-menu'] {
+  pointer-events: none;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}
+
+/* Footer atrás do painel do drawer (sem stacking context), para o painel
+ * aparecer na frente. Os 2 links legais são "levantados" para uma camada
+ * acima do painel (z-51) e flutuam sobre ele, na posição do footer. */
+body[data-legal-drawer='true'] footer {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+}
+
+@media (max-width: 767px) {
+  /* Em mobile, o drawer rolável move o X para a esquerda por padrão. No
+   * contexto legal isso sobrepõe o logo, então o X fica no canto direito. */
+  body[data-legal-drawer='true'] [data-fibramfer-drawers] aside[role='dialog'][data-drawer-scrollable] > header {
+    right: var(--drawer-reveal-inset-right);
+    left: auto;
+  }
+}
+
+/* O painel legal precisa ficar acima do Footer, que também usa z-50. Como o
+ * Footer vem depois do shell do Drawer no DOM, um empate de z-index faria a
+ * barra cobrir o painel. Os links legais flutuantes permanecem acima dos
+ * dois para continuar acessíveis durante a leitura. */
+body[data-legal-drawer='true'] [data-fibramfer-drawers] aside[role='dialog'] {
+  z-index: 52;
+}
+
+/* A versão synchronize-fade coloca o painel dentro de uma camada z-40. Essa
+ * camada é um stacking context, então elevar apenas o aside não o coloca
+ * acima do Footer z-50. A camada inteira do drawer legal precisa subir. */
+body[data-legal-drawer='true'] [data-fibramfer-drawers] [data-drawer-fade-layer] {
+  z-index: 52;
+}
+
+/* Mesmo padding compacto do footer da home, para não mudar de altura. */
+body[data-legal-drawer='true'] footer > div {
+  padding-block: calc(var(--spacing) * 4);
+}
+
+/* Os 2 links do footer ficam visíveis na barra flutuante. */
+body[data-legal-drawer='true'] footer .footer-legal {
+  display: flex;
+}
+
+/* Barra flutuante com os 2 links legais, acima do painel do drawer (z-51),
+ * na posição do footer. */
+.fibramfer-legal-floating {
+  position: fixed;
+  z-index: 53;
+  bottom: var(--legal-links-bottom, 3.25rem);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  max-width: 80rem;
+  height: var(--legal-links-height, 1.3125rem);
+  padding-inline: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1.5rem;
+  margin: 0;
+  pointer-events: auto;
+}
+
+.fibramfer-legal-floating a {
+  position: relative;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.fibramfer-legal-floating a::after {
+  content: '';
+  position: absolute;
+  inset-inline: 0;
+  bottom: -0.25rem;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 250ms ease-out;
+}
+
+.fibramfer-legal-floating a:hover::after,
+.fibramfer-legal-floating a[aria-current='page']::after {
+  transform: scaleX(1);
+}
+
+body[data-legal-drawer='true']:has(header[data-fibramfer-header='true'][data-panel-open='true']) .fibramfer-legal-floating a {
+  color: var(--color-accent-500);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fibramfer-legal-floating a::after {
+    transition: none;
+  }
+}
+
+@media (min-width: 40rem) {
+  .fibramfer-legal-floating {
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 80rem;
+    padding-inline: 1rem;
+  }
+}
+
+/* Os 2 links legais ficam visíveis na barra. */
+
+/*
+ * O botão fechar do Drawer (DS) fica no canto superior direito da moldura do
+ * conteúdo, abaixo do Header do site (z-60) — o header nativo do DS cairia
+ * atrás do Header. Posição via vars públicas de inset do DS. A opacidade
+ * acompanha o conteúdo revelado: o X surge atrás da cortina fechada e é
+ * descoberto quando as gates deslizam (z-index abaixo das gates, z-10).
+ */
+[data-fibramfer-drawers] aside[role='dialog'] > header {
+  position: absolute;
+  top: var(--drawer-reveal-inset-top);
+  right: var(--drawer-reveal-inset-right);
+  z-index: 1;
+  padding: 0;
+  opacity: 0;
+  transition: opacity var(--duration-250) var(--ease-out);
+}
+
+[data-fibramfer-drawers]
+  aside[role='dialog']:has(> [data-drawer-reveal-content].drawer-reveal-content--visible)
+  > header {
+  opacity: 1;
+}
+
+/* Remove focus ring/border do botão fechar do drawer - sobrescreve estilos do DS */
+[data-fibramfer-drawers] aside[role='dialog'] > header button {
+  --focus-ring-width: 0 !important;
+  --focus-ring-color: transparent !important;
+  --focus-ring-offset: 0 !important;
+}
+
+[data-fibramfer-drawers] aside[role='dialog'] > header button:focus-visible,
+[data-fibramfer-drawers] aside[role='dialog'] > header button:focus,
+[data-fibramfer-drawers] aside[role='dialog'] > header button[aria-label*='fechar' i]:focus-visible,
+[data-fibramfer-drawers] aside[role='dialog'] > header button[aria-label*='fechar' i]:focus,
+[data-fibramfer-drawers] aside[role='dialog'] > header button[aria-label*='close' i]:focus-visible,
+[data-fibramfer-drawers] aside[role='dialog'] > header button[aria-label*='close' i]:focus,
+*[data-fibramfer-drawers] aside[role='dialog'] > header button:focus-visible,
+*[data-fibramfer-drawers] aside[role='dialog'] > header button:focus {
+  outline: 0 solid transparent !important;
+  outline-width: 0 !important;
+  outline-color: transparent !important;
+  outline-offset: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  ring: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Tenta remover via variáveis CSS do DS se existirem */
+[data-fibramfer-drawers] aside[role='dialog'] > header button {
+  --focus-ring-width: 0 !important;
+  --focus-ring-color: transparent !important;
+  --focus-ring-offset: 0 !important;
+  --ds-focus-ring-width: 0 !important;
+  --ds-focus-ring-color: transparent !important;
+  --ds-focus-ring-offset: 0 !important;
+}
+
+/*
+ * Quando o conteúdo do drawer rolável, o X sai do canto superior direito (onde
+ * fica a scrollbar) e vai para o canto superior esquerdo, evitando sobrepor a
+ * área de rolagem. O estado data-drawer-scrollable é toggado pelo
+ * NavigationDrawer (scrollHeight > clientHeight).
+ */
+[data-fibramfer-drawers] aside[role='dialog'][data-drawer-scrollable] > header {
+  right: auto;
+  left: var(--drawer-reveal-inset-left);
+}
+
+header nav[aria-label='Navegação principal'] {
+  transition:
+    opacity var(--duration-250) var(--ease-out),
+    transform var(--duration-250) var(--ease-out);
+}
+
+header[data-panel-open='true'] nav[aria-label='Navegação principal'] {
+  opacity: 1;
+  transform: none;
+}
+
+/* No desktop, os quatro links e o CTA entram em sequência após a abertura do Drawer. */
+@media (min-width: 1024px) {
+  header[data-fibramfer-header='true'] {
+    --fibramfer-menu-item-duration: 450ms;
+    --fibramfer-menu-item-easing: cubic-bezier(0.22, 1, 0.36, 1);
+    --fibramfer-logo-y-shift: calc(var(--spacing) * 6);
+  }
+
+  /* Direct drawer routes are measured before this flag is released. Keeping
+     transitions disabled during that first measurement prevents the logo and
+     hero title from animating from their 0px fallback on refresh. */
+  body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) header[data-fibramfer-header='true'] a[aria-label='Home'],
+  body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) header[data-fibramfer-header='true'] .fibramfer-logo,
+  body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) .home-true-hero-copy h1,
+  body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']) .home-true-hero-copy > :not(h1) {
+    transition: none !important;
+  }
+
+  /* Keep the SSR header in its final open state until both client shells have
+     mounted. Without this lock, a slower Header/Drawer hydration can briefly
+     restore the menu/logo starting state during refresh. */
+   body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']):not([data-legal-drawer='true'])
+     header[data-fibramfer-header='true'][data-panel-open='true']
+     nav[aria-label='Navegação principal'] {
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+   body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']):not([data-legal-drawer='true'])
+     header[data-fibramfer-header='true'][data-panel-open='true']
+     nav[aria-label='Navegação principal'] > a,
+   body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true']):not([data-legal-drawer='true'])
+     header[data-fibramfer-header='true'][data-panel-open='true']
+     #header-contact-cta {
+    transform: translateX(calc(var(--spacing) * -6)) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    transition: none !important;
+  }
+
+  body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true'])
+    header[data-fibramfer-header='true'][data-panel-open='true']
+    a[aria-label='Home'] {
+    transform: translateX(var(--fibramfer-logo-shift, 0px))
+               translateY(var(--fibramfer-logo-y-shift, 0px)) !important;
+    transition: none !important;
+  }
+
+  body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true'])
+    header[data-fibramfer-header='true'][data-panel-open='true']
+    .fibramfer-logo {
+    transform: scale(1.1667) !important;
+    transition: none !important;
+  }
+
+  header[data-fibramfer-header='true'] a[aria-label='Home'] {
+    transition:
+      transform var(--fibramfer-menu-item-duration) var(--fibramfer-menu-item-easing);
+    transition-delay: 1300ms;
+  }
+
+  header[data-fibramfer-header='true'] .fibramfer-logo {
+    transform-origin: center;
+    transition: transform var(--fibramfer-menu-item-duration) var(--fibramfer-menu-item-easing);
+    transition-delay: 1300ms;
+  }
+
+  header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home'] {
+    transform: translateX(var(--fibramfer-logo-shift, 0px))
+               translateY(var(--fibramfer-logo-y-shift, 0px));
+    transition-delay: 500ms;
+  }
+
+header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
+  transition-delay: 500ms;
+}
+
+  header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] {
+    transform: none;
+  }
+
+  header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] > a,
+  header[data-fibramfer-header='true'] #header-contact-cta {
+    transition:
+      transform var(--fibramfer-menu-item-duration) var(--fibramfer-menu-item-easing);
+  }
+
+  /* Saída: Contato primeiro e A Fibramfer por último. */
+  header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(1) {
+    transition-delay: 1300ms;
+  }
+
+  header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(2) {
+    transition-delay: 1100ms;
+  }
+
+  header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(3) {
+    transition-delay: 900ms;
+  }
+
+  header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(4) {
+    transition-delay: 700ms;
+  }
+
+  header[data-fibramfer-header='true'] #header-contact-cta {
+    transition-delay: 500ms;
+  }
+
+  /* Entrada: A Fibramfer primeiro e Contato por último. */
+  header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(1),
+  header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(2),
+  header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(3),
+  header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(4),
+  header[data-fibramfer-header='true'][data-panel-open='true'] #header-contact-cta {
+    transform: translateX(calc(var(--spacing) * -6));
+  }
+
+  /* Quando o drawer já está aberto no carregamento da página (atributo no body),
+   * os itens do menu/logo devem estar na posição FINAL da animação (sem transição). */
+  body[data-panel-drawer-open='true']
+    header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a,
+  body[data-legal-drawer='true']
+    header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a,
+  body[data-panel-drawer-open='true']
+    header[data-fibramfer-header='true'][data-panel-open='true'] #header-contact-cta,
+  body[data-legal-drawer='true']
+    header[data-fibramfer-header='true'][data-panel-open='true'] #header-contact-cta {
+  transform: translateX(calc(var(--spacing) * -6)) !important;
+  transition: none !important;
+}
+
+  body[data-panel-drawer-open='true']
+    header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home'],
+  body[data-legal-drawer='true']
+    header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home'] {
+  transform: translateX(var(--fibramfer-logo-shift, 0px))
+             translateY(var(--fibramfer-logo-y-shift, 0px)) !important;
+}
+
+  body[data-panel-drawer-open='true']
+    header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo,
+  body[data-legal-drawer='true']
+    header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
+  transform: scale(1.1667) !important;
+}
+
+  header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(1) {
+    transition-delay: 500ms;
+  }
+
+  header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(2) {
+    transition-delay: 700ms;
+  }
+
+  header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(3) {
+    transition-delay: 900ms;
+  }
+
+  header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(4) {
+    transition-delay: 1100ms;
+  }
+
+  header[data-fibramfer-header='true'][data-panel-open='true'] #header-contact-cta {
+    transition-delay: 1300ms;
+  }
+
+  /* O h1 do hero da home acompanha o logo e centraliza na faixa exposta pelo Drawer. */
+  .home-true-hero-copy h1 {
+    width: 100%;
+    transition:
+      transform 450ms cubic-bezier(0.22, 1, 0.36, 1),
+      font-size 450ms cubic-bezier(0.22, 1, 0.36, 1),
+      width 450ms cubic-bezier(0.22, 1, 0.36, 1),
+      padding 450ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 1300ms;
+  }
+
+  body.home-page:has(header[data-fibramfer-header='true'][data-panel-open='true']) .home-true-hero-copy h1 {
+    transform: translateX(var(--fibramfer-hero-h1-shift, 0px));
+    font-size: 2.25rem;
+    width: calc(25vw - 4rem);
+    padding-inline: calc(var(--spacing) * 6);
+    transition-delay: 500ms;
+  }
+
+  .home-true-hero-copy > :not(h1) {
+    transition: opacity 450ms cubic-bezier(0.22, 1, 0.36, 1);
+    transition-delay: 1300ms;
+  }
+
+  body.home-page:has(header[data-fibramfer-header='true'][data-panel-open='true']) .home-true-hero-copy > :not(h1) {
+    opacity: 0;
+    pointer-events: none;
+    transition-delay: 500ms;
+  }
+}
+
+@media (min-width: 1024px) and (prefers-reduced-motion: reduce) {
+  header[data-fibramfer-header='true'] a[aria-label='Home'] {
+    transition: none;
+  }
+
+  header[data-fibramfer-header='true'] .fibramfer-logo {
+    transition: none;
+  }
+
+  header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home'] {
+    transform: none;
+  }
+
+  header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
+    transform: none;
+  }
+
+  header[data-fibramfer-header='true'] .fibramfer-logo-accent-path {
+    transition: none;
+  }
+
+  header[data-fibramfer-header='true'] a[aria-label='Home']:hover .fibramfer-logo-accent-path,
+  header[data-fibramfer-header='true'] a[aria-label='Home']:focus-visible .fibramfer-logo-accent-path {
+    transform: none;
+  }
+
+  header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] > a,
+  header[data-fibramfer-header='true'] #header-contact-cta {
+    transition: none;
+  }
+
+  header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a,
+  header[data-fibramfer-header='true'][data-panel-open='true'] #header-contact-cta {
+    transform: none !important;
+  }
+
+  .home-true-hero-copy h1 {
+    transition: none;
+  }
+
+  body.home-page:has(header[data-fibramfer-header='true'][data-panel-open='true']) .home-true-hero-copy h1 {
+    transform: none;
+  }
+
+}
+
+/* O lock de hidratação do drawer direto vem dentro do media query de desktop e
+ * força nav/CTA visíveis. Este override precisa ficar no fim do arquivo para
+ * que a regra legal continue vencendo também em refresh direto de /privacidade
+ * e /termos. */
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'],
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'] #header-contact-cta,
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'] button[aria-controls$='-mobile-menu'],
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'] [id$='-mobile-menu'] {
+  pointer-events: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+}

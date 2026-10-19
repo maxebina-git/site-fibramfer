@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Identidade Visual - Fibramfer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #F5F5F5;
+            padding: 60px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .header h1 {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 72px;
+            font-weight: 900;
+            color: #0A0A0A;
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 18px;
+            color: #525252;
+            font-weight: 400;
+        }
+
+        .section {
+            margin-bottom: 80px;
+        }
+
+        .section-title {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 48px;
+            font-weight: 800;
+            color: #0A0A0A;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 4px solid #FFC700;
+        }
+
+        /* Paleta de Cores */
+        .color-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .color-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .color-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .color-swatch {
+            height: 160px;
+            width: 100%;
+        }
+
+        .color-info {
+            padding: 20px;
+        }
+
+        .color-name {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            color: #0A0A0A;
+            margin-bottom: 8px;
+        }
+
+        .color-hex {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: #525252;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .color-rgb {
+            font-size: 13px;
+            color: #888;
+            font-weight: 400;
+            margin-bottom: 12px;
+        }
+
+        .color-usage {
+            padding-top: 12px;
+            border-top: 1px solid #E5E5E5;
+            font-size: 13px;
+            color: #525252;
+            line-height: 1.5;
+        }
+
+        /* Tipografia */
+        .typography-showcase {
+            background: white;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .font-family {
+            margin-bottom: 50px;
+        }
+
+        .font-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #FFC700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .font-name {
+            font-size: 16px;
+            color: #525252;
+            margin-bottom: 30px;
+            font-weight: 500;
+        }
+
+        .font-samples {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .font-sample {
+            border-bottom: 1px solid #E5E5E5;
+            padding-bottom: 30px;
+        }
+
+        .font-sample:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .sample-text {
+            color: #0A0A0A;
+            margin-bottom: 10px;
+        }
+
+        .sample-label {
+            font-size: 12px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Exemplos de Aplicação */
+        .application-examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+
+        .example-card {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .example-title {
+            font-size: 12px;
+            font-weight: 600;
+            color: #FFC700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            display: inline-block;
+            background: #0A0A0A;
+            color: white;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+            margin-bottom: 20px;
+        }
+
+        .btn-accent {
+            display: inline-block;
+            background: #FFC700;
+            color: #0A0A0A;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            text-decoration: none;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #FFC700;
+            color: #0A0A0A;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-right: 10px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-number {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 64px;
+            font-weight: 900;
+            color: #0A0A0A;
+            line-height: 1;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #525252;
+        }
+
+        .text-heading {
+            font-family: 'Barlow Condensed', sans-serif;
+            font-size: 42px;
+            font-weight: 800;
+            color: #0A0A0A;
+            text-transform: uppercase;
+            letter-spacing: -1px;
+            margin-bottom: 15px;
+        }
+
+        .text-body {
+            font-size: 16px;
+            line-height: 1.6;
+            color: #171717;
+        }
+
+        .text-mono {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            color: #525252;
+            background: #FAFAFA;
+            padding: 15px;
+            border-radius: 6px;
+            border-left: 3px solid #FFC700;
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Fibramfer</h1>
+        <p>Identidade Visual - Paleta de Cores e Tipografia</p>
+    </div>
+
+    <!-- Paleta de Cores -->
+    <div class="section">
+        <h2 class="section-title">Paleta de Cores</h2>
+        <div class="color-grid">
+            
+            <div class="color-card">
+                <div class="color-swatch" style="background: #0A0A0A;"></div>
+                <div class="color-info">
+                    <div class="color-name">Primary</div>
+                    <div class="color-hex">#0A0A0A</div>
+                    <div class="color-rgb">RGB: 10, 10, 10</div>
+                    <div class="color-usage">CTAs principais, header, títulos de destaque</div>
+                </div>
+            </div>
+
+            <div class="color-card">
+                <div class="color-swatch" style="background: #FFC700;"></div>
+                <div class="color-info">
+                    <div class="color-name">Accent</div>
+                    <div class="color-hex">#FFC700</div>
+                    <div class="color-rgb">RGB: 255, 199, 0</div>
+                    <div class="color-usage">Destaques, badges, hover, certificações NR-18</div>
+                </div>
+            </div>
+
+            <div class="color-card">
+                <div class="color-swatch" style="background: #171717;"></div>
+                <div class="color-info">
+                    <div class="color-name">Text</div>
+                    <div class="color-hex">#171717</div>
+                    <div class="color-rgb">RGB: 23, 23, 23</div>
+                    <div class="color-usage">Textos principais, corpo de texto</div>
+                </div>
+            </div>
+
+            <div class="color-card">
+                <div class="color-swatch" style="background: #525252;"></div>
+                <div class="color-info">
+                    <div class="color-name">Text Muted</div>
+                    <div class="color-hex">#525252</div>
+                    <div class="color-rgb">RGB: 82, 82, 82</div>
+                    <div class="color-usage">Textos secundários, legendas, descrições</div>
+                </div>
+            </div>
+
+            <div class="color-card">
+                <div class="color-swatch" style="background: #FAFAFA; border: 1px solid #E5E5E5;"></div>
+                <div class="color-info">
+                    <div class="color-name">Background</div>
+                    <div class="color-hex">#FAFAFA</div>
+                    <div class="color-rgb">RGB: 250, 250, 250</div>
+                    <div class="color-usage">Fundo geral do site, menos cansativo que branco puro</div>
+                </div>
+            </div>
+
+            <div class="color-card">
+                <div class="color-swatch" style="background: #FFFFFF; border: 1px solid #E5E5E5;"></div>
+                <div class="color-info">
+                    <div class="color-name">Surface</div>
+                    <div class="color-hex">#FFFFFF</div>
+                    <div class="color-rgb">RGB: 255, 255, 255</div>
+                    <div class="color-usage">Cards, containers, áreas de conteúdo</div>
+                </div>
+            </div>
+
+            <div class="color-card">
+                <div class="color-swatch" style="background: #E5E5E5;"></div>
+                <div class="color-info">
+                    <div class="color-name">Border</div>
+                    <div class="color-hex">#E5E5E5</div>
+                    <div class="color-rgb">RGB: 229, 229, 229</div>
+                    <div class="color-usage">Bordas, divisores, separadores</div>
+                </div>
+            </div>
+
+            <div class="color-card">
+                <div class="color-swatch" style="background: #16A34A;"></div>
+                <div class="color-info">
+                    <div class="color-name">Success</div>
+                    <div class="color-hex">#16A34A</div>
+                    <div class="color-rgb">RGB: 22, 163, 74</div>
+                    <div class="color-usage">Confirmações, checkmarks, mensagens positivas</div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Tipografia -->
+    <div class="section">
+        <h2 class="section-title">Tipografia</h2>
+        <div class="typography-showcase">
+            
+            <div class="font-family">
+                <div class="font-label">Headlines & Títulos</div>
+                <div class="font-name">Barlow Condensed - Fonte industrial, robusta e moderna</div>
+                <div class="font-samples">
+                    <div class="font-sample">
+                        <div class="sample-text" style="font-family: 'Barlow Condensed'; font-size: 64px; font-weight: 900; text-transform: uppercase; letter-spacing: -2px;">FIBRAMFER</div>
+                        <div class="sample-label">H1 - Hero Section (64px / 900 weight)</div>
+                    </div>
+                    <div class="font-sample">
+                        <div class="sample-text" style="font-family: 'Barlow Condensed'; font-size: 40px; font-weight: 800; text-transform: uppercase; letter-spacing: -1px;">Segurança em Primeiro Lugar</div>
+                        <div class="sample-label">H2 - Seções (40px / 800 weight)</div>
+                    </div>
+                    <div class="font-sample">
+                        <div class="sample-text" style="font-family: 'Barlow Condensed'; font-size: 24px; font-weight: 700;">Cadeira Suspensa NR-18</div>
+                        <div class="sample-label">H3 - Cards e Subtítulos (24px / 700 weight)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="font-family">
+                <div class="font-label">Body & Textos</div>
+                <div class="font-name">Inter - Legibilidade excepcional para UI moderna</div>
+                <div class="font-samples">
+                    <div class="font-sample">
+                        <div class="sample-text" style="font-family: 'Inter'; font-size: 16px; line-height: 1.6; color: #171717;">Equipamentos de segurança certificados para trabalho em altura. Conformidade total com as normas NR-18 e CA válido para todos os produtos.</div>
+                        <div class="sample-label">Body - Texto principal (16px / 400 weight / line-height 1.6)</div>
+                    </div>
+                    <div class="font-sample">
+                        <div class="sample-text" style="font-family: 'Inter'; font-size: 15px; font-weight: 600; text-transform: uppercase; letter-spacing: 2px;">Solicitar Orçamento</div>
+                        <div class="sample-label">Button - Botões (15px / 600 weight / uppercase)</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Adicionado: JetBrains Mono -->
+            <div class="font-family">
+                <div class="font-label">Monospace & Dados Técnicos</div>
+                <div class="font-name">JetBrains Mono - Precisão técnica para especificações e códigos</div>
+                <div class="font-samples">
+                    <div class="font-sample">
+                        <div class="sample-text" style="font-family: 'JetBrains Mono'; font-size: 16px; font-weight: 500; color: #171717;">CA: 34567 • NR-18 • Peso: 2.4kg</div>
+                        <div class="sample-label">Specs - Dados técnicos (16px / 500 weight)</div>
+                    </div>
+                    <div class="font-sample">
+                        <div class="sample-text" style="font-family: 'JetBrains Mono'; font-size: 14px; color: #525252;">
+                            <span style="color: #FFC700;">const</span> <span style="color: #0A0A0A;">fibramfer</span> = {<br>
+                            &nbsp;&nbsp;certification: <span style="color: #16A34A;">"NR-18"</span>,<br>
+                            &nbsp;&nbsp;status: <span style="color: #16A34A;">"approved"</span><br>
+                            };
+                        </div>
+                        <div class="sample-label">Code - Exemplo de uso em blocos de código (14px)</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Exemplos de Aplicação -->
+    <div class="section">
+        <h2 class="section-title">Exemplos de Aplicação</h2>
+        <div class="application-examples">
+            
+            <div class="example-card">
+                <div class="example-title">Botões</div>
+                <a href="#" class="btn-primary">Solicitar Orçamento</a>
+                <a href="#" class="btn-accent">Falar no WhatsApp</a>
+            </div>
+
+            <div class="example-card">
+                <div class="example-title">Badges & Certificações (Mono)</div>
+                <span class="badge">NR-18</span>
+                <span class="badge">CA 34567</span>
+                <span class="badge">ISO 9001</span>
+            </div>
+
+            <div class="example-card">
+                <div class="example-title">Tipografia em Destaque</div>
+                <div class="stat-number">15+</div>
+                <div class="stat-label">Anos de experiência no mercado</div>
+            </div>
+
+            <div class="example-card">
+                <div class="example-title">Hierarquia de Texto</div>
+                <div class="text-heading">EPIs de Qualidade</div>
+                <div class="text-body">Equipamentos certificados para garantir a segurança da sua equipe em trabalhos de altura.</div>
+                <div class="text-mono">Ref: FB-2024-001 • Categoria: EPI</div>
+            </div>
+
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,17 @@
+---
+import { Button } from 'ds-grupo-rkb';
+const { class: className = '' } = Astro.props;
+---
+
+<section class={`py-20 text-center ${className}`}>
+  <div class="max-w-2xl mx-auto bg-primary-500 text-on-primary p-12 rounded-lg shadow-elevation-3">
+    <h2 class="font-display text-3xl font-bold mb-6 text-accent-500">Vamos conversar sobre seu projeto?</h2>
+    <p class="text-on-primary/80 mb-8 text-lg">
+      Nossa equipe de especialistas está pronta para oferecer a melhor solução técnica para a sua empresa.
+    </p>
+    <div class="flex justify-center gap-4">
+      <Button variant="secondary" size="lg">Solicitar Orçamento</Button>
+      <Button variant="ghost" size="lg" style="color: var(--color-accent-500)">WhatsApp</Button>
+    </div>
+  </div>
+</section>

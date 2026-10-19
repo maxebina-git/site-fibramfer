@@ -1,0 +1,60 @@
+---
+import { Button } from 'ds-grupo-rkb';
+import LordIcon from '../LordIcon.astro';
+import ChairDraw from '../ChairDraw.astro';
+
+interface Props {
+  class?: string;
+  home?: boolean;
+}
+
+const { class: className = '', home = false } = Astro.props;
+---
+
+<section
+  class:list={[
+    'flex flex-col text-center',
+    home ? 'home-true-hero items-stretch justify-center' : 'items-center justify-center py-20',
+    className,
+  ]}
+  data-home-hero={home ? 'true' : undefined}
+>
+  <div class={home ? 'home-true-hero-grid mx-auto grid w-full max-w-7xl items-center gap-8 px-6 md:grid-cols-[minmax(0,1.2fr)_minmax(20rem,0.8fr)] md:gap-12 lg:gap-20' : 'max-w-4xl mx-auto px-6'}>
+    <div class={home ? 'home-true-hero-copy text-left' : ''}>
+    <h1 class:list={['font-display text-5xl md:text-7xl font-extrabold text-ink tracking-tight', home ? 'mb-10' : 'mb-6']}>
+      Soluções de Fibra de <span class="underline decoration-accent-500 decoration-[0.15em] underline-offset-8">Alta Performance</span>
+    </h1>
+    <p class:list={['text-xl text-text-secondary max-w-2xl mx-auto', home ? 'mb-12 ml-0' : 'mb-10']}>
+      A Fibramfer une tecnologia de ponta e precisão técnica para entregar a máxima eficiência em infraestruturas industriais.
+    </p>
+    <div class={home ? 'flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-start sm:gap-4' : 'flex gap-4 justify-center'}>
+      <Button id="hero-explorer-cta" variant="primary" size="lg" as="a" href="/produtos/">
+        Explorar Soluções
+        <LordIcon
+          src="/lordicon/system-outline-27-globe-hover-pinch.json"
+          trigger="hover"
+          state="hover-pinch"
+          target="#hero-explorer-cta"
+          currentColor
+          class="h-5 w-5 shrink-0"
+        />
+      </Button>
+      <Button id="hero-specialist-cta" variant="secondary" size="lg" as="a" href="/contato/">
+        Falar com Especialista
+        <LordIcon
+          src="/lordicon/system-outline-4073-email-hover-pinch.json"
+          trigger="hover"
+          state="hover-pinch"
+          target="#hero-specialist-cta"
+          class="h-5 w-5 shrink-0"
+        />
+      </Button>
+    </div>
+    </div>
+    {home && (
+      <div class="home-true-hero-media">
+        <ChairDraw />
+      </div>
+    )}
+  </div>
+</section>

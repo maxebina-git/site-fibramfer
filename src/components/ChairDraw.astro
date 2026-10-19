@@ -1,0 +1,176 @@
+---
+import rawSvg from '../assets/cadeira-suspensa-outline.svg?raw';
+
+const chairDrawSvg = rawSvg
+  .replace(/\s(?:width|height)="[^"]*"/g, '')
+  .replace(/stroke="black"/g, 'stroke="currentColor"')
+  .replace(
+    '<svg',
+    '<svg class="chair-draw-svg" data-chair-draw="pending" aria-hidden="true" focusable="false"'
+  );
+---
+
+<div class="chair-draw-root" set:html={chairDrawSvg} />
+
+<div class="chair-draw-fill" data-chair-draw-fill aria-hidden="true">
+  <img src="/assets/cadeira-suspensa-no-bg.png" alt="" loading="eager" />
+</div>
+
+<noscript>
+  <style>
+    [data-chair-draw='pending'] path {
+      stroke-dashoffset: 0 !important;
+    }
+  </style>
+</noscript>
+
+<script>
+  import { gsap } from 'gsap';
+  import { ScrollTrigger } from 'gsap/ScrollTrigger';
+
+  gsap.registerPlugin(ScrollTrigger);
+
+  const svg = document.querySelector<SVGElement>('svg[data-chair-draw]');
+
+  if (svg && svg.dataset.drawReady !== 'true') {
+    svg.dataset.drawReady = 'true';
+
+    const paths = Array.from(svg.querySelectorAll<SVGPathElement>('path'));
+    const fill = document.querySelector<HTMLElement>('[data-chair-draw-fill]');
+    const track = document.querySelector<HTMLElement>('[data-home-scroll-track]');
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let drawTimeline: ReturnType<typeof gsap.timeline> | null = null;
+    let scrollTimeline: ReturnType<typeof gsap.timeline> | null = null;
+    let homeChromeResizeHandler: (() => void) | null = null;
+
+    const releaseFillOnScroll = () => {
+      if (!fill) return;
+
+      if (prefersReducedMotion.matches) {
+        gsap.set(fill, { '--chair-reveal-front': '118%' });
+        gsap.set(svg, { opacity: 0 });
+        return;
+      }
+
+      if (!track || fill.dataset.scrollReady === 'true') return;
+      fill.dataset.scrollReady = 'true';
+
+      scrollTimeline = gsap
+        .timeline({
+          defaults: { ease: 'none' },
+          scrollTrigger: {
+            trigger: track,
+            start: () => {
+              const header = document.querySelector<HTMLElement>('header');
+              const headerHeight = header?.getBoundingClientRect().height ?? 0;
+              return `top top+=${headerHeight}`;
+            },
+            end: () => {
+              const footer = document.querySelector<HTMLElement>('body.home-page > footer');
+              const footerHeight = footer?.getBoundingClientRect().height ?? 0;
+              return `bottom bottom-=${footerHeight}`;
+            },
+            scrub: 1,
+            invalidateOnRefresh: true,
+          },
+        })
+        .fromTo(
+          fill,
+          { '--chair-reveal-front': '0%' },
+          { '--chair-reveal-front': '118%', duration: 1 },
+          0
+        )
+        .to(svg, { opacity: 0, duration: 0.5 }, 0.5);
+
+      homeChromeResizeHandler = () => ScrollTrigger.refresh();
+      window.addEventListener('fibramfer:home-chrome-resize', homeChromeResizeHandler);
+      window.requestAnimationFrame(() => ScrollTrigger.refresh());
+    };
+
+    const showComplete = () => {
+      for (const path of paths) {
+        path.style.removeProperty('stroke-dasharray');
+        path.style.removeProperty('stroke-dashoffset');
+      }
+      svg.setAttribute('data-chair-draw', 'done');
+      releaseFillOnScroll();
+    };
+
+    let started = false;
+
+    const start = () => {
+      if (started || svg.getClientRects().length === 0) return;
+      started = true;
+
+      if (prefersReducedMotion.matches || paths.length === 0) {
+        showComplete();
+        return;
+      }
+
+      const items = paths
+        .map((path) => ({ path, length: path.getTotalLength() }))
+        .sort((a, b) => b.length - a.length);
+
+      const structureMinLength = 25;
+      const structure = items.filter((item) => item.length >= structureMinLength);
+      const details = items.filter((item) => item.length < structureMinLength);
+
+      drawTimeline = gsap.timeline({ onComplete: showComplete });
+      const DRAW_SPEED = 1 / 3;
+      let position = 0.4 * DRAW_SPEED;
+
+      for (const { path, length } of structure) {
+        const duration = gsap.utils.clamp(0.35, 1.25, length / 1150) * DRAW_SPEED;
+        drawTimeline.to(path, { strokeDashoffset: 0, duration, ease: 'power2.inOut' }, position);
+        position += duration * 0.5;
+      }
+
+      if (details.length > 0) {
+        drawTimeline.to(
+          details.map((item) => item.path),
+          { strokeDashoffset: 0, duration: 0.2 * DRAW_SPEED, ease: 'power1.out', stagger: 0.026 * DRAW_SPEED },
+          position + 0.05 * DRAW_SPEED
+        );
+      }
+    };
+
+      const resetAndStart = () => {
+        drawTimeline?.kill();
+        drawTimeline = null;
+
+        if (scrollTimeline) {
+          scrollTimeline.scrollTrigger?.kill();
+          scrollTimeline.kill();
+          scrollTimeline = null;
+        }
+
+        if (homeChromeResizeHandler) {
+          window.removeEventListener('fibramfer:home-chrome-resize', homeChromeResizeHandler);
+          homeChromeResizeHandler = null;
+        }
+
+        paths.forEach((path) => {
+          const length = path.getTotalLength();
+          path.style.strokeDasharray = String(length);
+          path.style.strokeDashoffset = String(length);
+        });
+
+        svg.setAttribute('data-chair-draw', 'pending');
+        gsap.set(svg, { opacity: 1 });
+        if (fill) {
+          fill.removeAttribute('data-scroll-ready');
+          gsap.set(fill, { '--chair-reveal-front': '0%' });
+        }
+
+        started = false;
+        start();
+      };
+
+      start();
+
+      window.addEventListener('fibramfer:drawer-open', resetAndStart);
+
+    const desktopQuery = window.matchMedia('(min-width: 768px)');
+    desktopQuery.addEventListener('change', start);
+  }
+</script>

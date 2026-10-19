@@ -1,0 +1,32 @@
+---
+import { Button } from 'ds-grupo-rkb';
+const { class: className = '' } = Astro.props;
+---
+
+<section class={`py-20 ${className}`}>
+  <div class="flex flex-col md:flex-row items-center gap-12">
+    <div class="flex-1">
+      <div class="w-full h-64 bg-surface-alt rounded-lg flex items-center justify-center text-text-secondary font-medium">
+        [Imagem de Certificações/Segurança]
+      </div>
+    </div>
+    <div class="flex-1">
+      <h2 class="font-display text-3xl font-bold mb-6 text-center text-ink">Compromisso com a Segurança</h2>
+      <p class="text-text-secondary mb-6">
+        A segurança é o pilar fundamental de todas as nossas operações. Seguimos rigorosamente as normas técnicas e certificações internacionais.
+      </p>
+      <ul class="space-y-3 mb-8">
+        <li class="flex items-center gap-2 text-ink">
+          <span class="text-success-500">✔</span> Certificações Internacionais de Qualidade
+        </li>
+        <li class="flex items-center gap-2 text-ink">
+          <span class="text-success-500">✔</span> Rigorosos Testes de Resistência
+        </li>
+        <li class="flex items-center gap-2 text-ink">
+          <span class="text-success-500">✔</span> Normas de Segurança do Trabalho (NRs)
+        </li>
+      </ul>
+      <Button variant="secondary" size="md">Saiba mais sobre nossas normas</Button>
+    </div>
+  </div>
+</section>

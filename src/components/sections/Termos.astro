@@ -1,0 +1,65 @@
+---
+const { class: className = '' } = Astro.props;
+---
+
+<section class={`py-12 ${className}`}>
+  <div class="max-w-3xl mx-auto">
+    <h2 class="font-display text-3xl font-bold mb-2 text-ink">Termos de Uso</h2>
+    <p class="text-text-secondary mb-8">
+      Última atualização: outubro de 2026. Ao acessar e utilizar este site, você concorda com os termos
+      descritos abaixo.
+    </p>
+
+    <div class="space-y-8 text-text-secondary">
+      <div>
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">1. Aceitação dos termos</h3>
+        <p>
+          Estes termos de uso regem o acesso e a utilização do site da Fibramfer. Caso não concorde com
+          qualquer condição, pedimos que não utilize o site.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">2. Uso do conteúdo</h3>
+        <p class="mb-2">
+          Todo o conteúdo (textos, imagens, marca e materiais técnicos) é de propriedade da Fibramfer ou
+          de seus licenciantes. É permitido o uso para fins informativos e comerciais de boa-fé, sendo
+          vedada a reprodução integral sem autorização prévia.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">3. Informações técnicas</h3>
+        <p>
+          As descrições de produtos e soluções têm caráter informativo e podem ser atualizadas sem aviso
+          prévio. Especificações técnicas devem ser confirmadas com a nossa equipe antes de qualquer
+          decisão de projeto.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">4. Responsabilidade</h3>
+        <p>
+          A Fibramfer busca manter o site disponível e preciso, mas não se responsabiliza por interrupções,
+          erros ou por decisões tomadas com base exclusivamente no conteúdo aqui apresentado.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">5. Links externos</h3>
+        <p>
+          O site pode conter links para páginas de terceiros. Esses links são fornecidos por conveniência;
+          a Fibramfer não controla nem responde pelo conteúdo ou políticas desses sites.
+        </p>
+      </div>
+
+      <div>
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">6. Alterações destes termos</h3>
+        <p>
+          Estes termos podem ser modificados a qualquer momento. O uso continuado do site após alterações
+          constitui aceitação da nova versão. Em caso de dúvidas, entre em contato conosco.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>

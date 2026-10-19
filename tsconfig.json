@@ -1,0 +1,6 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    // Optional: Add your own compiler options here
+  }
+}

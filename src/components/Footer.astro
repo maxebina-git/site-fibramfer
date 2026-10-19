@@ -1,0 +1,15 @@
+---
+import { Footer as DSFooter } from 'ds-grupo-rkb';
+
+const companyInfo = {
+  companyName: 'Fibramfer',
+  legalLinks: [
+    { label: 'Privacidade', href: '/privacidade' },
+    { label: 'Termos', href: '/termos' },
+  ],
+};
+
+const copyright = `© ${new Date().getFullYear()} Fibramfer. Todos os direitos reservados.`;
+---
+
+<DSFooter size="lg" padding="sm" showColumns={false} compactInfo align="left" {companyInfo} {copyright} />

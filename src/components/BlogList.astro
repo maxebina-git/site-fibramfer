@@ -1,0 +1,43 @@
+---
+interface BlogPost {
+  id: string;
+  data: {
+    title: string;
+    description?: string;
+    image?: string;
+    date: Date;
+  };
+}
+
+interface Props {
+  posts: BlogPost[];
+  class?: string;
+}
+
+const { posts, class: className = '' } = Astro.props;
+---
+
+<section class={`py-16 ${className}`}>
+  <div class="mx-auto max-w-7xl px-6">
+    <h1 class="font-display text-4xl font-bold text-center text-ink mb-2">Blog e Novidades</h1>
+    <p class="text-text-secondary mb-12">Fique por dentro das tendências do setor e atualizações técnicas.</p>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+      {posts.map((post) => (
+        <article class="bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col">
+          {post.data.image && <img src={post.data.image} alt={post.data.title} class="h-48 w-full object-cover bg-surface-alt" />}
+          {!post.data.image && <div class="h-48 bg-surface-alt"></div>}
+          <div class="p-6 flex flex-col flex-1">
+            <h2 class="font-display text-xl font-bold text-ink mb-2">
+              <a href={`/blog/${post.id}/`} class="hover:underline decoration-accent-500 decoration-2 underline-offset-4">{post.data.title}</a>
+            </h2>
+            <p class="text-text-secondary text-sm mb-4">{post.data.description}</p>
+            <time class="text-text-secondary text-sm mt-auto" datetime={post.data.date.toISOString()}>
+              {post.data.date.toLocaleDateString('pt-BR')}
+            </time>
+          </div>
+        </article>
+      ))}
+      {posts.length === 0 && <p class="text-text-secondary">Nenhum post publicado ainda.</p>}
+    </div>
+  </div>
+</section>

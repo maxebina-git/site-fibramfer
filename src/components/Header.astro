@@ -1,0 +1,672 @@
+---
+import { Header as HeaderDS, Button } from 'ds-grupo-rkb';
+import LordIcon from './LordIcon.astro';
+import FibramferLogo from './FibramferLogo.astro';
+
+const path = Astro.url.pathname;
+const normalizePath = (value: string): string => value === '/' ? value : value.replace(/\/+$/, '');
+const panelRoutes = ['/a-fibramfer', '/produtos', '/seguranca', '/blog', '/contato', '/privacidade', '/termos'];
+const normalizedPath = normalizePath(path);
+const homeRoute = normalizedPath === '/';
+const panelOpen = panelRoutes.includes(normalizedPath) || (normalizedPath.startsWith('/blog/') && normalizedPath !== '/blog');
+const navItems = [
+  { label: 'A Fibramfer', href: '/a-fibramfer' },
+  { label: 'Produtos', href: '/produtos' },
+  { label: 'Segurança', href: '/seguranca' },
+  { label: 'Blog', href: '/blog' },
+];
+const nav = navItems.map((item) => ({
+  ...item,
+  active: path === item.href || path.startsWith(`${item.href}/`),
+}));
+---
+
+<HeaderDS
+  {nav}
+  size="lg"
+  bordered={false}
+  position={homeRoute ? 'fixed' : undefined}
+  sticky={!homeRoute}
+  data-fibramfer-header="true"
+  class={panelOpen ? 'panel-open' : undefined}
+  data-panel-open={String(panelOpen)}
+  client:load
+>
+  <FibramferLogo slot="home" />
+  <div slot="cta" class="relative xl:ml-6">
+    <Button
+      id="header-contact-cta"
+      variant="primary"
+      size="sm"
+      as="a"
+      href="/contato"
+      aria-current={
+        path === '/contato' || path.startsWith('/contato/') ? 'page' : undefined
+      }>
+      Contato
+      <LordIcon
+        src="/lordicon/system-outline-4073-email-hover-pinch.json"
+        trigger="hover"
+        state="hover-pinch"
+        target="#header-contact-cta"
+        currentColor
+        class="h-5 w-5 shrink-0"
+      />
+    </Button>
+    {homeRoute && (
+      <div class="home-hero-marker pointer-events-none absolute top-full left-0 mt-2 h-[56px] w-[96px]">
+        <div class="hero-marker-icons flex h-full w-full items-center justify-center text-text-secondary" aria-hidden="true">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-6 w-6"
+          >
+            <rect width="14" height="20" x="5" y="2" rx="7" ry="7"></rect>
+            <path d="M12 6v4"></path>
+            <circle class="hero-wheel-dot fill-error-500" cx="12" cy="8" r="1.8"></circle>
+          </svg>
+          <LordIcon
+            src="/lordicon/system-outline-219-arrows-up-down-loop-cycle.json"
+            trigger="loop"
+            currentColor
+            width="1.5rem"
+            height="1.5rem"
+            class="h-6 w-6"
+          />
+        </div>
+        <div class="home-hero-badge" data-badge-draw="pending">
+          <svg class="home-hero-badge-stroke" aria-hidden="true">
+            <rect class="home-hero-badge-stroke-rect" x="0" y="0" width="100%" height="100%" rx="3.25" ry="3.25"></rect>
+          </svg>
+          <h2 class="font-display text-sm font-bold leading-tight text-ink">Conformidade Total com a NR-18</h2>
+          <noscript>
+            <style>
+              [data-badge-draw='pending'] .home-hero-badge-stroke-rect {
+                stroke-dashoffset: 0 !important;
+              }
+              [data-badge-draw='pending'].home-hero-badge h2 {
+                opacity: 1 !important;
+              }
+              [data-badge-draw='pending'].home-hero-badge {
+                background-color: var(--color-surface) !important;
+              }
+            </style>
+          </noscript>
+        </div>
+      </div>
+    )}
+  </div>
+</HeaderDS>
+
+<script>
+  const desktopMediaQuery = '(min-width: 1024px)';
+  let logoSyncFrame: number | null = null;
+
+  function renderedTransformX(element: HTMLElement): number {
+    const transform = window.getComputedStyle(element).transform;
+    if (transform === 'none') return 0;
+
+    const matrix = new DOMMatrixReadOnly(transform);
+    return matrix.m41;
+  }
+
+  function syncLogoPosition() {
+    const header = document.querySelector<HTMLElement>('header[data-fibramfer-header="true"]');
+    if (!header) return;
+
+    if (!window.matchMedia(desktopMediaQuery).matches) {
+      header.style.removeProperty('--fibramfer-logo-shift');
+      return;
+    }
+
+    const logo = header.querySelector<HTMLElement>('a[aria-label="Home"]');
+    const drawer = document.querySelector<HTMLElement>('[data-fibramfer-drawers] aside[role="dialog"]');
+    if (!logo || !drawer) {
+      header.style.removeProperty('--fibramfer-logo-shift');
+      return;
+    }
+
+    const logoRect = logo.getBoundingClientRect();
+    const drawerRect = drawer.getBoundingClientRect();
+    if (!logoRect.width || !drawerRect.width) return;
+
+    const logoCenter = logoRect.left + logoRect.width / 2 - renderedTransformX(logo);
+    const exposedAreaCenter = drawerRect.left / 2;
+    const logoShift = exposedAreaCenter - logoCenter;
+
+    header.style.setProperty('--fibramfer-logo-shift', `${logoShift}px`);
+  }
+
+  function syncHeroTitlePosition() {
+    const title = document.querySelector<HTMLElement>('[data-home-hero="true"] h1');
+    if (!title) return;
+
+    if (!window.matchMedia(desktopMediaQuery).matches) {
+      document.documentElement.style.removeProperty('--fibramfer-hero-h1-shift');
+      return;
+    }
+
+    const drawer = document.querySelector<HTMLElement>('[data-fibramfer-drawers] aside[role="dialog"]');
+    if (!drawer) {
+      document.documentElement.style.removeProperty('--fibramfer-hero-h1-shift');
+      return;
+    }
+
+    const titleRect = title.getBoundingClientRect();
+    const drawerRect = drawer.getBoundingClientRect();
+    if (!titleRect.width || !drawerRect.width) return;
+
+    // A largura final do h1 (25vw - 4rem) difere da atual enquanto a transição de
+    // width não terminou; medir pelo estado final evita desalinho no centro da faixa.
+    const rootFontSize = parseFloat(window.getComputedStyle(document.documentElement).fontSize) || 16;
+    const openTitleWidth = drawerRect.left - 4 * rootFontSize;
+    const titleCenter = titleRect.left - renderedTransformX(title) + openTitleWidth / 2;
+    const exposedAreaCenter = drawerRect.left / 2;
+    const titleShift = exposedAreaCenter - titleCenter;
+
+    document.documentElement.style.setProperty('--fibramfer-hero-h1-shift', `${titleShift}px`);
+  }
+
+  // O retângulo de referência (.home-hero-marker) acompanha o centro vertical do
+  // hero fixo da home: top = metade do hero (viewport − header − footer) − metade
+  // do retângulo, corrigido pelo topo do wrapper do CTA (containing block). A
+  // instância oculta (display:none) fica com o fallback CSS (abaixo do botão).
+  function syncHeroMarkerPosition() {
+    const hero = document.querySelector<HTMLElement>('#hero');
+    if (!hero) return;
+
+    document.querySelectorAll<HTMLElement>('.home-hero-marker').forEach((marker) => {
+      const parent = marker.parentElement;
+      if (!parent) return;
+
+      const parentRect = parent.getBoundingClientRect();
+      if (!parentRect.width || !parentRect.height) return;
+
+      const heroRect = hero.getBoundingClientRect();
+      if (!heroRect.height) return;
+
+      const viewportCenter = heroRect.top + heroRect.height / 2;
+      marker.style.top = `${viewportCenter - marker.offsetHeight / 2 - parentRect.top}px`;
+      marker.style.marginTop = '0px';
+    });
+  }
+
+  function scheduleLogoPositionSync() {
+    if (logoSyncFrame !== null) return;
+
+    logoSyncFrame = window.requestAnimationFrame(() => {
+      logoSyncFrame = null;
+      syncLogoPosition();
+      syncHeroTitlePosition();
+      syncHeroMarkerPosition();
+      window.requestAnimationFrame(() => {
+        syncLogoPosition();
+        syncHeroTitlePosition();
+      });
+    });
+  }
+
+  function syncInitialLayoutPosition() {
+    const body = document.body;
+    if (!body.hasAttribute('data-fibramfer-initializing')) return;
+
+    const header = document.querySelector<HTMLElement>('header[data-fibramfer-header="true"]');
+    const drawer = document.querySelector<HTMLElement>('[data-fibramfer-drawers] aside[role="dialog"]');
+    const needsDrawerHydration = header?.dataset.panelOpen === 'true';
+    const needsDesktopDrawer = window.matchMedia(desktopMediaQuery).matches && needsDrawerHydration;
+
+    if (
+      needsDrawerHydration
+      && (
+        body.dataset.fibramferDrawerReady !== 'true'
+        || body.dataset.fibramferHeaderReady !== 'true'
+        || (needsDesktopDrawer && (!drawer || !drawer.getBoundingClientRect().width))
+      )
+    ) {
+      window.requestAnimationFrame(syncInitialLayoutPosition);
+      return;
+    }
+
+    // Establish the final CSS variables before enabling the opening
+    // transitions. Directly loaded drawer routes therefore paint in their
+    // final position instead of animating from the fallback 0px shift.
+    syncLogoPosition();
+    syncHeroTitlePosition();
+
+    window.requestAnimationFrame(() => {
+      syncLogoPosition();
+      syncHeroTitlePosition();
+      body.removeAttribute('data-fibramfer-initializing');
+    });
+  }
+
+  function initLogoPositionSync() {
+    const header = document.querySelector<HTMLElement>('header[data-fibramfer-header="true"]');
+    if (!header) return;
+
+    if (!header.dataset.logoPositionBound) {
+      header.dataset.logoPositionBound = 'true';
+      new MutationObserver(scheduleLogoPositionSync).observe(document.body, { childList: true, subtree: true });
+      window.addEventListener('resize', scheduleLogoPositionSync);
+      window.matchMedia(desktopMediaQuery).addEventListener('change', scheduleLogoPositionSync);
+    }
+
+    syncInitialLayoutPosition();
+    scheduleLogoPositionSync();
+  }
+
+  const drawerRoutes = new Map([
+    ['/a-fibramfer', '/a-fibramfer/'],
+    ['/produtos', '/produtos/'],
+    ['/seguranca', '/seguranca/'],
+    ['/blog', '/blog/'],
+    ['/contato', '/contato/'],
+  ]);
+
+  // Rotas legais (links do footer): herdam a mesma animação de logo/h1 do painel.
+  const legalRoutes = ['/privacidade', '/termos'];
+
+  const normalizePath = (path: string): string => path === '/' ? path : path.replace(/\/+$/, '');
+
+  const routeForHref = (href: string): string | undefined => drawerRoutes.get(normalizePath(href));
+
+  const isActiveRoute = (route: string, currentPath: string): boolean => {
+    const normalizedRoute = normalizePath(route);
+    return normalizedRoute === currentPath || currentPath.startsWith(`${normalizedRoute}/`);
+  };
+
+  const isPanelRoute = (currentPath: string): boolean =>
+    [...drawerRoutes.values()].some((route) => normalizePath(route) === currentPath)
+    || legalRoutes.includes(currentPath)
+    || (currentPath.startsWith('/blog/') && currentPath !== '/blog');
+
+  function syncActiveNavigation() {
+    const header = document.querySelector('header');
+    if (!header) return;
+
+    const currentPath = normalizePath(window.location.pathname);
+    const panelOpen = isPanelRoute(currentPath);
+    header.classList.toggle('panel-open', panelOpen);
+    header.dataset.panelOpen = String(panelOpen);
+
+    header.querySelectorAll('nav a[href]').forEach((link) => {
+      const href = link.getAttribute('href');
+      const route = href ? routeForHref(href) : undefined;
+      if (!route) return;
+
+      const active = isActiveRoute(route, currentPath);
+      if (active) {
+        link.setAttribute('aria-current', 'page');
+        link.classList.add('text-ink', 'after:scale-x-100');
+      } else {
+        link.removeAttribute('aria-current');
+        link.classList.remove('text-ink', 'after:scale-x-100');
+      }
+    });
+
+    header.querySelectorAll('a[href="/contato"], a[href="/contato/"]').forEach((link) => {
+      if (isActiveRoute('/contato/', currentPath)) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    });
+  }
+
+  function navigate(path: string) {
+    if (normalizePath(window.location.pathname) !== normalizePath(path)) {
+      document.body.removeAttribute('data-fibramfer-direct-drawer');
+      document.body.removeAttribute('data-fibramfer-initializing');
+      window.history.pushState({}, '', path);
+    }
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    window.dispatchEvent(new CustomEvent('fibramfer:navigate', { detail: { path } }));
+    syncActiveNavigation();
+  }
+
+  function initNavigation() {
+    const header = document.querySelector('header');
+    if (!header || header.dataset.navigationBound) {
+      document.body.dataset.fibramferHeaderReady = 'true';
+      syncActiveNavigation();
+      return;
+    }
+
+    header.dataset.navigationBound = 'true';
+    document.body.dataset.fibramferHeaderReady = 'true';
+    header.addEventListener('click', (event) => {
+      if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+      const target = event.target;
+      const link = target instanceof Element ? target.closest<HTMLAnchorElement>('a[href]') : null;
+      if (!link || !header.contains(link)) return;
+
+      const href = link.getAttribute('href');
+      if (!href || link.target === '_blank') return;
+
+      const hasDrawerShell = document.querySelector('[data-fibramfer-drawers]');
+      const isHome = href === '/' || link.getAttribute('aria-label') === 'Home';
+      const route = routeForHref(href);
+
+      if (!hasDrawerShell || (!isHome && !route)) return;
+
+      event.preventDefault();
+      if (isHome) navigate('/');
+      else if (route) navigate(route);
+    });
+
+    window.addEventListener('popstate', syncActiveNavigation);
+    new MutationObserver(syncActiveNavigation).observe(header, { childList: true, subtree: true });
+    syncActiveNavigation();
+  }
+
+  // Animação de entrada do badge da home: o stroke do retângulo é desenhado
+  // (stroke-dashoffset, mesmo padrão da cadeira) e depois o texto entra letra
+  // a letra como um letreiro de painel de aeroporto.
+  function initHeroBadge() {
+    document.querySelectorAll<HTMLElement>('.home-hero-badge').forEach((badge) => {
+      if (badge.dataset.badgeReady === 'true') return;
+
+      const rect = badge.querySelector<SVGRectElement>('.home-hero-badge-stroke-rect');
+      const heading = badge.querySelector<HTMLElement>('h2');
+      if (!rect || !heading) return;
+
+      badge.dataset.badgeReady = 'true';
+
+      const text = heading.textContent ?? '';
+      heading.textContent = '';
+      Array.from(text).forEach((char, index) => {
+        const span = document.createElement('span');
+        span.className = 'home-hero-badge-char';
+        span.style.setProperty('--char-index', String(index));
+        span.textContent = char === ' ' ? '\u00A0' : char;
+        heading.appendChild(span);
+      });
+
+      // Mede o perímetro e dispara o traço só depois das fontes finais: medindo
+      // cedo, a Barlow Condensed entra depois, alarga o badge e sobra uma
+      // "pontinha" do path no início do retângulo (o rect fecha o loop por lá).
+      // O rect usa width/height 100% (sem viewBox) e o getTotalLength() devolve
+      // 0 para geometria percentual em Chrome → mede pela getBBox e calcula o
+      // perímetro do retângulo arredondado (rx = 3.25). Badge ainda sem layout
+      // (display:none, ex.: instância oculta) devolve 0×0 → não seta nada e o
+      // fallback CSS (2000) mantém o traço oculto.
+      const startDraw = () => {
+        let strokeLength = 0;
+        try {
+          const box = rect.getBBox();
+          if (box.width > 0 && box.height > 0) {
+            const rx = 3.25;
+            const straightW = Math.max(0, box.width - 2 * rx);
+            const straightH = Math.max(0, box.height - 2 * rx);
+            strokeLength = 2 * straightW + 2 * straightH + 2 * Math.PI * rx;
+          }
+        } catch {
+          strokeLength = 0;
+        }
+        if (strokeLength > 0) {
+          badge.style.setProperty('--badge-stroke-length', String(strokeLength));
+        }
+
+        // Dobra rAF: garante que o estado pending foi pintado antes de trocar
+        // para playing, senão a animação pode iniciar a partir do estado errado.
+        // Com playing, o CSS dispara sozinho traço, letras e fundo (mesmo
+        // relógio) — sem listener por instância: a cópia renderizada pela
+        // hidratação do HeaderDS recebe o atributo e anima igual.
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            badge.setAttribute('data-badge-draw', 'playing');
+          });
+        });
+      };
+
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(startDraw).catch(startDraw);
+      } else {
+        startDraw();
+      }
+    });
+  }
+
+  function resetHeroBadge() {
+    document.querySelectorAll<HTMLElement>('.home-hero-badge').forEach((badge) => {
+      if (badge.dataset.badgeReady !== 'true') return;
+
+      // The letters are prepared only once; cycling the state is enough to
+      // restart the stroke, background fade, and per-character animations.
+      badge.setAttribute('data-badge-draw', 'pending');
+      void badge.offsetWidth;
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          if (badge.isConnected) badge.setAttribute('data-badge-draw', 'playing');
+        });
+      });
+    });
+  }
+
+  window.addEventListener('fibramfer:drawer-open', resetHeroBadge);
+// Sincroniza altura do header/footer para CSS vars (hero fixo, scroll da cadeira)
+  function syncHomeChrome() {
+    const root = document.documentElement;
+    const header = document.querySelector<HTMLElement>('header[data-fibramfer-header="true"]');
+    const footer = document.querySelector<HTMLElement>('body > footer');
+    if (header) root.style.setProperty('--fibramfer-home-header-height', `${header.getBoundingClientRect().height}px`);
+    if (footer) root.style.setProperty('--fibramfer-home-footer-height', `${footer.getBoundingClientRect().height}px`);
+    window.dispatchEvent(new CustomEvent('fibramfer:home-chrome-resize'));
+  }
+
+  // Executa no load e observa resize/mutações
+  if (typeof ResizeObserver !== 'undefined') {
+    const observer = new ResizeObserver(syncHomeChrome);
+    const headerEl = document.querySelector<HTMLElement>('header[data-fibramfer-header="true"]');
+    const footerEl = document.querySelector<HTMLElement>('body > footer');
+    if (headerEl) observer.observe(headerEl);
+    if (footerEl) observer.observe(footerEl);
+  }
+  window.addEventListener('resize', syncHomeChrome);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', syncHomeChrome, { once: true });
+  } else {
+    syncHomeChrome();
+  }
+
+  document.addEventListener('astro:page-load', initNavigation);
+  document.addEventListener('astro:page-load', initLogoPositionSync);
+  document.addEventListener('astro:page-load', initHeroBadge);
+  initNavigation();
+  initLogoPositionSync();
+  initHeroBadge();
+</script>
+
+<style>
+  .hero-wheel-dot {
+    animation: wheel-blink 1s step-end infinite;
+  }
+
+  /* Badge com o contorno na mesma espessura/cor do traço da cadeira
+   * (stroke-width 2 num viewBox de 555 renderizado a ~460px ≈ 1.6px). O
+   * contorno é um <rect> SVG para poder ser desenhado via stroke-dashoffset. */
+  .home-hero-badge {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    padding: 0.25rem 0.5rem;
+    background: var(--color-surface);
+    /* Mesmo raio do <rect> do contorno (rx/ry = 3.25): o fundo arredonda
+     * junto com o path. */
+    border-radius: 3.25px;
+  }
+
+  .home-hero-badge-stroke {
+    position: absolute;
+    top: 0.75px;
+    left: 0.75px;
+    /* O <svg> é um replaced element: com width/height auto ele cai no tamanho
+     * intrínseco 300×150 e o inset não estica. Tamanho explícito = o stroke
+     * abraça o badge inteiro. */
+    width: calc(100% - 1.5px);
+    height: calc(100% - 1.5px);
+    fill: none;
+    stroke: var(--color-ink);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  /* Estado inicial (padrão da cadeira): dash maior que o perímetro esconde o
+   * traço; o JS mede o comprimento real com getTotalLength(). O contorno não
+   * existe no load e se desenha pelo path com 1s de delay. */
+  [data-badge-draw='pending'] .home-hero-badge-stroke-rect {
+    stroke-dasharray: var(--badge-stroke-length, 2000);
+    stroke-dashoffset: var(--badge-stroke-length, 2000);
+  }
+
+  [data-badge-draw='playing'] .home-hero-badge-stroke-rect {
+    animation: badge-stroke-draw 1s ease-out 1s both;
+  }
+
+  /* O estado oculto e a revelação pelo path vivem dentro da keyframe: trocar
+   * de pending para playing remove as regras CSS do pending, então o from/to
+   * precisam ser autocontidos (fill both mantém o traço oculto durante o delay). */
+  @keyframes badge-stroke-draw {
+    from {
+      stroke-dasharray: var(--badge-stroke-length, 2000);
+      stroke-dashoffset: var(--badge-stroke-length, 2000);
+    }
+    to {
+      stroke-dasharray: var(--badge-stroke-length, 2000);
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Fundo é o último a entrar: transparente (α 0%) durante o traço — e anima
+   * para α 100% (branco --color-surface) JUNTO com a primeira letra, no mesmo
+   * relógio do flip (delay 2.1s do estado playing), sem JS extra. COMPOUND
+   * sem espaço: o data-badge-draw fica NO PRÓPRIO badge — com espaço o
+   * seletor exigiria um ascendente com o atributo e nunca casaria (o fundo
+   * base aparecia desde o load). No hero branco o fade só se nota onde o
+   * badge cobre o desenho da cadeira. */
+  [data-badge-draw='pending'].home-hero-badge,
+  [data-badge-draw='playing'].home-hero-badge {
+    background-color: transparent;
+  }
+
+  [data-badge-draw='playing'].home-hero-badge {
+    animation: badge-bg-fade 0.5s ease-out 2.1s both;
+  }
+
+  @keyframes badge-bg-fade {
+    from {
+      background-color: transparent;
+    }
+    to {
+      background-color: var(--color-surface);
+    }
+  }
+
+  /* Entrada do texto em letreiro: depois do contorno (1s delay + 1s draw),
+   * cada letra gira de -90° para 0 com cascata. O relógio é o estado
+   * `playing` — mesma troca que dispara o traço, sem JS extra. */
+  /* Os chars são criados pelo JS em runtime e não recebem o data-astro-cid
+   * do build → as regras precisam de :global() senão nenhum seletor casa. */
+  .home-hero-badge :global(.home-hero-badge-char) {
+    display: inline-block;
+    transform-origin: 50% 0;
+  }
+
+  /* Oculto enquanto o contorno desenha (pending) e durante o delay do flip
+   * (playing): a keyframe com fill both assume o from e não há flash. O h2
+   * escondido no pending também evita que o texto SSR apareça no primeiro
+   * paint antes do JS separar as letras. */
+  [data-badge-draw='pending'].home-hero-badge h2 {
+    opacity: 0;
+  }
+
+  [data-badge-draw='pending'] :global(.home-hero-badge-char),
+  [data-badge-draw='playing'] :global(.home-hero-badge-char) {
+    opacity: 0;
+  }
+
+  [data-badge-draw='playing'] :global(.home-hero-badge-char) {
+    animation: badge-char-flip 0.4s ease-out both;
+    animation-delay: calc(2.1s + var(--char-index, 0) * 0.035s);
+  }
+
+  @keyframes badge-char-flip {
+    from {
+      opacity: 0;
+      transform: perspective(260px) rotateX(-90deg);
+    }
+    to {
+      opacity: 1;
+      transform: perspective(260px) rotateX(0deg);
+    }
+  }
+
+  @keyframes wheel-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* Ciclo de 12s: 4s escondido, fade-in 0.5s, 3.5s visível, fade-out 0.5s, some. */
+  .hero-marker-icons {
+    opacity: 0;
+    animation: marker-fade-cycle 12s ease-in-out infinite;
+  }
+
+  @keyframes marker-fade-cycle {
+    0%,
+    33.333% {
+      opacity: 0;
+    }
+    37.5%,
+    66.666% {
+      opacity: 1;
+    }
+    70.833% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .hero-wheel-dot {
+      animation: none;
+    }
+
+    .hero-marker-icons {
+      opacity: 1;
+      animation: none;
+    }
+
+    [data-badge-draw='pending'] .home-hero-badge-stroke-rect,
+    [data-badge-draw='playing'] .home-hero-badge-stroke-rect {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+
+    [data-badge-draw='pending'].home-hero-badge h2,
+    [data-badge-draw='pending'] :global(.home-hero-badge-char),
+    [data-badge-draw='playing'] :global(.home-hero-badge-char) {
+      opacity: 1;
+      animation: none;
+    }
+
+    [data-badge-draw='pending'].home-hero-badge,
+    [data-badge-draw='playing'].home-hero-badge {
+      background-color: var(--color-surface);
+      animation: none;
+    }
+  }
+</style>
