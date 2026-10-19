@@ -47,6 +47,30 @@ const chairDrawSvg = rawSvg
     let replayAfterDrawer = false;
     let replayScrollStart: number | null = null;
 
+    // Em um reload da home, o navegador pode restaurar o scroll antes de o
+    // ScrollTrigger ser criado. O reset temporário impede que a timeline
+    // nasça no progresso salvo; Back/Forward e replay de drawers preservam a
+    // restauração normal porque o valor anterior volta após o pageshow.
+    const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
+    const isHomeReload = window.location.pathname === '/' && navigation?.type === 'reload';
+    const previousScrollRestoration = history.scrollRestoration;
+    const resetHomeScroll = () => {
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    };
+
+    if (isHomeReload) {
+      history.scrollRestoration = 'manual';
+      resetHomeScroll();
+      window.addEventListener('pageshow', () => {
+        resetHomeScroll();
+        window.requestAnimationFrame(() => {
+          window.requestAnimationFrame(() => {
+            history.scrollRestoration = previousScrollRestoration;
+          });
+        });
+      }, { once: true });
+    }
+
     const publishChairProgress = (progress: number) => {
       const normalized = Math.min(1, Math.max(0, progress));
       document.documentElement.style.setProperty('--fibramfer-chair-progress', String(normalized));

@@ -33,9 +33,21 @@ habilitadas e depois com a preferência de movimento reduzido.
    No histórico, confira a posição salva da entrada de destino: o navegador
    pode restaurar posições diferentes após redimensionar uma dessas entradas.
    O replay não deve voltar a página ao topo nem provocar desvios posteriores.
+10. Na home, role até a metade da revelação e use F5. A página deve voltar ao
+    topo, a máscara colorida deve retornar a `0%` e a badge deve ficar na altura
+    recolhida. Depois de rolar novamente, a timeline deve avançar desde o
+    início.
 
 Com movimento reduzido, a cadeira continua oculta sob o drawer e retorna
 diretamente ao estado final acessível, sem desenho sequencial dos paths.
+
+## Validação de reload — 2026-10-19
+
+- Antes do F5: `scrollY=554`, progresso GSAP `0,5` e máscara em `59%`.
+- Depois do F5: `scrollY=0`, progresso `0`, máscara em `0%`, badge recolhida e
+  `history.scrollRestoration='auto'` restaurado.
+- Nova descida até a mesma posição: progresso voltou a `0,5` a partir do
+  início, sem recuperar o estágio anterior.
 
 ## Cobertura e limite existente
 
