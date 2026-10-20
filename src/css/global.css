@@ -424,6 +424,17 @@ header[data-fibramfer-header='true'][data-panel-open='true'] {
   opacity: 0;
 }
 
+/* O ícone de seleção fica sobre a mesma área e assume a frente somente
+ * enquanto o ponteiro está no tooltip. O trigger nativo do LordIcon cuida da
+ * animação; não dependemos de um segundo estado JS para torná-lo visível. */
+.fibramfer-home-tooltip-icon:hover .fibramfer-home-tooltip-icon-reveal {
+  opacity: 0;
+}
+
+.fibramfer-home-tooltip-icon:hover .fibramfer-home-tooltip-icon-select {
+  opacity: 1;
+}
+
 header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home']:is(:hover, :focus-within) .fibramfer-home-tooltip,
 header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home'][data-home-tooltip-open='true'] .fibramfer-home-tooltip {
   visibility: visible;
