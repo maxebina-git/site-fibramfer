@@ -341,9 +341,112 @@ body.home-page:is([data-panel-drawer-open='true'], :has([data-fibramfer-drawers]
 
 /* O monograma Fibramfer precisa de mais área que o Home padrão do DS. */
 header[data-fibramfer-header='true'] a[aria-label='Home'] {
+  position: relative;
   width: calc(var(--spacing) * 18);
   height: calc(var(--spacing) * 18);
   border-radius: 0;
+}
+
+/* O Header do DS usa overflow-hidden quando não há dropdown. O tooltip sai
+ * pela base da barra, então precisa permanecer visível durante a drawer. */
+header[data-fibramfer-header='true'][data-panel-open='true'] {
+  overflow: visible;
+}
+
+/* Tooltip do Home: o markup real abriga os dois estados do LordIcon. O box
+ * sobe com alpha após um pequeno delay; o ícone de seleção é trocado somente
+ * quando o ponteiro entra na área do ícone. */
+.fibramfer-home-tooltip {
+  position: absolute;
+  top: calc(100% + 0.625rem);
+  left: 50%;
+  z-index: 70;
+  display: grid;
+  width: 3.5rem;
+  height: 3.5rem;
+  place-items: center;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-elevation-2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, 0.5rem);
+  transition:
+    opacity 200ms var(--ease-out) 150ms,
+    transform 200ms var(--ease-out) 150ms,
+    visibility 0s linear 350ms;
+  visibility: hidden;
+}
+
+.fibramfer-home-tooltip-arrow {
+  position: absolute;
+  top: -0.375rem;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-inline: 0.375rem solid transparent;
+  border-bottom: 0.375rem solid var(--color-surface);
+  transform: translateX(-50%);
+}
+
+.fibramfer-home-tooltip-icon,
+.fibramfer-home-tooltip-icon-reveal,
+.fibramfer-home-tooltip-icon-select {
+  display: grid;
+  place-items: center;
+}
+
+.fibramfer-home-tooltip-icon {
+  position: relative;
+  width: 2rem;
+  height: 2rem;
+  pointer-events: auto;
+}
+
+.fibramfer-home-tooltip lord-icon {
+  display: block;
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--color-ink);
+  --lord-icon-primary: var(--color-ink);
+  --lord-icon-secondary: var(--color-accent-500);
+}
+
+.fibramfer-home-tooltip-icon-reveal,
+.fibramfer-home-tooltip-icon-select {
+  position: absolute;
+  inset: 0;
+  transition: opacity 120ms var(--ease-out);
+}
+
+.fibramfer-home-tooltip-icon-select {
+  opacity: 0;
+}
+
+header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home']:is(:hover, :focus-within) .fibramfer-home-tooltip,
+header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home'][data-home-tooltip-open='true'] .fibramfer-home-tooltip {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(-50%, 0);
+  transition-delay: 150ms, 150ms, 0s;
+}
+
+header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home'][data-home-tooltip-state='select'] .fibramfer-home-tooltip-icon-reveal {
+  opacity: 0;
+}
+
+header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home'][data-home-tooltip-state='select'] .fibramfer-home-tooltip-icon-select {
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fibramfer-home-tooltip,
+  .fibramfer-home-tooltip-icon-reveal,
+  .fibramfer-home-tooltip-icon-select {
+    transition: none;
+  }
 }
 
 header[data-fibramfer-header='true'] a[aria-label='Home']:hover {
@@ -519,10 +622,10 @@ body[data-legal-drawer='true'] footer {
 }
 
 @media (max-width: 767px) {
-  /* Em mobile, o drawer rolável move o X para a esquerda por padrão. No
-   * contexto legal isso sobrepõe o logo, então o X fica no canto direito. */
+  /* A drawer legal também mantém o X à direita; com scroll, o deslocamento
+   * adicional deixa o botão ao lado da scrollbar. */
   body[data-legal-drawer='true'] [data-fibramfer-drawers] aside[role='dialog'][data-drawer-scrollable] > header {
-    right: var(--drawer-reveal-inset-right);
+    right: calc(var(--drawer-reveal-inset-right) + 0.5rem);
     left: auto;
   }
 }
@@ -677,14 +780,14 @@ body[data-legal-drawer='true']:has(header[data-fibramfer-header='true'][data-pan
 }
 
 /*
- * Quando o conteúdo do drawer rolável, o X sai do canto superior direito (onde
- * fica a scrollbar) e vai para o canto superior esquerdo, evitando sobrepor a
- * área de rolagem. O estado data-drawer-scrollable é toggado pelo
- * NavigationDrawer (scrollHeight > clientHeight).
+ * Quando o conteúdo do drawer é rolável, o X continua à direita, mas recua
+ * ligeiramente para ficar ao lado da scrollbar, sem sobrepor sua área. O estado
+ * data-drawer-scrollable é toggado pelo NavigationDrawer (scrollHeight >
+ * clientHeight).
  */
 [data-fibramfer-drawers] aside[role='dialog'][data-drawer-scrollable] > header {
-  right: auto;
-  left: var(--drawer-reveal-inset-left);
+  right: calc(var(--drawer-reveal-inset-right) + 0.5rem);
+  left: auto;
 }
 
 header nav[aria-label='Navegação principal'] {

@@ -177,6 +177,12 @@ function observeDrawerScrollContainer(): void {
   drawerScrollObserver = null
   drawerContentObserver = null
   if (!container) return
+
+  // Mede imediatamente, antes da cortina revelar o conteúdo. Assim o botão
+  // Fechar já nasce à direita, ligeiramente ao lado da scrollbar, sem piscar
+  // primeiro na posição padrão.
+  syncDrawerScrollable()
+
   drawerScrollObserver = new ResizeObserver(scheduleDrawerScrollSync)
   drawerScrollObserver.observe(container)
   drawerContentObserver = new MutationObserver(scheduleDrawerScrollSync)

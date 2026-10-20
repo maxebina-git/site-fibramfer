@@ -50,6 +50,24 @@ const { class: className = '', home = false } = Astro.props;
         />
       </Button>
     </div>
+    {home && (
+      <div class="mt-6 flex items-center justify-start gap-5 text-text-secondary" data-home-icons aria-label="Ícones de navegação">
+        <LordIcon
+          src="/lordicon/system-outline-63-home-in-reveal.json"
+          trigger="in"
+          state="in-reveal"
+          currentColor
+          class="h-8 w-8"
+        />
+        <LordIcon
+          src="/lordicon/system-outline-63-home-morph-select.json"
+          trigger="hover"
+          state="morph-select"
+          currentColor
+          class="h-8 w-8"
+        />
+      </div>
+    )}
     </div>
     {home && (
       <div class="home-true-hero-media">

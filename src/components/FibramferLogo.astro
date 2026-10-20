@@ -1,3 +1,7 @@
+---
+import LordIcon from './LordIcon.astro';
+---
+
 <div class="fibramfer-logo" aria-hidden="true">
   <img
     src="/assets/logo-fibramfer.svg"
@@ -16,4 +20,27 @@
       fill="#FEE605"
     />
   </svg>
+  <span class="fibramfer-home-tooltip" data-home-tooltip>
+    <span class="fibramfer-home-tooltip-arrow" aria-hidden="true"></span>
+    <span class="fibramfer-home-tooltip-icon" data-home-tooltip-icon aria-hidden="true">
+      <span class="fibramfer-home-tooltip-icon-reveal" data-home-tooltip-reveal>
+        <LordIcon
+          src="/lordicon/system-outline-63-home-in-reveal.json"
+          trigger="in"
+          state="in-reveal"
+          currentColor
+          class="h-6 w-6"
+        />
+      </span>
+      <span class="fibramfer-home-tooltip-icon-select" data-home-tooltip-select>
+        <LordIcon
+          src="/lordicon/system-outline-63-home-morph-select.json"
+          trigger="hover"
+          state="morph-select"
+          currentColor
+          class="h-6 w-6"
+        />
+      </span>
+    </span>
+  </span>
 </div>
