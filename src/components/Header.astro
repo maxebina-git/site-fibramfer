@@ -79,12 +79,12 @@ const nav = navItems.map((item) => ({
             class="h-6 w-6"
           />
         </div>
-        <div class="home-hero-badge" data-badge-draw="pending" data-badge-delay="500">
+<div class="home-hero-badge" data-badge-draw="pending" data-badge-delay="250">
           <svg class="home-hero-badge-stroke" aria-hidden="true">
             <rect class="home-hero-badge-stroke-rect" x="0" y="0" width="100%" height="100%" rx="3.25" ry="3.25"></rect>
           </svg>
-          <h2 class="font-display text-base font-bold leading-tight text-ink">Conformidade Total com a NR-18</h2>
-          <p class="home-hero-badge-description text-xs leading-snug text-text-secondary">
+          <h2 class="font-display text-xl font-bold leading-tight text-ink">Conformidade Total com a NR-18</h2>
+          <p class="home-hero-badge-description text-sm leading-snug text-text-secondary">
             Equipamento certificado e em total acordo com a Norma Regulamentadora nº 18 (Portaria 13 de 09.07.2002) do Ministério do Trabalho e Emprego.
           </p>
           <noscript>
@@ -117,12 +117,12 @@ const nav = navItems.map((item) => ({
     class="home-chair-badge-marker home-hero-marker pointer-events-none"
     data-marker-motion="pending"
   >
-    <div class="home-hero-badge" data-badge-draw="pending" data-badge-delay="250">
-      <svg class="home-hero-badge-stroke" aria-hidden="true">
-        <rect class="home-hero-badge-stroke-rect" x="0" y="0" width="100%" height="100%" rx="3.25" ry="3.25"></rect>
-      </svg>
-      <h2 class="font-display text-base font-bold leading-tight text-ink">Alta Capacidade de Carga</h2>
-      <p class="home-hero-badge-description text-xs leading-snug text-text-secondary">
+<div class="home-hero-badge" data-badge-draw="pending" data-badge-delay="500">
+          <svg class="home-hero-badge-stroke" aria-hidden="true">
+            <rect class="home-hero-badge-stroke-rect" x="0" y="0" width="100%" height="100%" rx="3.25" ry="3.25"></rect>
+          </svg>
+          <h2 class="font-display text-xl font-bold leading-tight text-ink">Alta Capacidade de Carga</h2>
+      <p class="home-hero-badge-description text-sm leading-snug text-text-secondary">
         Suporta até 140 kg, computando o peso do operador somado a ferramentas e materiais de trabalho.
       </p>
       <noscript>
@@ -853,8 +853,8 @@ const nav = navItems.map((item) => ({
    * contorno é um <rect> SVG para poder ser desenhado via stroke-dashoffset. */
   .home-hero-badge {
     position: absolute;
-    top: calc(100% + 0.5rem + 80px);
-    left: calc(50% - 29px);
+    top: calc(100% + 0.5rem - 250px);
+    left: calc(50% - 109px);
     transform: translateX(-50%);
     white-space: nowrap;
     padding: 0.25rem 0.5rem;
@@ -881,7 +881,7 @@ const nav = navItems.map((item) => ({
     right: calc(100% + 1rem);
     bottom: calc(100% + 1rem);
     left: auto;
-    transform: translate(203px, 336px);
+    transform: translate(203px, 446px);
   }
 
   @media (min-width: 768px) {
@@ -900,7 +900,7 @@ const nav = navItems.map((item) => ({
     display: block;
   }
 
-  .home-hero-badge[data-badge-layout='ready'] {
+.home-hero-badge[data-badge-layout='ready'] {
     will-change: height, background-color;
   }
 
@@ -915,7 +915,7 @@ const nav = navItems.map((item) => ({
     height: calc(100% - 1.5px);
     fill: none;
     stroke: var(--color-ink);
-    stroke-width: 1.5;
+    stroke-width: 1;
     stroke-linecap: round;
     stroke-linejoin: round;
     pointer-events: none;
@@ -932,6 +932,12 @@ const nav = navItems.map((item) => ({
 
   [data-badge-draw='playing'] .home-hero-badge-stroke-rect {
     animation: badge-stroke-draw 1s ease-out 1s both;
+  }
+
+  /* A badge de capacidade inicia o desenho do contorno ligeiramente antes da
+   * badge de conformidade, sem alterar o sincronismo da cadeira no scroll. */
+  .home-chair-badge-marker [data-badge-draw='playing'] .home-hero-badge-stroke-rect {
+    animation-delay: 0.8s;
   }
 
   /* O estado oculto e a revelação pelo path vivem dentro da keyframe: trocar

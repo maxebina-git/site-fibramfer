@@ -126,9 +126,8 @@ function finishLegalClose(): void {
   applyLegalContext(false)
   stopLegalFooterSync()
 
-  // The header must leave its open state only after the legal curtain has
-  // finished closing. Otherwise the menu reappears while the curtain is still
-  // using the legal inset values.
+  // O contexto legal é mantido até o fim da cortina; o estado do Header já foi
+  // liberado no início da saída para que logo e H1 sigam a transição normal.
   document
     .querySelector<HTMLElement>('header[data-fibramfer-header="true"]')
     ?.setAttribute('data-panel-open', 'false')
@@ -337,13 +336,15 @@ watch(isOpen, async (open, previousOpen) => {
     document.body.removeAttribute('data-panel-drawer-open')
     document.body.removeAttribute('data-fibramfer-direct-drawer')
 
-    // isLegalRoute starts the delayed cleanup above. Keep the legal context and
-    // the header in its open state until the synchronized reveal/fade has
-    // finished, so the closing curtain keeps the same geometry and the hidden
-    // header menu cannot flash back into view.
+    // isLegalRoute inicia a limpeza atrasada acima. O contexto legal permanece
+    // durante a cortina, enquanto o Header é liberado imediatamente; as regras
+    // legais continuam ocultando o menu sem atrasar o retorno do logo e do H1.
     if (isClosingLegal.value || wasLegalWhenOpen.value) {
       if (!isClosingLegal.value) scheduleLegalClose()
-      header?.setAttribute('data-panel-open', 'true')
+      // Libera logo e H1 imediatamente, como no fechamento das drawers comuns.
+      // O contexto legal continua ativo até a cortina terminar, preservando a
+      // geometria do painel e os links legais durante a saída.
+      header?.setAttribute('data-panel-open', 'false')
       return
     }
 

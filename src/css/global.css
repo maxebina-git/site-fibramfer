@@ -467,14 +467,14 @@ body[data-legal-drawer='true'] header[data-fibramfer-header='true'] {
   pointer-events: none;
 }
 
-body[data-legal-drawer='true'] header[data-fibramfer-header='true'] a[aria-label='Home'] {
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home'] {
   pointer-events: auto;
   transform: translateX(var(--fibramfer-logo-shift, 0px))
              translateY(var(--fibramfer-logo-y-shift, 0px));
   transition-delay: 500ms;
 }
 
-body[data-legal-drawer='true'] header[data-fibramfer-header='true'] .fibramfer-logo {
+body[data-legal-drawer='true'] header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
   transition-delay: 500ms;
 }
 
