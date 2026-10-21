@@ -1,0 +1,450 @@
+<div class="fibramfer-f1-stage" data-fibramfer-f1-three aria-hidden="true">
+  <canvas class="fibramfer-f1-canvas" data-fibramfer-f1-canvas></canvas>
+  <img
+    class="fibramfer-f1-fallback"
+    data-fibramfer-f1-fallback
+    src="/assets/f1.png"
+    alt=""
+    loading="eager"
+    decoding="async"
+    hidden
+  />
+</div>
+
+<style>
+  .fibramfer-f1-stage {
+    /* Escapa do overflow-y-auto do conteúdo, mas continua no DOM da drawer. */
+    position: fixed;
+    top: -100vh;
+    left: -100vw;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: clamp(4.5rem, 8vw, 6.5rem);
+    height: clamp(9rem, 16vw, 11.5rem);
+    margin: 0;
+    visibility: hidden;
+    transform: translate3d(8px, 8px, 0);
+    transition: transform 1200ms var(--ease-in-out);
+    will-change: transform;
+    pointer-events: none;
+  }
+
+  .fibramfer-f1-stage--open {
+    transform: translate3d(0, 0, 0);
+  }
+
+  .fibramfer-f1-stage--foreground {
+    /* Fica na frente da linha da moldura quando a cortina está aberta. */
+    z-index: 12;
+  }
+
+  .fibramfer-f1-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .fibramfer-f1-fallback {
+    display: block;
+    width: auto;
+    height: clamp(6rem, 14vw, 9rem);
+  }
+
+  .fibramfer-f1-fallback[hidden] {
+    display: none;
+  }
+
+  @media (max-width: 767px) {
+    .fibramfer-f1-stage {
+      height: 8rem;
+      width: 5rem;
+    }
+
+    .fibramfer-f1-fallback {
+      height: clamp(5rem, 15vw, 7rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fibramfer-f1-stage,
+    .fibramfer-f1-stage--open {
+      transform: none;
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  type F1Instance = {
+    dispose: () => void;
+  };
+
+  const instances = new Map<HTMLElement, F1Instance>();
+  const pending = new WeakSet<HTMLElement>();
+  const gateObservers = new WeakMap<HTMLElement, MutationObserver>();
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const frameOffsetLeft = 29;
+  const frameOffsetTop = 11;
+  const revealDurationMs = 1200;
+  const layerTimers = new WeakMap<HTMLElement, number>();
+
+  const clearLayerTimer = (root: HTMLElement) => {
+    const timer = layerTimers.get(root);
+    if (timer === undefined) return;
+    window.clearTimeout(timer);
+    layerTimers.delete(root);
+  };
+
+  const syncLayer = (root: HTMLElement) => {
+    const frame = root.closest<HTMLElement>('[data-drawer-reveal-content]');
+    const drawer = frame?.closest<HTMLElement>("aside[role='dialog']");
+    const gates = drawer?.querySelector<HTMLElement>('[data-drawer-reveal-gates]');
+    const curtainOpen = !gates || gates.classList.contains('drawer-reveal-gates--open');
+
+    root.classList.toggle('fibramfer-f1-stage--open', curtainOpen);
+
+    if (!curtainOpen) {
+      clearLayerTimer(root);
+      root.classList.remove('fibramfer-f1-stage--foreground');
+      return;
+    }
+
+    if (!gates) {
+      root.classList.toggle('fibramfer-f1-stage--foreground', true);
+      return;
+    }
+
+    if (root.classList.contains('fibramfer-f1-stage--foreground') || layerTimers.has(root)) return;
+
+    const timer = window.setTimeout(() => {
+      layerTimers.delete(root);
+      if (!root.isConnected) return;
+      const currentFrame = root.closest<HTMLElement>('[data-drawer-reveal-content]');
+      const currentDrawer = currentFrame?.closest<HTMLElement>("aside[role='dialog']");
+      const currentGates = currentDrawer?.querySelector<HTMLElement>('[data-drawer-reveal-gates]');
+      if (!currentGates || currentGates.classList.contains('drawer-reveal-gates--open')) {
+        root.classList.add('fibramfer-f1-stage--foreground');
+      }
+    }, prefersReducedMotion.matches ? 0 : revealDurationMs);
+    layerTimers.set(root, timer);
+  };
+
+  const observeGateLayer = (root: HTMLElement) => {
+    if (gateObservers.has(root)) return;
+
+    const frame = root.closest<HTMLElement>('[data-drawer-reveal-content]');
+    const drawer = frame?.closest<HTMLElement>("aside[role='dialog']");
+    const gates = drawer?.querySelector<HTMLElement>('[data-drawer-reveal-gates]');
+    if (!gates) return;
+
+    const observer = new MutationObserver(() => syncLayer(root));
+    observer.observe(gates, { attributes: true, attributeFilter: ['class'] });
+    gateObservers.set(root, observer);
+  };
+
+  const disconnectGateObserver = (root: HTMLElement) => {
+    gateObservers.get(root)?.disconnect();
+    gateObservers.delete(root);
+  };
+
+  const positionRoot = (root: HTMLElement) => {
+    const frame = root.closest<HTMLElement>('[data-drawer-reveal-content]');
+    if (!frame) return;
+
+    const frameRect = frame.getBoundingClientRect();
+    root.style.top = `${frameRect.top - frameOffsetTop}px`;
+    root.style.left = `${frameRect.left - frameOffsetLeft}px`;
+    root.style.visibility = 'visible';
+    syncLayer(root);
+  };
+
+  const showFallback = (root: HTMLElement) => {
+    positionRoot(root);
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-fibramfer-f1-canvas]');
+    const fallback = root.querySelector<HTMLImageElement>('[data-fibramfer-f1-fallback]');
+
+    if (canvas) canvas.hidden = true;
+    if (fallback) fallback.hidden = false;
+  };
+
+  const createScene = async (root: HTMLElement) => {
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-fibramfer-f1-canvas]');
+    if (!canvas) return;
+    positionRoot(root);
+
+    const resources: Array<{ dispose: () => void }> = [];
+    const disposeResources = () => {
+      while (resources.length > 0) resources.pop()?.dispose();
+    };
+
+    try {
+      let THREE: typeof import('three');
+
+      try {
+        THREE = await import('three');
+      } catch {
+        showFallback(root);
+        return;
+      }
+
+      if (!root.isConnected) return;
+
+      let renderer: import('three').WebGLRenderer;
+
+      try {
+        renderer = new THREE.WebGLRenderer({
+          canvas,
+          alpha: true,
+          antialias: true,
+          powerPreference: 'high-performance',
+        });
+      } catch {
+        showFallback(root);
+        return;
+      }
+      resources.push(renderer);
+
+      let texture: import('three').Texture;
+
+      try {
+        texture = await new Promise<import('three').Texture>((resolve, reject) => {
+          new THREE.TextureLoader().load('/assets/f1.png', resolve, undefined, reject);
+        });
+      } catch {
+        disposeResources();
+        showFallback(root);
+        return;
+      }
+      resources.push(texture);
+
+      if (!root.isConnected) {
+        disposeResources();
+        return;
+      }
+
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+    const imageWidth = 1.55;
+    const imageHeight = 4.9;
+    const imageRightCut = -0.9;
+    const extrusionDepth = 0.62;
+
+    const shape = new THREE.Shape();
+    shape.moveTo(-imageWidth / 2, imageHeight / 2);
+    shape.lineTo(imageWidth / 2, imageHeight / 2);
+    shape.lineTo(imageWidth / 2, imageRightCut);
+    shape.lineTo(-imageWidth / 2, -imageHeight / 2);
+    shape.closePath();
+
+      const extrusionGeometry = new THREE.ExtrudeGeometry(shape, {
+        bevelEnabled: false,
+        curveSegments: 1,
+        depth: extrusionDepth,
+        steps: 1,
+      });
+      resources.push(extrusionGeometry);
+    extrusionGeometry.center();
+
+      const sideMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        bottomColor: { value: new THREE.Color(0x292929) },
+        topColor: { value: new THREE.Color(0xb9b9b9) },
+      },
+      vertexShader: `
+        varying float vHeight;
+        varying vec3 vNormal;
+
+        void main() {
+          vHeight = clamp((position.y + 2.45) / 4.9, 0.0, 1.0);
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 bottomColor;
+        uniform vec3 topColor;
+        varying float vHeight;
+        varying vec3 vNormal;
+
+        void main() {
+          vec3 gradient = mix(bottomColor, topColor, vHeight);
+          float light = 0.74 + 0.26 * max(dot(normalize(vNormal), vec3(0.28, 0.62, 0.74)), 0.0);
+          gl_FragColor = vec4(gradient * light, 1.0);
+        }
+      `,
+      });
+      resources.push(sideMaterial);
+
+      const hiddenFaceMaterial = new THREE.MeshBasicMaterial({
+        depthWrite: false,
+        opacity: 0,
+        side: THREE.DoubleSide,
+        transparent: true,
+      });
+      resources.push(hiddenFaceMaterial);
+      const extrusion = new THREE.Mesh(extrusionGeometry, [hiddenFaceMaterial, sideMaterial]);
+
+      const frontGeometry = new THREE.PlaneGeometry(imageWidth, imageHeight);
+      resources.push(frontGeometry);
+      const frontMaterial = new THREE.MeshBasicMaterial({
+        alphaTest: 0.01,
+        map: texture,
+        side: THREE.DoubleSide,
+        transparent: true,
+      });
+      resources.push(frontMaterial);
+      const front = new THREE.Mesh(frontGeometry, frontMaterial);
+      front.position.z = extrusionDepth / 2 + 0.006;
+
+      const model = new THREE.Group();
+      model.add(extrusion, front);
+      model.rotation.set(-0.1, 0.24, 0.015);
+
+      const scene = new THREE.Scene();
+      scene.add(model);
+
+      const camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+      camera.position.set(0, 0, 9);
+      camera.lookAt(0, 0, 0);
+
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.shadowMap.enabled = false;
+      renderer.setClearColor(0x000000, 0);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+      let frameId: number | null = null;
+      let disposed = false;
+
+      const render = (time: number) => {
+      if (prefersReducedMotion.matches) {
+        model.position.y = 0;
+        model.rotation.set(-0.1, 0.24, 0.015);
+      } else {
+        const seconds = time / 1000;
+        model.position.y = Math.sin(seconds * 0.65) * 0.02;
+        model.rotation.x = -0.1 + Math.cos(seconds * 0.58) * 0.006;
+        model.rotation.y = 0.24 + Math.sin(seconds * 0.46) * 0.01;
+        model.rotation.z = 0.015 + Math.sin(seconds * 0.42) * 0.003;
+      }
+
+      renderer.render(scene, camera);
+      };
+
+      const animate = (time: number) => {
+      if (disposed) return;
+      render(time);
+      frameId = window.requestAnimationFrame(animate);
+      };
+
+      const stop = () => {
+      if (frameId === null) return;
+      window.cancelAnimationFrame(frameId);
+      frameId = null;
+      };
+
+      const start = () => {
+      if (prefersReducedMotion.matches) {
+        stop();
+        render(performance.now());
+        return;
+      }
+
+      if (frameId === null) frameId = window.requestAnimationFrame(animate);
+      };
+
+      const resize = () => {
+      positionRoot(root);
+      const { width, height } = root.getBoundingClientRect();
+      const safeWidth = Math.max(1, width);
+      const safeHeight = Math.max(1, height);
+
+      renderer.setSize(safeWidth, safeHeight, false);
+      camera.aspect = safeWidth / safeHeight;
+      camera.updateProjectionMatrix();
+      render(performance.now());
+      };
+
+      const resizeObserver = 'ResizeObserver' in window ? new ResizeObserver(resize) : null;
+      const motionChange = () => {
+      stop();
+      start();
+      };
+      const contextLost = (event: Event) => {
+      event.preventDefault();
+      showFallback(root);
+      dispose();
+      };
+
+      resizeObserver?.observe(root);
+      const frame = root.closest<HTMLElement>('[data-drawer-reveal-content]');
+      if (frame) resizeObserver?.observe(frame);
+      if (!resizeObserver) window.addEventListener('resize', resize);
+      prefersReducedMotion.addEventListener('change', motionChange);
+      canvas.addEventListener('webglcontextlost', contextLost);
+      resize();
+      start();
+
+      const dispose = () => {
+      if (disposed) return;
+      disposed = true;
+      stop();
+      clearLayerTimer(root);
+      disconnectGateObserver(root);
+      resizeObserver?.disconnect();
+      if (!resizeObserver) window.removeEventListener('resize', resize);
+      prefersReducedMotion.removeEventListener('change', motionChange);
+      canvas.removeEventListener('webglcontextlost', contextLost);
+        disposeResources();
+      };
+
+      instances.set(root, { dispose });
+    } catch {
+      disposeResources();
+      showFallback(root);
+    }
+  };
+
+  const mount = (root: HTMLElement) => {
+    if (instances.has(root) || pending.has(root)) return;
+
+    pending.add(root);
+    void createScene(root)
+      .catch(() => showFallback(root))
+      .finally(() => pending.delete(root));
+  };
+
+  const sync = () => {
+    document.querySelectorAll<HTMLElement>('[data-fibramfer-f1-three]').forEach((root) => {
+      mount(root);
+      observeGateLayer(root);
+      syncLayer(root);
+    });
+
+    instances.forEach((instance, root) => {
+      if (!root.isConnected) {
+        instance.dispose();
+        instances.delete(root);
+      }
+    });
+  };
+
+  const observe = () => {
+    sync();
+
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    window.addEventListener('fibramfer:drawer-open', () => {
+      sync();
+      window.requestAnimationFrame(() => {
+        sync();
+        document.querySelectorAll<HTMLElement>('[data-fibramfer-f1-three]').forEach(positionRoot);
+      });
+    });
+  };
+
+  if (document.body) observe();
+  else window.addEventListener('DOMContentLoaded', observe, { once: true });
+</script>

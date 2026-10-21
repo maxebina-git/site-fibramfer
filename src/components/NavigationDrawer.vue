@@ -78,6 +78,7 @@ const activeSlot = computed(() => activeRoute.value?.slot)
 const activeRevealKey = computed(() => activeRoute.value?.revealKey ?? '')
 const activePostId = computed(() => activeRoute.value?.postId)
 const isOpen = computed(() => Boolean(activeRoute.value))
+const shouldSkipInitialTransition = computed(() => activeRevealKey.value !== 'a-fibramfer')
 const displayedSlot = ref<DrawerSlot | undefined>(activeSlot.value)
 const displayedPostId = ref<string | undefined>(activePostId.value)
 
@@ -295,13 +296,16 @@ onMounted(() => {
   })
   window.addEventListener('resize', scheduleDrawerScrollSync)
   document.addEventListener('click', handleDocumentClick)
-   void nextTick(() => {
-     observeDrawerScrollContainer()
-     if (isOpen.value) {
-       document.body.dataset.fibramferDrawerReady = 'true'
-     }
-     scheduleDrawerScrollSync()
-   })
+  void nextTick(() => {
+    observeDrawerScrollContainer()
+    if (isOpen.value) {
+      document.body.dataset.fibramferDrawerReady = 'true'
+      if (!shouldSkipInitialTransition.value) {
+        document.body.removeAttribute('data-fibramfer-direct-drawer')
+      }
+    }
+    scheduleDrawerScrollSync()
+  })
   if (isOpen.value) {
     void nextTick(() => {
       if (typeof document !== 'undefined') focusCloseButton()
@@ -413,7 +417,7 @@ watch([displayedPostId, displayedSlot], () => {
         :close-on-overlay="false"
         synchronize-fade
         reveal
-        skip-initial-transition
+        :skip-initial-transition="shouldSkipInitialTransition"
         :reveal-key="activeRevealKey"
        panel-width="three-quarters"
        @update:open="handleOpenUpdate"
