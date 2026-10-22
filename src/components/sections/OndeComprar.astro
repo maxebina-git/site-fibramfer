@@ -1,0 +1,41 @@
+---
+import { Button } from 'ds-grupo-rkb';
+import FibramferFloat from '../FibramferFloat.astro';
+const { class: className = '' } = Astro.props;
+
+const channels = [
+  {
+    title: 'Distribuidores autorizados',
+    text: 'Rede de parceiros homologados com estoque local e suporte técnico próprio.',
+    action: 'Ver parceiros',
+  },
+  {
+    title: 'Venda direta',
+    text: 'Atendimento comercial da Fibramfer com orçamento sob medida para sua planta.',
+    action: 'Solicitar orçamento',
+  },
+  {
+    title: 'Presencial',
+    text: 'Unidades de atendimento para conhecer os equipamentos e falar com um especialista.',
+    action: 'Encontrar unidade',
+  },
+];
+---
+
+<section class={`py-20 ${className}`}>
+  <div class="text-center mb-12">
+    <h2 class="font-display text-3xl font-bold mb-4 text-ink">Onde Comprar</h2>
+    <p class="text-text-secondary">Escolha o canal que melhor combina com a sua operação.</p>
+  </div>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+    {channels.map((channel) => (
+      <div class="bg-surface p-6 rounded-lg shadow-card border border-border hover:shadow-elevation-3 transition-shadow">
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">{channel.title}</h3>
+        <p class="text-text-secondary mb-4">{channel.text}</p>
+        <Button variant="secondary" size="sm">{channel.action}</Button>
+      </div>
+    ))}
+  </div>
+  <FibramferFloat asset="f3" />
+  <FibramferFloat asset="f3" mirror />
+</section>

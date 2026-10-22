@@ -1,4 +1,6 @@
 ---
+import FibramferFloat from './FibramferFloat.astro';
+
 interface BlogPost {
   id: string;
   data: {
@@ -40,4 +42,6 @@ const { posts, class: className = '' } = Astro.props;
       {posts.length === 0 && <p class="text-text-secondary">Nenhum post publicado ainda.</p>}
     </div>
   </div>
+  <FibramferFloat asset="f2" />
+  <FibramferFloat asset="f2" mirror />
 </section>

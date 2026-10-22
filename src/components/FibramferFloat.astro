@@ -1,0 +1,896 @@
+---
+import { FLOAT_ASSETS } from '../lib/floatAssets';
+import type { FloatAssetKey } from '../lib/floatAssets';
+
+interface Props {
+  mirror?: boolean;
+  asset?: FloatAssetKey;
+}
+
+const { mirror = false, asset = 'f1' } = Astro.props;
+const assetConfig = FLOAT_ASSETS[asset];
+---
+
+<div
+  class:list={[
+    'fibramfer-float-stage',
+    `fibramfer-float-stage--${asset}`,
+    mirror && 'fibramfer-float-stage--mirror',
+  ]}
+  data-fibramfer-float-root
+  data-fibramfer-float-mirror={mirror ? 'true' : 'false'}
+  data-fibramfer-float-asset={asset}
+  data-fibramfer-float-axis={assetConfig.enterAxis}
+  aria-hidden="true"
+>
+  <canvas class="fibramfer-float-canvas" data-fibramfer-float-canvas></canvas>
+  <img
+    class="fibramfer-float-fallback"
+    data-fibramfer-float-fallback
+    src={assetConfig.src}
+    alt=""
+    loading="eager"
+    decoding="async"
+    hidden
+  />
+</div>
+
+<style>
+  .fibramfer-float-stage {
+    /* Escapa do overflow-y-auto do conteúdo, mas continua no DOM da drawer. */
+    position: fixed;
+    top: -100vh;
+    left: -100vw;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: clamp(4.5rem, 8vw, 6.5rem);
+    height: clamp(9rem, 16vw, 11.5rem);
+    margin: 0;
+    visibility: hidden;
+    /* Entrada/saída: o painel vem de um lado e volta pelo mesmo lado. O eixo
+       é por asset (ver `enterAxis` em lib/floatAssets.ts). */
+    --enter-x: 0px;
+    --enter-y: 200px;
+    transform: translate3d(var(--enter-x), var(--enter-y), 0);
+    opacity: 0;
+    transition:
+      transform var(--duration-500) var(--ease-out),
+      opacity var(--duration-500) var(--ease-out);
+    will-change: transform, opacity;
+    pointer-events: none;
+  }
+
+  .fibramfer-float-stage--open {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+
+  .fibramfer-float-stage--foreground {
+    /* Fica na frente da linha da moldura quando a cortina está aberta. */
+    z-index: 12;
+  }
+
+  .fibramfer-float-stage--open--closing {
+    transform: translate3d(var(--enter-x), var(--enter-y), 0);
+    opacity: 0;
+  }
+
+  /* Variante espelhada: ancorada no canto inferior direito, entrando pelo
+     lado de dentro e saindo pelo mesmo lado. */
+  .fibramfer-float-stage--mirror {
+    top: auto;
+    left: auto;
+    right: var(--float-right, -100vw);
+    bottom: var(--float-bottom, -100vh);
+    --enter-y: -200px;
+  }
+
+  /* Scrollbar do drawer: quando o conteúdo fica rolável, a scrollbar (8px, a
+     largura da scrollbar da marca) ocupa a borda direita do painel. O painel
+     flutuante recua o mesmo tanto que o X (regra equivalente em global.css),
+     para não cobrir a scrollbar. */
+  :global([data-fibramfer-drawers] aside[role='dialog'][data-drawer-scrollable])
+    .fibramfer-float-stage--mirror {
+    right: calc(var(--float-right, 0px) + 0.5rem);
+  }
+
+  /* Entrada/saída lateral (painel paisagem): o original vem da direita para a
+     esquerda e sai da esquerda para a direita; o espelhado faz o inverso. */
+  .fibramfer-float-stage[data-fibramfer-float-axis='x'] {
+    --enter-x: 200px;
+    --enter-y: 0px;
+  }
+
+  .fibramfer-float-stage[data-fibramfer-float-axis='x'].fibramfer-float-stage--mirror {
+    --enter-x: -200px;
+    --enter-y: 0px;
+  }
+
+  /* Entrada/saída na diagonal da peça (o F3): o original vem do meio da
+     página para o canto (sobe para a esquerda) e o espelhado faz o inverso
+     (desce para a direita). */
+  .fibramfer-float-stage[data-fibramfer-float-axis='diag'] {
+    --enter-x: 141px;
+    --enter-y: 141px;
+  }
+
+  .fibramfer-float-stage[data-fibramfer-float-axis='diag'].fibramfer-float-stage--mirror {
+    --enter-x: -141px;
+    --enter-y: -141px;
+  }
+
+  .fibramfer-float-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .fibramfer-float-fallback {
+    display: block;
+    width: auto;
+    height: clamp(6rem, 14vw, 9rem);
+  }
+
+  .fibramfer-float-fallback[hidden] {
+    display: none;
+  }
+
+  @keyframes fibramfer-float {
+    0%,
+    100% {
+      transform: translate3d(0, -2px, 0);
+    }
+
+    50% {
+      transform: translate3d(0, 2px, 0);
+    }
+  }
+
+  @keyframes fibramfer-float-mirror {
+    0%,
+    100% {
+      transform: translate3d(0, -2px, 0) rotate(180deg);
+    }
+
+    50% {
+      transform: translate3d(0, 2px, 0) rotate(180deg);
+    }
+  }
+
+  .fibramfer-float-fallback:not([hidden]) {
+    animation: fibramfer-float 5.7s var(--ease-in-out) infinite;
+  }
+
+  .fibramfer-float-stage--mirror .fibramfer-float-fallback:not([hidden]) {
+    animation: fibramfer-float-mirror 5.7s var(--ease-in-out) infinite;
+  }
+
+  /* F2: painel paisagem (o F1 é retrato). O stage é maior que o F1 em
+     largura porque a laje do F2 tem uma aresta em volta da arte. */
+  .fibramfer-float-stage--f2 {
+    width: clamp(7.5rem, 13.5vw, 9.75rem);
+    height: clamp(2.625rem, 5.25vw, 4.5rem);
+  }
+
+  .fibramfer-float-stage--f2 .fibramfer-float-fallback {
+    height: clamp(2.625rem, 6vw, 3.75rem);
+  }
+
+  /* F3: peça quadrada (o F1 é retrato e o F2 paisagem), com metade do
+     tamanho do F2. */
+  .fibramfer-float-stage--f3 {
+    width: clamp(3rem, 5.5vw, 4.25rem);
+    height: clamp(3rem, 5.5vw, 4.25rem);
+  }
+
+  .fibramfer-float-stage--f3 .fibramfer-float-fallback {
+    height: clamp(2.5rem, 5.5vw, 3.5rem);
+  }
+
+  @media (max-width: 767px) {
+    .fibramfer-float-stage {
+      height: 8rem;
+      width: 5rem;
+    }
+
+    .fibramfer-float-stage--f2 {
+      height: 3.75rem;
+      width: 6rem;
+    }
+
+    .fibramfer-float-fallback {
+      height: clamp(5rem, 15vw, 7rem);
+    }
+
+    .fibramfer-float-stage--f2 .fibramfer-float-fallback {
+      height: clamp(1.875rem, 5.25vw, 2.625rem);
+    }
+
+    .fibramfer-float-stage--f3 {
+      height: 2.5rem;
+      width: 2.5rem;
+    }
+
+    .fibramfer-float-stage--f3 .fibramfer-float-fallback {
+      height: clamp(2rem, 5.5vw, 2.5rem);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fibramfer-float-stage,
+    .fibramfer-float-stage--open,
+    .fibramfer-float-stage--open--closing,
+    .fibramfer-float-stage--mirror,
+    .fibramfer-float-stage--mirror.fibramfer-float-stage--open,
+    .fibramfer-float-stage--mirror.fibramfer-float-stage--open--closing {
+      transform: none;
+      transition: none;
+    }
+
+    .fibramfer-float-fallback:not([hidden]),
+    .fibramfer-float-stage--mirror .fibramfer-float-fallback:not([hidden]) {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import { FLOAT_ASSETS, expandPolygon, isFloatAssetKey } from '../lib/floatAssets';
+
+  type FloatInstance = {
+    dispose: () => void;
+  };
+
+  const instances = new Map<HTMLElement, FloatInstance>();
+  const pending = new WeakSet<HTMLElement>();
+  const gateObservers = new WeakMap<HTMLElement, MutationObserver>();
+  const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  const defaultRevealDurationMs = 1200;
+  const defaultCloseDelayMs = 500;
+
+  //. Flutuação (unidades de mundo / radianos), na escala do F1.
+  //  A arte ocupa ~92% da altura do canvas, então a levitação é limitada pela
+  //  folga vertical real; a guinada tem folga horizontal de sobra e é o eixo
+  //  mais perceptível (a vista de cima "esterça" e as faces 3D aparecem).
+  //  Cada asset multiplica esses valores pelo seu `floatScale`, para o
+  //  movimento em pixels ficar equivalente entre um painel retrato e um paisagem.
+  const floatHeight = 0.065;
+  const floatDrift = 0.05;
+  const floatSteer = 0.07;
+  const floatTilt = 0.018;
+  const floatSway = 0.015;
+  const floatBaseOffset = 0.025;
+  const floatRotationReserve = 0.07;
+  //. Enquadramento da câmera: mesmo fov nos dois assets, muda a distância
+  //  (a perspectiva é a mesma, o que muda é o quão perto a câmera fica).
+  //  A distância é medida a partir da frente do painel, que fica `depth/2`
+  //  mais perto da câmera que o centro da extrusão, e cada asset calibra a
+  //  fração da altura do canvas que a arte ocupa.
+  const cameraFov = 34;
+
+  // A duração da cortina pertence ao DS e é publicada no elemento gates como
+  // --drawer-reveal-gate-duration. O F1 entra depois que a cortina termina,
+  // então lê o mesmo valor em vez de duplicar a constante.
+  const revealDurations = new WeakMap<HTMLElement, number>();
+
+  const resolveRevealDuration = (gates: HTMLElement | null | undefined): number => {
+    if (!gates) return defaultRevealDurationMs;
+
+    const cached = revealDurations.get(gates);
+    if (cached !== undefined) return cached;
+
+    const raw = window
+      .getComputedStyle(gates)
+      .getPropertyValue('--drawer-reveal-gate-duration')
+      .trim();
+    const parsed = Number.parseFloat(raw);
+    const duration = Number.isFinite(parsed) && parsed > 0 ? parsed : defaultRevealDurationMs;
+    revealDurations.set(gates, duration);
+    return duration;
+  };
+
+  type FloatLifecycle = {
+    revealTimer: number | null;
+    closeTimer: number | null;
+  };
+
+  const lifecycles = new WeakMap<HTMLElement, FloatLifecycle>();
+
+  const lifecycleFor = (root: HTMLElement): FloatLifecycle => {
+    const current = lifecycles.get(root);
+    if (current) return current;
+
+    const lifecycle = { revealTimer: null, closeTimer: null };
+    lifecycles.set(root, lifecycle);
+    return lifecycle;
+  };
+
+  const clearRevealTimer = (root: HTMLElement) => {
+    const lifecycle = lifecycleFor(root);
+    if (lifecycle.revealTimer === null) return;
+    window.clearTimeout(lifecycle.revealTimer);
+    lifecycle.revealTimer = null;
+  };
+
+  const clearCloseTimer = (root: HTMLElement) => {
+    const lifecycle = lifecycleFor(root);
+    if (lifecycle.closeTimer === null) return;
+    window.clearTimeout(lifecycle.closeTimer);
+    lifecycle.closeTimer = null;
+  };
+
+  const clearLifecycleTimers = (root: HTMLElement) => {
+    clearRevealTimer(root);
+    clearCloseTimer(root);
+  };
+
+  const resetInlineMotion = (root: HTMLElement) => {
+    root.style.removeProperty('transform');
+    root.style.removeProperty('opacity');
+    root.style.removeProperty('transition');
+  };
+
+  const syncLayer = (root: HTMLElement) => {
+    const frame = root.closest<HTMLElement>('[data-drawer-reveal-content]');
+    const drawer = frame?.closest<HTMLElement>("aside[role='dialog']");
+    const gates = drawer?.querySelector<HTMLElement>('[data-drawer-reveal-gates]');
+    const curtainOpen = !gates || gates.classList.contains('drawer-reveal-gates--open');
+
+    if (!curtainOpen) {
+      clearRevealTimer(root);
+      resetInlineMotion(root);
+      root.classList.remove('fibramfer-float-stage--open');
+      root.classList.remove('fibramfer-float-stage--foreground');
+      root.classList.add('fibramfer-float-stage--open--closing');
+      return;
+    }
+
+    clearCloseTimer(root);
+    resetInlineMotion(root);
+    root.classList.remove('fibramfer-float-stage--open--closing');
+
+    if (!gates || prefersReducedMotion.matches) {
+      root.classList.add('fibramfer-float-stage--open');
+      root.classList.add('fibramfer-float-stage--foreground');
+      return;
+    }
+
+    const lifecycle = lifecycleFor(root);
+    if (root.classList.contains('fibramfer-float-stage--foreground') || lifecycle.revealTimer !== null) return;
+
+    lifecycle.revealTimer = window.setTimeout(() => {
+      lifecycle.revealTimer = null;
+      if (!root.isConnected) return;
+
+      const currentFrame = root.closest<HTMLElement>('[data-drawer-reveal-content]');
+      const currentDrawer = currentFrame?.closest<HTMLElement>("aside[role='dialog']");
+      const currentGates = currentDrawer?.querySelector<HTMLElement>('[data-drawer-reveal-gates]');
+      const stillOpen = !currentGates || currentGates.classList.contains('drawer-reveal-gates--open');
+      if (!stillOpen) return;
+
+      resetInlineMotion(root);
+      root.classList.add('fibramfer-float-stage--open');
+      root.classList.add('fibramfer-float-stage--foreground');
+    }, resolveRevealDuration(gates));
+  };
+
+  const applyClosingState = (root: HTMLElement) => {
+    if (!root.isConnected) return;
+    clearRevealTimer(root);
+    resetInlineMotion(root);
+    root.classList.remove('fibramfer-float-stage--open');
+    root.classList.remove('fibramfer-float-stage--foreground');
+    root.classList.add('fibramfer-float-stage--open--closing');
+  };
+
+  const scheduleClosingState = (root: HTMLElement, delay: number) => {
+    clearRevealTimer(root);
+    clearCloseTimer(root);
+
+    const resolvedDelay = prefersReducedMotion.matches ? 0 : Math.max(0, delay);
+    if (resolvedDelay === 0) {
+      applyClosingState(root);
+      return;
+    }
+
+    const lifecycle = lifecycleFor(root);
+    lifecycle.closeTimer = window.setTimeout(() => {
+      lifecycle.closeTimer = null;
+      applyClosingState(root);
+    }, resolvedDelay);
+  };
+
+  const observeGateLayer = (root: HTMLElement) => {
+    if (gateObservers.has(root)) return;
+
+    const frame = root.closest<HTMLElement>('[data-drawer-reveal-content]');
+    const drawer = frame?.closest<HTMLElement>("aside[role='dialog']");
+    const gates = drawer?.querySelector<HTMLElement>('[data-drawer-reveal-gates]');
+    if (!gates) return;
+
+    const observer = new MutationObserver(() => syncLayer(root));
+    observer.observe(gates, { attributes: true, attributeFilter: ['class'] });
+    gateObservers.set(root, observer);
+  };
+
+  const disconnectGateObserver = (root: HTMLElement) => {
+    gateObservers.get(root)?.disconnect();
+    gateObservers.delete(root);
+  };
+
+  type FloatPosition = {
+    top?: number;
+    left?: number;
+    right?: number;
+    bottom?: number;
+  };
+
+  const lastPositions = new WeakMap<HTMLElement, FloatPosition>();
+
+  const isMirrored = (root: HTMLElement) => root.dataset.fibramferFloatMirror === 'true';
+
+  const assetOf = (root: HTMLElement) => {
+    const key = root.dataset.fibramferFloatAsset;
+    return isFloatAssetKey(key) ? FLOAT_ASSETS[key] : null;
+  };
+
+  //. Ancoragem: a origem (moldura do drawer ou viewport) e o recuo do canto
+  //  (positivo = para dentro). O F3 usa a moldura para o canto do triângulo
+  //  encostar nas bordas do conteúdo; o F1 e o F2 ficam pendurados no painel.
+  const anchorOf = (root: HTMLElement) => {
+    const asset = assetOf(root);
+    const fallback = { origin: 'frame' as const, x: 0, y: 0 };
+    if (!asset) return fallback;
+    return isMirrored(root) ? asset.anchor.mirror : asset.anchor.original;
+  };
+
+  const positionRoot = (root: HTMLElement) => {
+    const frame = root.closest<HTMLElement>('[data-drawer-reveal-content]');
+    if (!frame) return;
+
+    const frameRect = frame.getBoundingClientRect();
+    const last = lastPositions.get(root);
+    const anchor = anchorOf(root);
+    const viewportWidth = document.documentElement.clientWidth;
+    const viewportHeight = document.documentElement.clientHeight;
+
+    // Evita reescrever o style a cada mutação do DOM: o sync roda em todo
+    // childList do body e forçaria um reflow desnecessário.
+    if (isMirrored(root)) {
+      //. Espelho: o canto de origem é a borda direita/inferior (da moldura ou
+      //  da viewport) e o recuo afasta o painel do canto.
+      const anchorRight = anchor.origin === 'viewport' ? viewportWidth : frameRect.right;
+      const anchorBottom = anchor.origin === 'viewport' ? viewportHeight : frameRect.bottom;
+      const right = Math.max(0, viewportWidth - (anchorRight - anchor.x));
+      const bottom = Math.max(0, viewportHeight - (anchorBottom - anchor.y));
+
+      if (
+        !last ||
+        last.right === undefined ||
+        last.bottom === undefined ||
+        Math.abs(last.right - right) > 0.5 ||
+        Math.abs(last.bottom - bottom) > 0.5
+      ) {
+        //. Variáveis CSS (e não `right`/`bottom` inline) para a regra da
+        //  scrollbar conseguir recuar o painel sem inline ganhar.
+        root.style.setProperty('--float-right', `${right}px`);
+        root.style.setProperty('--float-bottom', `${bottom}px`);
+        lastPositions.set(root, { right, bottom });
+      }
+    } else {
+      //. Original: o canto de origem é a borda esquerda/superior.
+      const anchorLeft = anchor.origin === 'viewport' ? 0 : frameRect.left;
+      const anchorTop = anchor.origin === 'viewport' ? 0 : frameRect.top;
+      const left = Math.max(0, anchorLeft + anchor.x);
+      const top = Math.max(0, anchorTop + anchor.y);
+
+      if (
+        !last ||
+        last.top === undefined ||
+        last.left === undefined ||
+        Math.abs(last.top - top) > 0.5 ||
+        Math.abs(last.left - left) > 0.5
+      ) {
+        root.style.top = `${top}px`;
+        root.style.left = `${left}px`;
+        lastPositions.set(root, { top, left });
+      }
+    }
+
+    if (root.style.visibility !== 'visible') root.style.visibility = 'visible';
+    syncLayer(root);
+  };
+
+  const showFallback = (root: HTMLElement) => {
+    positionRoot(root);
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-fibramfer-float-canvas]');
+    const fallback = root.querySelector<HTMLImageElement>('[data-fibramfer-float-fallback]');
+
+    if (canvas) canvas.hidden = true;
+    if (fallback) fallback.hidden = false;
+  };
+
+  const createScene = async (root: HTMLElement) => {
+    const canvas = root.querySelector<HTMLCanvasElement>('[data-fibramfer-float-canvas]');
+    if (!canvas) return;
+    positionRoot(root);
+
+    //. Espelho: a variante espelhada é o painel girado 180º no plano da tela
+    //  (reflexão pontual, esq<->dir e cima<->baixo, como em
+    //  /assets/f1e.png). A arte, a silhueta e a face lateral viram juntos.
+    const mirrored = isMirrored(root);
+    // O grupo espelhado inverte o eixo Y local, então o deslocamento base
+    // precisa de sinal trocado para o espelhado ficar na mesma altura
+    // de tela que o original.
+    const baseOffset = mirrored ? -floatBaseOffset : floatBaseOffset;
+
+    //. Cada instância carrega sua arte (F1 ou F2): textura, silhueta, medida
+    //  no mundo e escala de flutuação vêm da config do asset.
+    const assetKey = root.dataset.fibramferFloatAsset;
+    const asset = FLOAT_ASSETS[isFloatAssetKey(assetKey) ? assetKey : 'f1'];
+    const scale = asset.floatScale;
+    const basePitch = asset.basePitch;
+    const baseYaw = asset.baseYaw;
+    const imageWidth = asset.width;
+    const imageHeight = asset.height;
+    const extrusionDepth = asset.depth;
+    const lift = floatHeight * scale;
+    const drift = floatDrift * scale;
+    //. As rotações usam a escala própria: um giro é um giro, então o painel
+    //  baixo (F2) gira quase como o F1 em vez de acompanhar a altura.
+    const steer = floatSteer * asset.rotationScale;
+    const tilt = floatTilt * asset.rotationScale;
+    const sway = floatSway * asset.rotationScale;
+    const baseOffsetY = baseOffset * scale;
+    const rotationReserve = floatRotationReserve * scale;
+
+    const resources: Array<{ dispose: () => void }> = [];
+    const disposeResources = () => {
+      while (resources.length > 0) resources.pop()?.dispose();
+    };
+
+    try {
+      let THREE: typeof import('three');
+
+      try {
+        THREE = await import('three');
+      } catch {
+        showFallback(root);
+        return;
+      }
+
+      if (!root.isConnected) return;
+
+      let renderer: import('three').WebGLRenderer;
+
+      try {
+        renderer = new THREE.WebGLRenderer({
+          canvas,
+          alpha: true,
+          antialias: true,
+          powerPreference: 'high-performance',
+        });
+      } catch {
+        showFallback(root);
+        return;
+      }
+      resources.push(renderer);
+
+      let texture: import('three').Texture;
+
+      try {
+        texture = await new Promise<import('three').Texture>((resolve, reject) => {
+          new THREE.TextureLoader().load(asset.src, resolve, undefined, reject);
+        });
+      } catch {
+        disposeResources();
+        showFallback(root);
+        return;
+      }
+      resources.push(texture);
+
+      if (!root.isConnected) {
+        disposeResources();
+        return;
+      }
+
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+    //. A laje é o recorte do PNG expandido em `slab`: a parede cinza da
+    //  extrusão aparece em volta da arte e dá o volume geométrico da peça.
+    const silhouette = asset.polygon.map(
+      ([px, py]) => [px * imageWidth, py * imageHeight] as [number, number],
+    );
+    const slab = expandPolygon(silhouette, asset.slab);
+
+    const shape = new THREE.Shape();
+    slab.forEach(([x, y], index) => {
+      if (index === 0) shape.moveTo(x, y);
+      else shape.lineTo(x, y);
+    });
+    shape.closePath();
+
+      const extrusionGeometry = new THREE.ExtrudeGeometry(shape, {
+        bevelEnabled: false,
+        curveSegments: 1,
+        depth: extrusionDepth,
+        steps: 1,
+      });
+      resources.push(extrusionGeometry);
+    extrusionGeometry.center();
+
+      const sideMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        bottomColor: { value: new THREE.Color(asset.sideBottom) },
+        topColor: { value: new THREE.Color(asset.sideTop) },
+      },
+      vertexShader: `
+        varying float vHeight;
+        varying vec3 vNormal;
+
+        void main() {
+          vHeight = clamp((position.y + ${(imageHeight / 2).toFixed(4)}) / ${imageHeight.toFixed(4)}, 0.0, 1.0);
+          vNormal = normalize(normalMatrix * normal);
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform vec3 bottomColor;
+        uniform vec3 topColor;
+        varying float vHeight;
+        varying vec3 vNormal;
+
+        void main() {
+          vec3 gradient = mix(bottomColor, topColor, vHeight);
+          float light = 0.74 + 0.26 * max(dot(normalize(vNormal), vec3(0.28, 0.62, 0.74)), 0.0);
+          gl_FragColor = vec4(gradient * light, 1.0);
+        }
+      `,
+      });
+      resources.push(sideMaterial);
+
+      //. A face frontal da laje só aparece quando há `slab` (a base maior que
+      //  a arte): é a faixa cinza que dá volume. Sem `slab` ela fica
+      //  invisível, como no F1.
+      const hiddenFaceMaterial = new THREE.MeshBasicMaterial({
+        depthWrite: false,
+        opacity: 0,
+        side: THREE.DoubleSide,
+        transparent: true,
+      });
+      resources.push(hiddenFaceMaterial);
+      const extrusion = new THREE.Mesh(
+        extrusionGeometry,
+        asset.slab > 0 ? [sideMaterial, sideMaterial] : [hiddenFaceMaterial, sideMaterial],
+      );
+
+      const frontGeometry = new THREE.PlaneGeometry(imageWidth, imageHeight);
+      resources.push(frontGeometry);
+      const frontMaterial = new THREE.MeshBasicMaterial({
+        alphaTest: 0.01,
+        map: texture,
+        side: THREE.DoubleSide,
+        transparent: true,
+      });
+      resources.push(frontMaterial);
+      const front = new THREE.Mesh(frontGeometry, frontMaterial);
+      front.position.z = extrusionDepth / 2 + 0.006;
+
+      const model = new THREE.Group();
+      model.add(extrusion, front);
+      model.rotation.set(-basePitch, baseYaw, 0.015);
+
+      const scene = new THREE.Scene();
+      // Variante espelhada: o painel inteiro gira 180º no plano da tela
+      // (reflexão pontual, como o /assets/f1e.png), então arte, silhueta e
+      // face lateral viram juntos.
+      if (mirrored) {
+        const flip = new THREE.Group();
+        flip.rotation.z = Math.PI;
+        flip.add(model);
+        scene.add(flip);
+      } else {
+        scene.add(model);
+      }
+
+      const camera = new THREE.PerspectiveCamera(cameraFov, 1, 0.1, 100);
+      //. Mesma distância relativa à altura do painel: a arte ocupa a mesma
+      //  fração do canvas e a perspectiva é idêntica nos dois assets.
+      const cameraFrontDistance =
+        (imageHeight / asset.artFill) / (2 * Math.tan((cameraFov * Math.PI) / 360));
+      camera.position.set(0, 0, cameraFrontDistance + extrusionDepth / 2 + 0.006);
+      camera.lookAt(0, 0, 0);
+
+      let motionScale = 1;
+      let bobLimit = lift;
+
+      //. A levitação é limitada pela folga vertical real entre a arte e o
+      //  canvas, para a frente do painel nunca encostar na borda.
+      const resolveBobLimit = () => {
+        const frontDistance = camera.position.z - extrusionDepth / 2;
+        const visibleHalf = frontDistance * Math.tan((camera.fov * Math.PI) / 360);
+        const baseHalf =
+          (imageHeight / 2) *
+          (frontDistance /
+            (frontDistance - (imageHeight / 2) * Math.sin(basePitch)));
+        return Math.max(0, visibleHalf - baseHalf - rotationReserve);
+      };
+
+      renderer.outputColorSpace = THREE.SRGBColorSpace;
+      renderer.shadowMap.enabled = false;
+      renderer.setClearColor(0x000000, 0);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+      let frameId: number | null = null;
+      let disposed = false;
+
+      const render = (time: number) => {
+      if (prefersReducedMotion.matches) {
+        model.position.set(0, baseOffsetY, 0);
+        model.rotation.set(-basePitch, baseYaw, 0.015);
+      } else {
+        const seconds = time / 1000;
+        //. Duas senoides incomensuráveis: a flutuação nunca repete visivelmente.
+        const bob = Math.sin(seconds * 1.1);
+        const weave = Math.sin(seconds * 0.63 + 1.1);
+
+        const liftAmount = Math.min(lift * motionScale, bobLimit);
+
+        model.position.y = baseOffsetY + bob * liftAmount;
+        model.position.x = weave * drift * motionScale;
+        model.rotation.x = -basePitch + weave * tilt;
+        model.rotation.y = baseYaw + weave * steer * motionScale;
+        model.rotation.z = 0.015 - bob * sway;
+      }
+
+      renderer.render(scene, camera);
+      };
+
+      const animate = (time: number) => {
+      if (disposed) return;
+      render(time);
+      frameId = window.requestAnimationFrame(animate);
+      };
+
+      const stop = () => {
+      if (frameId === null) return;
+      window.cancelAnimationFrame(frameId);
+      frameId = null;
+      };
+
+      const start = () => {
+      if (prefersReducedMotion.matches) {
+        stop();
+        render(performance.now());
+        return;
+      }
+
+      if (frameId === null) frameId = window.requestAnimationFrame(animate);
+      };
+
+      const resize = () => {
+      positionRoot(root);
+      const { width, height } = root.getBoundingClientRect();
+      const safeWidth = Math.max(1, width);
+      const safeHeight = Math.max(1, height);
+
+        renderer.setSize(safeWidth, safeHeight, false);
+        camera.aspect = safeWidth / safeHeight;
+        camera.updateProjectionMatrix();
+        //. Compensa a diferença de tamanho do canvas entre breakpoints para o
+        //  movimento percebido em pixels ficar equivalente.
+        motionScale = Math.min(1.45, Math.max(1, asset.referenceHeight / safeHeight));
+        bobLimit = resolveBobLimit();
+        render(performance.now());
+      };
+
+       const resizeObserver = 'ResizeObserver' in window ? new ResizeObserver(resize) : null;
+       const motionChange = () => {
+       stop();
+       start();
+       syncLayer(root);
+       };
+      const contextLost = (event: Event) => {
+      event.preventDefault();
+      showFallback(root);
+      dispose();
+      };
+
+      resizeObserver?.observe(root);
+      const frame = root.closest<HTMLElement>('[data-drawer-reveal-content]');
+      if (frame) resizeObserver?.observe(frame);
+      if (!resizeObserver) window.addEventListener('resize', resize);
+      prefersReducedMotion.addEventListener('change', motionChange);
+      canvas.addEventListener('webglcontextlost', contextLost);
+      resize();
+      start();
+
+      const dispose = () => {
+      if (disposed) return;
+      disposed = true;
+      stop();
+      clearLifecycleTimers(root);
+      disconnectGateObserver(root);
+      resizeObserver?.disconnect();
+      if (!resizeObserver) window.removeEventListener('resize', resize);
+      prefersReducedMotion.removeEventListener('change', motionChange);
+      canvas.removeEventListener('webglcontextlost', contextLost);
+        disposeResources();
+      };
+
+      instances.set(root, { dispose });
+    } catch {
+      disposeResources();
+      showFallback(root);
+    }
+  };
+
+  const mount = (root: HTMLElement) => {
+    if (instances.has(root) || pending.has(root)) return;
+
+    pending.add(root);
+    void createScene(root)
+      .catch(() => showFallback(root))
+      .finally(() => pending.delete(root));
+  };
+
+  const sync = () => {
+    document.querySelectorAll<HTMLElement>('[data-fibramfer-float-root]').forEach((root) => {
+      mount(root);
+      observeGateLayer(root);
+      syncLayer(root);
+      positionRoot(root);
+    });
+
+    instances.forEach((instance, root) => {
+      if (!root.isConnected) {
+        instance.dispose();
+        instances.delete(root);
+      }
+    });
+
+    // Reposiciona depois da criação assíncrona do frame da drawer.
+    requestAnimationFrame(() => {
+      document.querySelectorAll<HTMLElement>('[data-fibramfer-float-root]').forEach((root) => {
+        const frame = root.closest<HTMLElement>('[data-drawer-reveal-content]');
+        if (frame) {
+          positionRoot(root);
+        }
+      });
+    });
+  };
+
+  const observe = () => {
+    sync();
+
+    const observer = new MutationObserver(sync);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    // Segunda chance de posicionar o F1 após o DOM estar totalmente renderizado
+    setTimeout(() => {
+      document.querySelectorAll<HTMLElement>('[data-fibramfer-float-root]').forEach((root) => {
+        positionRoot(root);
+      });
+    }, 500);
+
+    window.addEventListener('fibramfer:drawer-open', () => {
+      sync();
+      window.requestAnimationFrame(sync);
+    });
+
+    window.addEventListener('fibramfer:drawer-close', (event) => {
+      const detail = (event as CustomEvent<{ delay?: number }>).detail;
+      const delay = typeof detail?.delay === 'number' && Number.isFinite(detail.delay)
+        ? detail.delay
+        : defaultCloseDelayMs;
+      document.querySelectorAll<HTMLElement>('[data-fibramfer-float-root]').forEach((root) => {
+        scheduleClosingState(root, delay);
+      });
+    });
+  };
+
+  if (document.body) observe();
+  else window.addEventListener('DOMContentLoaded', observe, { once: true });
+</script>

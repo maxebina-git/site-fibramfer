@@ -590,6 +590,9 @@ body[data-legal-drawer='true'] header[data-fibramfer-header='true'][data-panel-o
 
 body[data-legal-drawer='true'] header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
   transition-delay: 500ms;
+  transform: translateX(var(--fibramfer-logo-shift, 0px))
+             translateY(var(--fibramfer-logo-y-shift, 0px))
+             scale(1.1667);
 }
 
 /*
@@ -711,7 +714,7 @@ body[data-legal-drawer='true'] footer .footer-legal {
 }
 
 body[data-legal-drawer='true']:has(header[data-fibramfer-header='true'][data-panel-open='true']) .fibramfer-legal-floating a {
-  color: var(--color-accent-500);
+  color: var(--color-ink);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -876,6 +879,7 @@ header[data-panel-open='true'] nav[aria-label='Navegação principal'] {
   }
 
   header[data-fibramfer-header='true'] .fibramfer-logo {
+    transform: none;
     transform-origin: center;
     transition: transform var(--fibramfer-menu-item-duration) var(--fibramfer-menu-item-easing);
     transition-delay: 1300ms;
@@ -887,9 +891,10 @@ header[data-panel-open='true'] nav[aria-label='Navegação principal'] {
     transition-delay: 500ms;
   }
 
-header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
-  transition-delay: 500ms;
-}
+  header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
+    transform: scale(1.1667);
+    transition-delay: 500ms;
+  }
 
   header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] {
     transform: none;
@@ -903,18 +908,22 @@ header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
 
   /* Saída: Contato primeiro e A Fibramfer por último. */
   header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(1) {
-    transition-delay: 1300ms;
+    transition-delay: 1500ms;
   }
 
   header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(2) {
-    transition-delay: 1100ms;
+    transition-delay: 1300ms;
   }
 
   header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(3) {
-    transition-delay: 900ms;
+    transition-delay: 1100ms;
   }
 
   header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(4) {
+    transition-delay: 900ms;
+  }
+
+  header[data-fibramfer-header='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(5) {
     transition-delay: 700ms;
   }
 
@@ -927,17 +936,20 @@ header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
   header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(2),
   header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(3),
   header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(4),
+  header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(5),
   header[data-fibramfer-header='true'][data-panel-open='true'] #header-contact-cta {
     transform: translateX(calc(var(--spacing) * -6));
   }
 
-  /* Quando o drawer já está aberto no carregamento da página (atributo no body),
-   * os itens do menu/logo devem estar na posição FINAL da animação (sem transição). */
-  body[data-panel-drawer-open='true']
+  /* Quando o drawer já está aberto no carregamento da página, os atributos de
+   * hidratação mantêm os itens do menu/logo na posição FINAL (sem transição).
+   * data-panel-drawer-open também existe durante uma abertura normal e não pode
+   * bloquear a animação de entrada. */
+  body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true'])
     header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a,
   body[data-legal-drawer='true']
     header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a,
-  body[data-panel-drawer-open='true']
+  body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true'])
     header[data-fibramfer-header='true'][data-panel-open='true'] #header-contact-cta,
   body[data-legal-drawer='true']
     header[data-fibramfer-header='true'][data-panel-open='true'] #header-contact-cta {
@@ -945,7 +957,7 @@ header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
   transition: none !important;
 }
 
-  body[data-panel-drawer-open='true']
+  body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true'])
     header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home'],
   body[data-legal-drawer='true']
     header[data-fibramfer-header='true'][data-panel-open='true'] a[aria-label='Home'] {
@@ -953,7 +965,7 @@ header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
              translateY(var(--fibramfer-logo-y-shift, 0px)) !important;
 }
 
-  body[data-panel-drawer-open='true']
+  body:is([data-fibramfer-initializing='true'], [data-fibramfer-direct-drawer='true'])
     header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo,
   body[data-legal-drawer='true']
     header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
@@ -974,6 +986,10 @@ header[data-fibramfer-header='true'][data-panel-open='true'] .fibramfer-logo {
 
   header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(4) {
     transition-delay: 1100ms;
+  }
+
+  header[data-fibramfer-header='true'][data-panel-open='true'] nav[aria-label='Navegação principal'] > a:nth-of-type(5) {
+    transition-delay: 1200ms;
   }
 
   header[data-fibramfer-header='true'][data-panel-open='true'] #header-contact-cta {

@@ -1,5 +1,6 @@
 ---
 import { Button } from 'ds-grupo-rkb';
+import FibramferFloat from '../FibramferFloat.astro';
 const { class: className = '' } = Astro.props;
 ---
 
@@ -18,4 +19,6 @@ const { class: className = '' } = Astro.props;
       </div>
     ))}
   </div>
+  <FibramferFloat asset="f2" />
+  <FibramferFloat asset="f2" mirror />
 </section>

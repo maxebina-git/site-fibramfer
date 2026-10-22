@@ -5,13 +5,14 @@ import FibramferLogo from './FibramferLogo.astro';
 
 const path = Astro.url.pathname;
 const normalizePath = (value: string): string => value === '/' ? value : value.replace(/\/+$/, '');
-const panelRoutes = ['/a-fibramfer', '/produtos', '/seguranca', '/blog', '/contato', '/privacidade', '/termos'];
+const panelRoutes = ['/a-fibramfer', '/produtos', '/onde-comprar', '/seguranca', '/blog', '/contato', '/privacidade', '/termos'];
 const normalizedPath = normalizePath(path);
 const homeRoute = normalizedPath === '/';
 const panelOpen = panelRoutes.includes(normalizedPath) || (normalizedPath.startsWith('/blog/') && normalizedPath !== '/blog');
 const navItems = [
   { label: 'A Fibramfer', href: '/a-fibramfer' },
   { label: 'Produtos', href: '/produtos' },
+  { label: 'Onde Comprar', href: '/onde-comprar' },
   { label: 'Segurança', href: '/seguranca' },
   { label: 'Blog', href: '/blog' },
 ];
@@ -322,6 +323,7 @@ const nav = navItems.map((item) => ({
   const drawerRoutes = new Map([
     ['/a-fibramfer', '/a-fibramfer/'],
     ['/produtos', '/produtos/'],
+    ['/onde-comprar', '/onde-comprar/'],
     ['/seguranca', '/seguranca/'],
     ['/blog', '/blog/'],
     ['/contato', '/contato/'],

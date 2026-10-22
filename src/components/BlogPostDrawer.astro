@@ -1,4 +1,6 @@
 ---
+import FibramferFloat from './FibramferFloat.astro';
+
 interface BlogPost {
   id: string;
   data: {
@@ -36,4 +38,6 @@ const { post, Content } = Astro.props;
   <div class="prose prose-lg max-w-none">
     <Content />
   </div>
+  <FibramferFloat asset="f3" />
+  <FibramferFloat asset="f3" mirror />
 </article>

@@ -2,7 +2,15 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Drawer } from 'ds-grupo-rkb'
 
-type MainDrawerSlot = 'a-fibramfer' | 'produtos' | 'seguranca' | 'blog' | 'contato' | 'privacidade' | 'termos'
+type MainDrawerSlot =
+  | 'a-fibramfer'
+  | 'produtos'
+  | 'onde-comprar'
+  | 'seguranca'
+  | 'blog'
+  | 'contato'
+  | 'privacidade'
+  | 'termos'
 type LegalDrawerSlot = 'privacidade' | 'termos'
 type DrawerSlot = MainDrawerSlot | 'blog-posts'
 
@@ -30,6 +38,7 @@ const props = withDefaults(defineProps<Props>(), {
 const mainRoutes: RouteDefinition[] = [
   { path: '/a-fibramfer/', title: 'A Fibramfer', slot: 'a-fibramfer', revealKey: 'a-fibramfer' },
   { path: '/produtos/', title: 'Produtos', slot: 'produtos', revealKey: 'produtos' },
+  { path: '/onde-comprar/', title: 'Onde Comprar', slot: 'onde-comprar', revealKey: 'onde-comprar' },
   { path: '/seguranca/', title: 'Segurança', slot: 'seguranca', revealKey: 'seguranca' },
   { path: '/blog/', title: 'Blog', slot: 'blog', revealKey: 'blog' },
   { path: '/contato/', title: 'Contato', slot: 'contato', revealKey: 'contato' },
@@ -38,6 +47,9 @@ const mainRoutes: RouteDefinition[] = [
 ]
 
 const legalSlots = new Set<DrawerSlot>(['privacidade', 'termos'])
+const DRAWER_REVEAL_CLOSE_DELAY_MS = 500
+const LEGAL_DRAWER_CONTENT_SWAP_MS = 2100
+const LEGAL_DRAWER_CLOSE_TOTAL_MS = 2700
 
 const legalLinks = [
   { path: '/privacidade', label: 'Privacidade' },
@@ -138,7 +150,15 @@ function scheduleLegalClose(): void {
   isClosingLegal.value = true
   applyLegalContext(true)
   if (legalCloseTimer) clearTimeout(legalCloseTimer)
-  legalCloseTimer = setTimeout(finishLegalClose, 2200)
+  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+  if (reducedMotion) {
+    finishLegalClose()
+    return
+  }
+  const duration = isOpen.value
+    ? LEGAL_DRAWER_CONTENT_SWAP_MS
+    : LEGAL_DRAWER_CLOSE_TOTAL_MS
+  legalCloseTimer = setTimeout(finishLegalClose, duration)
 }
 
 const drawerScrollSelector =
@@ -346,6 +366,14 @@ watch(isOpen, async (open, previousOpen) => {
     document.body.removeAttribute('data-panel-drawer-open')
     document.body.removeAttribute('data-fibramfer-direct-drawer')
 
+    // Dispatch close event for dependent components (e.g., F1 animation)
+    window.dispatchEvent(new CustomEvent('fibramfer:drawer-close', {
+      detail: {
+        delay: DRAWER_REVEAL_CLOSE_DELAY_MS,
+        legal: isLegalRoute.value,
+      },
+    }))
+
     // isLegalRoute inicia a limpeza atrasada acima. O contexto legal permanece
     // durante a cortina, enquanto o Header é liberado imediatamente; as regras
     // legais continuam ocultando o menu sem atrasar o retorno do logo e do H1.
@@ -411,18 +439,19 @@ watch([displayedPostId, displayedSlot], () => {
       placement="right"
       transition="fade"
       fullscreen
-       :modal="false"
-       :show-title="false"
-       :show-divider="false"
-        :close-on-overlay="false"
-        synchronize-fade
-        reveal
-        :skip-initial-transition="shouldSkipInitialTransition"
-        :reveal-key="activeRevealKey"
-       panel-width="three-quarters"
-       @update:open="handleOpenUpdate"
-       @reveal-content="handleRevealContent"
-     >
+      :modal="false"
+      :show-title="false"
+      :show-divider="false"
+      :close-on-overlay="false"
+      synchronize-fade
+      reveal
+      :skip-initial-transition="shouldSkipInitialTransition"
+      :reveal-key="activeRevealKey"
+      :reveal-close-delay="DRAWER_REVEAL_CLOSE_DELAY_MS"
+      panel-width="three-quarters"
+      @update:open="handleOpenUpdate"
+      @reveal-content="handleRevealContent"
+      >
         <div
           v-if="displayedSlot"
           :key="displayedSlot"
