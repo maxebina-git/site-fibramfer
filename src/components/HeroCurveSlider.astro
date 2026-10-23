@@ -6,17 +6,15 @@
 // Auto-play 3s com pausa em hover/aba oculta; swipe e teclado (sem controles visuais).
 // Compatível com montagem dinâmica da drawer (Vue) — init via MutationObserver.
 
-const slides = [
-  {
-    src: '/assets/a-fibramfer-1.webp',
-    alt: 'Profissional em trabalho em altura com talabarte e cinto paraquedista Fibramfer',
-  },
-  {
-    src: '/assets/a-fibramfer-2.webp',
-    alt: 'Equipe realizando acesso por cordas em fachada de edifício',
-  },
-  // Para acrescentar slides: adicione o arquivo em /assets e uma entrada aqui.
-];
+const {
+  slides = [
+    { src: '/assets/a-fibramfer-1.webp', alt: 'Profissional em trabalho em altura com talabarte e cinto paraquedista Fibramfer' },
+    { src: '/assets/a-fibramfer-2.webp', alt: 'Equipe realizando acesso por cordas em fachada de edifício' },
+  ],
+  label = 'Galeria de imagens da Fibramfer',
+  autoplayMs = 3000,
+  idPrefix = 'hero-curve',
+} = Astro.props;
 
 // viewBox na proporção das imagens atuais (393×406 × 3). As curvas abaixo são
 // as 6 etapas do demo "curve" (original 1400×800) re-escaladas para 1179×1218.
@@ -48,14 +46,14 @@ const INITIAL_D = STEP3;
   data-step4={STEP4}
   data-step5={STEP5}
   data-step6={STEP6}
-  data-autoplay-ms={3000}
+  data-autoplay-ms={autoplayMs}
   role="region"
   aria-roledescription="carrossel"
-  aria-label="Galeria de imagens da Fibramfer"
+  aria-label={label}
 >
   <ul class="absolute inset-0">
     {
-      slides.map((slide, index) => (
+      slides.map((slide: { src: string; alt: string }, index: number) => (
         <li
           class:list={[
             'hero-curve-slide absolute inset-0',
@@ -74,7 +72,7 @@ const INITIAL_D = STEP3;
             aria-label={slide.alt}
           >
             <defs>
-              <clipPath id={`hero-curve-clip-${index}`}>
+              <clipPath id={`${idPrefix}-clip-${index}`}>
                 <path data-curve-path d={INITIAL_D} />
               </clipPath>
             </defs>
@@ -83,7 +81,7 @@ const INITIAL_D = STEP3;
               width={VIEW_W}
               height={VIEW_H}
               preserveAspectRatio="xMidYMid slice"
-              clip-path={`url(#hero-curve-clip-${index})`}
+              clip-path={`url(#${idPrefix}-clip-${index})`}
             />
           </svg>
         </li>
