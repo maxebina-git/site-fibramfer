@@ -1,0 +1,104 @@
+---
+import { Button } from 'ds-grupo-rkb';
+import FibramferFloat from '../FibramferFloat.astro';
+import HeroCurveSlider from '../HeroCurveSlider.astro';
+import LordIcon from '../LordIcon.astro';
+const { class: className = '' } = Astro.props;
+---
+
+<section class={`pb-16 ${className}`}>
+  <div class="max-w-6xl mx-auto grid gap-12 lg:grid-cols-2 lg:items-center">
+    <div class="flex justify-center">
+      <HeroCurveSlider />
+    </div>
+    <div class="text-left">
+      <h1 class="font-display text-4xl md:text-5xl font-bold mb-6 text-ink">
+        SEGURANÇA QUE SALVA VIDAS: A HISTÓRIA E A MISSÃO DA FIBRAMFER
+      </h1>
+      <p class="text-text-secondary">
+        Há anos desenvolvendo EPIs de alta performance para trabalho em altura, com a solidez e a tradição do Grupo RKB.
+      </p>
+      <div class="mt-8 flex flex-col sm:flex-row gap-4">
+        <Button id="fibramfer-quote-cta" variant="primary" size="lg">
+          Solicitar Orçamento
+          <LordIcon
+            src="/lordicon/system-outline-3090-mail-open-document-hover-pinch.json"
+            trigger="hover"
+            state="hover-pinch"
+            target="#fibramfer-quote-cta"
+            currentColor
+            class="h-5 w-5 shrink-0"
+          />
+        </Button>
+        <Button id="fibramfer-whatsapp-cta" variant="secondary" size="lg">
+          Falar no WhatsApp
+          <LordIcon
+            src="/lordicon/system-outline-4073-email-hover-pinch.json"
+            trigger="hover"
+            state="hover-pinch"
+            target="#fibramfer-whatsapp-cta"
+            currentColor
+            class="h-5 w-5 shrink-0"
+          />
+        </Button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pb-16">
+  <div class="max-w-6xl mx-auto grid gap-12 lg:grid-cols-2 lg:items-center">
+    <div>
+      <h2 class="font-display text-3xl font-bold mb-6 text-ink">TRADIÇÃO E ENGENHARIA</h2>
+      <p class="text-text-secondary">
+        Nascemos da necessidade de oferecer equipamentos que unissem a rigorosidade da engenharia à segurança do trabalhador. Hoje, somos um braço especializado do Grupo RKB, trazendo décadas de experiência em soluções industriais para o mercado de EPIs, garantindo que cada produto seja sinônimo de confiança.
+      </p>
+    </div>
+    <div class="flex flex-col gap-6">
+      <div class="bg-surface p-6 rounded-lg shadow-card border border-border">
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">MISSÃO</h3>
+        <p class="text-text-secondary">Garantir a integridade física de profissionais em altura através de equipamentos certificados e de alta durabilidade.</p>
+      </div>
+      <div class="bg-surface p-6 rounded-lg shadow-card border border-border">
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">VISÃO</h3>
+        <p class="text-text-secondary">Ser a marca de referência nacional em soluções de segurança para trabalho em altura.</p>
+      </div>
+      <div class="bg-surface p-6 rounded-lg shadow-card border border-border">
+        <h3 class="font-display text-xl font-bold mb-2 text-ink">VALORES</h3>
+        <p class="text-text-secondary">Segurança inegociável, Conformidade (NR-18), Inovação e Transparência.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="pb-16">
+  <div class="max-w-5xl mx-auto">
+    <h2 class="font-display text-3xl font-bold mb-6 text-ink text-center">POR QUE ESCOLHER A FIBRAMFER?</h2>
+    <ul class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border">
+        <span class="text-2xl">🏅</span>
+        <div>
+          <h3 class="font-display text-xl font-bold mb-2 text-ink">Certificação Total</h3>
+          <p class="text-text-secondary mb-4">Todos os produtos com CA válido e testes rigorosos.</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border">
+        <span class="text-2xl">🔬</span>
+        <div>
+          <h3 class="font-display text-xl font-bold mb-2 text-ink">Controle de Qualidade</h3>
+          <p class="text-text-secondary mb-4">Processos de fabricação que seguem padrões internacionais de segurança.</p>
+        </div>
+      </li>
+      <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border">
+        <span class="text-2xl">🛠️</span>
+        <div>
+          <h3 class="font-display text-xl font-bold mb-2 text-ink">Engenharia de Precisão</h3>
+          <p class="text-text-secondary mb-4">Cada peça projetada para durar e proteger em condições extremas.</p>
+        </div>
+      </li>
+    </ul>
+  </div>
+</section>
+
+<FibramferFloat asset="f1" />
+<FibramferFloat asset="f1" mirror />

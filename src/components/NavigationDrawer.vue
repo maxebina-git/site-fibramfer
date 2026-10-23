@@ -11,6 +11,7 @@ type MainDrawerSlot =
   | 'contato'
   | 'privacidade'
   | 'termos'
+  | 'cadeira-suspensa'
 type LegalDrawerSlot = 'privacidade' | 'termos'
 type DrawerSlot = MainDrawerSlot | 'blog-posts'
 
@@ -39,6 +40,7 @@ const mainRoutes: RouteDefinition[] = [
   { path: '/a-fibramfer/', title: 'A Fibramfer', slot: 'a-fibramfer', revealKey: 'a-fibramfer' },
   { path: '/produtos/', title: 'Produtos', slot: 'produtos', revealKey: 'produtos' },
   { path: '/onde-comprar/', title: 'Onde Comprar', slot: 'onde-comprar', revealKey: 'onde-comprar' },
+  { path: '/cadeira-suspensa/', title: 'Cadeira Suspensa', slot: 'cadeira-suspensa', revealKey: 'cadeira-suspensa' },
   { path: '/seguranca/', title: 'Segurança', slot: 'seguranca', revealKey: 'seguranca' },
   { path: '/blog/', title: 'Blog', slot: 'blog', revealKey: 'blog' },
   { path: '/contato/', title: 'Contato', slot: 'contato', revealKey: 'contato' },

@@ -1,0 +1,326 @@
+---
+// HeroCurveSlider.astro
+// Slideshow com transição de clip-path SVG animado (variante "curve"),
+// inspirado no Animated SVG Image Slider da CodyHouse (codyhouse.co).
+// GSAP + MorphSVGPlugin + CustomEase (incluídos gratuitos no gsap >= 3.13).
+// Auto-play 3s com pausa em hover/aba oculta; swipe e teclado (sem controles visuais).
+// Compatível com montagem dinâmica da drawer (Vue) — init via MutationObserver.
+
+const slides = [
+  {
+    src: '/assets/a-fibramfer-1.webp',
+    alt: 'Profissional em trabalho em altura com talabarte e cinto paraquedista Fibramfer',
+  },
+  {
+    src: '/assets/a-fibramfer-2.webp',
+    alt: 'Equipe realizando acesso por cordas em fachada de edifício',
+  },
+  // Para acrescentar slides: adicione o arquivo em /assets e uma entrada aqui.
+];
+
+// viewBox na proporção das imagens atuais (393×406 × 3). As curvas abaixo são
+// as 6 etapas do demo "curve" (original 1400×800) re-escaladas para 1179×1218.
+const VIEW_W = 1179;
+const VIEW_H = 1218;
+
+const STEP1 =
+  'M1180.68,1218h-1.68c0,0,0,-324.29,0,-644.02s0,-573.98,0,-573.98h0.84c0.51,0,0.84,0.61,0.84,1.52V1218z';
+const STEP2 =
+  'M1179,1218H640c-440,0-440,-260-440,-609s0,-609,440,-609H1179Z';
+const STEP3 =
+  'M1179,1218H0c0,0,0.84,-324.29,0.84,-644.02S0.84,0,0.84,0h1177.32c0.51,0,0.84,0.61,0.84,1.52V1218z';
+const STEP4 =
+  'M-1.68,1218h1.68c0,0,0,-324.29,0,-644.02S0,0,0,0h-0.84c-0.51,0,-0.84,0.61,-0.84,1.52V1218z';
+const STEP5 =
+  'M0,1218H539c440,0,440,-260,440,-609s0,-609,-440,-609H0Z';
+const STEP6 =
+  'M0,1218h1179c0,0,-0.84,-324.29,-0.84,-644.02s0,-573.98,0,-573.98L0.84,0C0.34,0,0,0.61,0,1.52L0,1218z';
+
+const INITIAL_D = STEP3;
+---
+
+<section
+  class="relative mx-auto aspect-[1179/1218] w-full max-w-[393px] overflow-hidden bg-deep rounded-lg shadow-card border border-border"
+  data-hero-curve-slider
+  data-step1={STEP1}
+  data-step2={STEP2}
+  data-step3={STEP3}
+  data-step4={STEP4}
+  data-step5={STEP5}
+  data-step6={STEP6}
+  data-autoplay-ms={3000}
+  role="region"
+  aria-roledescription="carrossel"
+  aria-label="Galeria de imagens da Fibramfer"
+>
+  <ul class="absolute inset-0">
+    {
+      slides.map((slide, index) => (
+        <li
+          class:list={[
+            'hero-curve-slide absolute inset-0',
+            index === 0 && 'is-visible',
+          ]}
+          data-curve-slide
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${index + 1} de ${slides.length}`}
+          aria-hidden={index === 0 ? 'false' : 'true'}
+        >
+          <svg
+            viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+            class="block h-full w-full"
+            role="img"
+            aria-label={slide.alt}
+          >
+            <defs>
+              <clipPath id={`hero-curve-clip-${index}`}>
+                <path data-curve-path d={INITIAL_D} />
+              </clipPath>
+            </defs>
+            <image
+              href={slide.src}
+              width={VIEW_W}
+              height={VIEW_H}
+              preserveAspectRatio="xMidYMid slice"
+              clip-path={`url(#hero-curve-clip-${index})`}
+            />
+          </svg>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<noscript>
+  <style>
+    .hero-curve-slide {
+      opacity: 0;
+    }
+    .hero-curve-slide.is-visible {
+      opacity: 1;
+    }
+  </style>
+</noscript>
+
+<script>
+  import { gsap } from 'gsap';
+  import { CustomEase } from 'gsap/CustomEase';
+  import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
+
+  gsap.registerPlugin(CustomEase, MorphSVGPlugin);
+
+  // Mesmos eases do demo original (cubic-bezier .42,.03,.77,.63 e .27,.5,.6,.99).
+  const easeIn = CustomEase.create('heroCurveIn', '.42,.03,.77,.63');
+  const easeOut = CustomEase.create('heroCurveOut', '.27,.5,.6,.99');
+
+  const PHASE_DURATION = 0.25;
+  const SWIPE_THRESHOLD_PX = 50;
+
+  type Direction = 'next' | 'prev';
+
+  function initSlider(root: HTMLElement): void {
+    if (root.dataset.curveReady === 'true') return;
+
+    const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-curve-slide]'));
+    const paths = slides.map((slide) => slide.querySelector<SVGPathElement>('[data-curve-path]'));
+
+    if (slides.length < 2 || paths.some((path) => !path)) return;
+
+    root.dataset.curveReady = 'true';
+
+    const typedPaths = paths as SVGPathElement[];
+    const steps: Record<Direction, string[]> = {
+      next: [root.dataset.step1, root.dataset.step2, root.dataset.step3].filter(
+        (step): step is string => typeof step === 'string',
+      ),
+      prev: [root.dataset.step4, root.dataset.step5, root.dataset.step6].filter(
+        (step): step is string => typeof step === 'string',
+      ),
+    };
+    if (steps.next.length !== 3 || steps.prev.length !== 3) return;
+
+    const autoplayMs = Number(root.dataset.autoplayMs) || 3000;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    let current = 0;
+    let animating = false;
+    let autoplayTimer: number | null = null;
+
+    function goTo(index: number, direction: Direction): void {
+      if (animating || index === current) return;
+
+      const oldSlide = slides[current];
+      const newSlide = slides[index];
+      const newPath = typedPaths[index];
+      if (!newPath) return;
+
+      if (reducedMotion.matches) {
+        oldSlide.classList.remove('is-visible');
+        oldSlide.setAttribute('aria-hidden', 'true');
+        newSlide.classList.add('is-visible');
+        newSlide.setAttribute('aria-hidden', 'false');
+        current = index;
+        return;
+      }
+
+      animating = true;
+      const [stepStart, stepMid, stepEnd] = steps[direction];
+
+      newPath.setAttribute('d', stepStart);
+      newSlide.classList.add('is-animating');
+
+      gsap
+        .timeline({
+          onComplete: () => {
+            oldSlide.classList.remove('is-visible');
+            oldSlide.setAttribute('aria-hidden', 'true');
+            newSlide.classList.add('is-visible');
+            newSlide.setAttribute('aria-hidden', 'false');
+            newSlide.classList.remove('is-animating');
+            current = index;
+            animating = false;
+          },
+        })
+        .to(newPath, { morphSVG: stepMid, duration: PHASE_DURATION, ease: easeIn })
+        .to(newPath, { morphSVG: stepEnd, duration: PHASE_DURATION, ease: easeOut });
+    }
+
+    function next(): void {
+      goTo((current + 1) % slides.length, 'next');
+    }
+
+    function prev(): void {
+      goTo((current - 1 + slides.length) % slides.length, 'prev');
+    }
+
+    function stopAutoplay(): void {
+      if (autoplayTimer !== null) {
+        window.clearInterval(autoplayTimer);
+        autoplayTimer = null;
+      }
+    }
+
+    function startAutoplay(): void {
+      stopAutoplay();
+      if (reducedMotion.matches) return;
+      autoplayTimer = window.setInterval(() => {
+        if (!root.isConnected) {
+          stopAutoplay();
+          return;
+        }
+        if (document.hidden) return;
+        next();
+      }, autoplayMs);
+    }
+
+    // mouseenter/leave (não pointer) para pausar no hover sem travar no touch.
+    root.addEventListener('mouseenter', stopAutoplay);
+    root.addEventListener('mouseleave', startAutoplay);
+
+    let swipeStartX: number | null = null;
+    let swipePointerId: number | null = null;
+    root.addEventListener('pointerdown', (event) => {
+      if (event.pointerType === 'mouse' && event.button !== 0) return;
+      swipeStartX = event.clientX;
+      swipePointerId = event.pointerId;
+    });
+    root.addEventListener('pointerup', (event) => {
+      if (swipePointerId !== event.pointerId || swipeStartX === null) return;
+      const deltaX = event.clientX - swipeStartX;
+      swipeStartX = null;
+      swipePointerId = null;
+      if (Math.abs(deltaX) < SWIPE_THRESHOLD_PX) return;
+      if (deltaX < 0) next();
+      else prev();
+      startAutoplay();
+    });
+    root.addEventListener('pointercancel', () => {
+      swipeStartX = null;
+      swipePointerId = null;
+    });
+
+    function onKeyUp(event: KeyboardEvent): void {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      if (!root.isConnected) {
+        document.removeEventListener('keyup', onKeyUp);
+        return;
+      }
+      const rect = root.getBoundingClientRect();
+      const inViewport =
+        rect.bottom > 0 &&
+        rect.top < (window.innerHeight || document.documentElement.clientHeight) &&
+        rect.right > 0 &&
+        rect.left < (window.innerWidth || document.documentElement.clientWidth);
+      if (!inViewport) return;
+      if (event.key === 'ArrowRight') next();
+      else prev();
+      startAutoplay();
+    }
+    document.addEventListener('keyup', onKeyUp);
+
+    startAutoplay();
+  }
+
+  function tryInit(): void {
+    const roots = document.querySelectorAll<HTMLElement>(
+      '[data-hero-curve-slider]:not([data-curve-ready])',
+    );
+    roots.forEach(initSlider);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', tryInit, { once: true });
+  } else {
+    tryInit();
+  }
+
+  // A drawer Vue recria o DOM do slot a cada troca de rota SPA (":key" em
+  // displayedSlot), gerando uma raiz nova sem o guard. O observer abaixo fica
+  // persistente e só reage quando um nó com slider pendente é adicionado,
+  // reinicializando o componente de forma confiável.
+  function hasPendingSlider(node: Node): boolean {
+    if (node.nodeType !== Node.ELEMENT_NODE) return false;
+    const el = node as Element;
+    const selector = '[data-hero-curve-slider]:not([data-curve-ready])';
+    if (typeof el.matches === 'function' && el.matches(selector)) return true;
+    return typeof el.querySelector === 'function' && el.querySelector(selector) !== null;
+  }
+
+  let observer: MutationObserver | null = null;
+  function startObserver(): void {
+    if (observer || !document.body) return;
+    observer = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        for (const node of Array.from(mutation.addedNodes)) {
+          if (hasPendingSlider(node)) {
+            tryInit();
+            return;
+          }
+        }
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  }
+  startObserver();
+
+  // Rede de segurança: o evento dispara quando o drawer abre de fato.
+  window.addEventListener('fibramfer:drawer-open', tryInit);
+</script>
+
+<style>
+  .hero-curve-slide {
+    opacity: 0;
+    z-index: 0;
+  }
+
+  .hero-curve-slide.is-visible {
+    opacity: 1;
+    z-index: 2;
+  }
+
+  .hero-curve-slide.is-animating {
+    opacity: 1;
+    z-index: 3;
+  }
+</style>

@@ -1,9 +1,10 @@
 ---
 import { getCollection, render } from 'astro:content';
-import Hero from './sections/Hero.astro';
+import FibramferHistoria from './sections/FibramferHistoria.astro';
 import Products from './sections/Products.astro';
 import OndeComprar from './sections/OndeComprar.astro';
 import Security from './sections/Security.astro';
+import CadeiraSuspensa from './sections/CadeiraSuspensa.astro';
 import Contact from './sections/Contact.astro';
 import Privacidade from './sections/Privacidade.astro';
 import Termos from './sections/Termos.astro';
@@ -37,9 +38,10 @@ const initialBlogPostId = blogPosts.some((post) => post.id === currentBlogPostId
 ---
 
 <NavigationDrawer client:load initialPath={currentPath} blogPosts={blogPostRoutes}>
-  <div slot="a-fibramfer"><Hero /></div>
+  <div slot="a-fibramfer"><FibramferHistoria /></div>
   <div slot="produtos"><Products /></div>
   <div slot="onde-comprar"><OndeComprar /></div>
+  <div slot="cadeira-suspensa"><CadeiraSuspensa /></div>
   <div slot="seguranca"><Security /></div>
   <div slot="blog"><BlogList posts={blogPosts} /></div>
   <div slot="contato"><Contact /></div>
