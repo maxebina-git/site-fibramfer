@@ -1,0 +1,276 @@
+---
+// HeroCurveSlider.astro
+// Slideshow com transição de clip-path SVG animado (variante "curve"),
+// inspirado no Animated SVG Image Slider da CodyHouse (codyhouse.co).
+// GSAP + MorphSVGPlugin + CustomEase (incluídos gratuitos no gsap >= 3.13).
+// Auto-play 3s, sem interação; respeita aba oculta e movimento reduzido.
+// Aguarda hidratação Astro/Vue e acompanha a montagem dinâmica da drawer.
+
+const {
+  slides = [
+    { src: '/assets/a-fibramfer-1.webp', alt: 'Profissional em trabalho em altura com talabarte e cinto paraquedista Fibramfer' },
+    { src: '/assets/a-fibramfer-2.webp', alt: 'Equipe realizando acesso por cordas em fachada de edifício' },
+  ],
+  label = 'Galeria de imagens da Fibramfer',
+  autoplayMs = 3000,
+  idPrefix = 'hero-curve',
+} = Astro.props;
+
+// viewBox na proporção das imagens atuais (393×406 × 3). As curvas abaixo são
+// as etapas de avanço do demo "curve" re-escaladas para 1179×700.
+const VIEW_W = 1179;
+const VIEW_H = 1218;
+
+const STEP1 =
+  'M1180.68,700h-1.68c0,0,0,-324.29,0,-644.02s0,-573.98,0,-573.98h0.84c0.51,0,0.84,0.61,0.84,1.52V700z';
+const STEP2 =
+  'M1179,700H640c-440,0-440,-260-440,-609s0,-609,440,-609H1179Z';
+const STEP3 =
+  'M1179,700H0c0,0,0.84,-324.29,0.84,-644.02S0.84,0,0.84,0h1177.32c0.51,0,0.84,0.61,0.84,1.52V700z';
+const INITIAL_D = STEP3;
+---
+
+<section
+  class="relative mx-auto aspect-[1179/1218] w-full max-w-[393px] overflow-hidden bg-deep rounded-lg shadow-card border border-border"
+  data-hero-curve-slider
+  data-step1={STEP1}
+  data-step2={STEP2}
+  data-step3={STEP3}
+  data-autoplay-ms={autoplayMs}
+  role="region"
+  aria-roledescription="carrossel"
+  aria-label={label}
+>
+  <ul class="absolute inset-0">
+    {
+      slides.map((slide: { src: string; alt: string }, index: number) => (
+        <li
+          class:list={[
+            'hero-curve-slide absolute inset-0',
+            index === 0 && 'is-visible',
+          ]}
+          data-curve-slide
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${index + 1} de ${slides.length}`}
+          aria-hidden={index === 0 ? 'false' : 'true'}
+        >
+          <svg
+            viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
+            class="block h-full w-full"
+            role="img"
+            aria-label={slide.alt}
+          >
+            <defs>
+              <clipPath id={`${idPrefix}-clip-${index}`}>
+                <path data-curve-path d={INITIAL_D} />
+              </clipPath>
+            </defs>
+            <image
+              href={slide.src}
+              width={VIEW_W}
+              height={VIEW_H}
+              preserveAspectRatio="xMidYMid slice"
+              width="100%"
+              height="100%"
+              clip-path={`url(#${idPrefix}-clip-${index})`}
+            />
+          </svg>
+        </li>
+      ))
+    }
+  </ul>
+</section>
+
+<noscript>
+  <style>
+    .hero-curve-slide {
+      opacity: 0;
+    }
+    .hero-curve-slide.is-visible {
+      opacity: 1;
+    }
+  </style>
+</noscript>
+
+<script>
+  import { gsap } from 'gsap';
+  import { CustomEase } from 'gsap/CustomEase';
+  import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
+
+  gsap.registerPlugin(CustomEase, MorphSVGPlugin);
+
+  // Mesmos eases do demo original (cubic-bezier .42,.03,.77,.63 e .27,.5,.6,.99).
+  const easeIn = CustomEase.create('heroCurveIn', '.42,.03,.77,.63');
+  const easeOut = CustomEase.create('heroCurveOut', '.27,.5,.6,.99');
+
+  const PHASE_DURATION = 0.25;
+  const SLIDER_SELECTOR = '[data-hero-curve-slider]';
+  // O Vue serializa o slot com innerHTML: atributos são copiados, timers não.
+  // A identidade do nó e dos slides, nunca data-curve-ready, define a instância.
+  const instances = new Map<HTMLElement, { slides: HTMLElement[]; destroy: () => void }>();
+
+  function initSlider(root: HTMLElement): void {
+    if (instances.has(root) || !root.isConnected || root.closest('astro-island[ssr]')) return;
+
+    const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-curve-slide]'));
+    const paths = slides.map((slide) => slide.querySelector<SVGPathElement>('[data-curve-path]'));
+
+    if (slides.length < 2 || paths.some((path) => !path)) return;
+
+    const typedPaths = paths as SVGPathElement[];
+    const { step1: stepStart, step2: stepMid, step3: stepEnd } = root.dataset;
+    if (!stepStart || !stepMid || !stepEnd) return;
+    const steps = [stepStart, stepMid, stepEnd] as const;
+
+    const autoplayMs = Number(root.dataset.autoplayMs) || 3000;
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    let current = 0;
+    let animating = false;
+    let autoplayTimer: number | null = null;
+    let timeline: gsap.core.Timeline | null = null;
+
+    // Um slot recriado pode carregar classes/paths de uma transição antiga.
+    slides.forEach((slide, index) => {
+      slide.classList.toggle('is-visible', index === 0);
+      slide.classList.remove('is-animating');
+      slide.setAttribute('aria-hidden', index === 0 ? 'false' : 'true');
+      typedPaths[index].setAttribute('d', stepEnd);
+    });
+
+    function next(): void {
+      if (animating || reducedMotion.matches) return;
+
+      const index = (current + 1) % slides.length;
+      const oldSlide = slides[current];
+      const newSlide = slides[index];
+      const newPath = typedPaths[index];
+
+      animating = true;
+      newPath.setAttribute('d', steps[0]);
+      newSlide.classList.add('is-animating');
+
+      timeline = gsap
+        .timeline({
+          onComplete: () => {
+            oldSlide.classList.remove('is-visible');
+            oldSlide.setAttribute('aria-hidden', 'true');
+            newSlide.classList.add('is-visible');
+            newSlide.setAttribute('aria-hidden', 'false');
+            newSlide.classList.remove('is-animating');
+            current = index;
+            animating = false;
+            timeline = null;
+          },
+        })
+        .to(newPath, { morphSVG: steps[1], duration: PHASE_DURATION, ease: easeIn })
+        .to(newPath, { morphSVG: steps[2], duration: PHASE_DURATION, ease: easeOut });
+    }
+
+    function stopAutoplay(): void {
+      if (autoplayTimer !== null) {
+        window.clearInterval(autoplayTimer);
+        autoplayTimer = null;
+      }
+    }
+
+    function startAutoplay(): void {
+      stopAutoplay();
+      if (reducedMotion.matches) return;
+      autoplayTimer = window.setInterval(() => {
+        if (!root.isConnected) {
+          destroy();
+          return;
+        }
+        if (document.hidden) return;
+        next();
+      }, autoplayMs);
+    }
+
+    function onMotionChange(): void {
+      // Finaliza uma transição em curso antes de desativar o movimento.
+      if (reducedMotion.matches) timeline?.progress(1);
+      startAutoplay();
+    }
+
+    function destroy(): void {
+      stopAutoplay();
+      timeline?.kill();
+      reducedMotion.removeEventListener('change', onMotionChange);
+      instances.delete(root);
+      delete root.dataset.curveReady;
+    }
+
+    instances.set(root, { slides, destroy });
+    root.dataset.curveReady = 'true';
+    reducedMotion.addEventListener('change', onMotionChange);
+    startAutoplay();
+  }
+
+  function syncSliders(): void {
+    for (const [root, instance] of instances) {
+      const slides = Array.from(root.querySelectorAll('[data-curve-slide]'));
+      if (!root.isConnected || slides.length !== instance.slides.length ||
+          slides.some((slide, index) => slide !== instance.slides[index])) {
+        instance.destroy();
+      }
+    }
+    document.querySelectorAll<HTMLElement>(SLIDER_SELECTOR).forEach(initSlider);
+  }
+
+  let syncFrame = 0;
+  function scheduleSync(): void {
+    if (syncFrame) return;
+    syncFrame = window.requestAnimationFrame(() => {
+      syncFrame = 0;
+      syncSliders();
+    });
+  }
+
+  function containsSlider(node: Node): boolean {
+    return node instanceof Element &&
+      (node.matches(SLIDER_SELECTOR) || node.querySelector(SLIDER_SELECTOR) !== null);
+  }
+
+  let observer: MutationObserver | null = null;
+  function start(): void {
+    if (observer || !document.body) return;
+    observer = new MutationObserver((mutations) => {
+      if (mutations.some((mutation) =>
+        (mutation.target instanceof Element && mutation.target.closest(SLIDER_SELECTOR)) ||
+        Array.from(mutation.addedNodes).some(containsSlider) ||
+        Array.from(mutation.removedNodes).some(containsSlider),
+      )) scheduleSync();
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+    scheduleSync();
+  }
+
+  // astro:hydrate não faz bubbling; capture recebe o evento da ilha após mount.
+  // Diferente de drawer-open, também acontece no carregamento direto/F5.
+  document.addEventListener('astro:hydrate', scheduleSync, true);
+  window.addEventListener('fibramfer:drawer-open', scheduleSync);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
+</script>
+
+<style>
+  .hero-curve-slide {
+    opacity: 0;
+    z-index: 0;
+  }
+
+  .hero-curve-slide.is-visible {
+    opacity: 1;
+    z-index: 2;
+  }
+
+  .hero-curve-slide.is-animating {
+    opacity: 1;
+    z-index: 3;
+  }
+</style>
