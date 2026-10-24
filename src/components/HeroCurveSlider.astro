@@ -3,8 +3,8 @@
 // Slideshow com transição de clip-path SVG animado (variante "curve"),
 // inspirado no Animated SVG Image Slider da CodyHouse (codyhouse.co).
 // GSAP + MorphSVGPlugin + CustomEase (incluídos gratuitos no gsap >= 3.13).
-// Auto-play 3s com pausa em hover/aba oculta; swipe e teclado (sem controles visuais).
-// Compatível com montagem dinâmica da drawer (Vue) — init via MutationObserver.
+// Auto-play 3s, sem interação; respeita aba oculta e movimento reduzido.
+// Aguarda hidratação Astro/Vue e acompanha a montagem dinâmica da drawer.
 
 const {
   slides = [
@@ -17,7 +17,7 @@ const {
 } = Astro.props;
 
 // viewBox na proporção das imagens atuais (393×406 × 3). As curvas abaixo são
-// as 6 etapas do demo "curve" (original 1400×800) re-escaladas para 1179×1218.
+// as etapas de avanço do demo "curve" re-escaladas para 1179×1218.
 const VIEW_W = 1179;
 const VIEW_H = 1218;
 
@@ -27,13 +27,6 @@ const STEP2 =
   'M1179,1218H640c-440,0-440,-260-440,-609s0,-609,440,-609H1179Z';
 const STEP3 =
   'M1179,1218H0c0,0,0.84,-324.29,0.84,-644.02S0.84,0,0.84,0h1177.32c0.51,0,0.84,0.61,0.84,1.52V1218z';
-const STEP4 =
-  'M-1.68,1218h1.68c0,0,0,-324.29,0,-644.02S0,0,0,0h-0.84c-0.51,0,-0.84,0.61,-0.84,1.52V1218z';
-const STEP5 =
-  'M0,1218H539c440,0,440,-260,440,-609s0,-609,-440,-609H0Z';
-const STEP6 =
-  'M0,1218h1179c0,0,-0.84,-324.29,-0.84,-644.02s0,-573.98,0,-573.98L0.84,0C0.34,0,0,0.61,0,1.52L0,1218z';
-
 const INITIAL_D = STEP3;
 ---
 
@@ -43,9 +36,6 @@ const INITIAL_D = STEP3;
   data-step1={STEP1}
   data-step2={STEP2}
   data-step3={STEP3}
-  data-step4={STEP4}
-  data-step5={STEP5}
-  data-step6={STEP6}
   data-autoplay-ms={autoplayMs}
   role="region"
   aria-roledescription="carrossel"
@@ -113,30 +103,23 @@ const INITIAL_D = STEP3;
   const easeOut = CustomEase.create('heroCurveOut', '.27,.5,.6,.99');
 
   const PHASE_DURATION = 0.25;
-  const SWIPE_THRESHOLD_PX = 50;
-
-  type Direction = 'next' | 'prev';
+  const SLIDER_SELECTOR = '[data-hero-curve-slider]';
+  // O Vue serializa o slot com innerHTML: atributos são copiados, timers não.
+  // A identidade do nó e dos slides, nunca data-curve-ready, define a instância.
+  const instances = new Map<HTMLElement, { slides: HTMLElement[]; destroy: () => void }>();
 
   function initSlider(root: HTMLElement): void {
-    if (root.dataset.curveReady === 'true') return;
+    if (instances.has(root) || !root.isConnected || root.closest('astro-island[ssr]')) return;
 
     const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-curve-slide]'));
     const paths = slides.map((slide) => slide.querySelector<SVGPathElement>('[data-curve-path]'));
 
     if (slides.length < 2 || paths.some((path) => !path)) return;
 
-    root.dataset.curveReady = 'true';
-
     const typedPaths = paths as SVGPathElement[];
-    const steps: Record<Direction, string[]> = {
-      next: [root.dataset.step1, root.dataset.step2, root.dataset.step3].filter(
-        (step): step is string => typeof step === 'string',
-      ),
-      prev: [root.dataset.step4, root.dataset.step5, root.dataset.step6].filter(
-        (step): step is string => typeof step === 'string',
-      ),
-    };
-    if (steps.next.length !== 3 || steps.prev.length !== 3) return;
+    const { step1: stepStart, step2: stepMid, step3: stepEnd } = root.dataset;
+    if (!stepStart || !stepMid || !stepEnd) return;
+    const steps = [stepStart, stepMid, stepEnd] as const;
 
     const autoplayMs = Number(root.dataset.autoplayMs) || 3000;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -144,31 +127,29 @@ const INITIAL_D = STEP3;
     let current = 0;
     let animating = false;
     let autoplayTimer: number | null = null;
+    let timeline: gsap.core.Timeline | null = null;
 
-    function goTo(index: number, direction: Direction): void {
-      if (animating || index === current) return;
+    // Um slot recriado pode carregar classes/paths de uma transição antiga.
+    slides.forEach((slide, index) => {
+      slide.classList.toggle('is-visible', index === 0);
+      slide.classList.remove('is-animating');
+      slide.setAttribute('aria-hidden', index === 0 ? 'false' : 'true');
+      typedPaths[index].setAttribute('d', stepEnd);
+    });
 
+    function next(): void {
+      if (animating || reducedMotion.matches) return;
+
+      const index = (current + 1) % slides.length;
       const oldSlide = slides[current];
       const newSlide = slides[index];
       const newPath = typedPaths[index];
-      if (!newPath) return;
-
-      if (reducedMotion.matches) {
-        oldSlide.classList.remove('is-visible');
-        oldSlide.setAttribute('aria-hidden', 'true');
-        newSlide.classList.add('is-visible');
-        newSlide.setAttribute('aria-hidden', 'false');
-        current = index;
-        return;
-      }
 
       animating = true;
-      const [stepStart, stepMid, stepEnd] = steps[direction];
-
-      newPath.setAttribute('d', stepStart);
+      newPath.setAttribute('d', steps[0]);
       newSlide.classList.add('is-animating');
 
-      gsap
+      timeline = gsap
         .timeline({
           onComplete: () => {
             oldSlide.classList.remove('is-visible');
@@ -178,18 +159,11 @@ const INITIAL_D = STEP3;
             newSlide.classList.remove('is-animating');
             current = index;
             animating = false;
+            timeline = null;
           },
         })
-        .to(newPath, { morphSVG: stepMid, duration: PHASE_DURATION, ease: easeIn })
-        .to(newPath, { morphSVG: stepEnd, duration: PHASE_DURATION, ease: easeOut });
-    }
-
-    function next(): void {
-      goTo((current + 1) % slides.length, 'next');
-    }
-
-    function prev(): void {
-      goTo((current - 1 + slides.length) % slides.length, 'prev');
+        .to(newPath, { morphSVG: steps[1], duration: PHASE_DURATION, ease: easeIn })
+        .to(newPath, { morphSVG: steps[2], duration: PHASE_DURATION, ease: easeOut });
     }
 
     function stopAutoplay(): void {
@@ -204,7 +178,7 @@ const INITIAL_D = STEP3;
       if (reducedMotion.matches) return;
       autoplayTimer = window.setInterval(() => {
         if (!root.isConnected) {
-          stopAutoplay();
+          destroy();
           return;
         }
         if (document.hidden) return;
@@ -212,98 +186,74 @@ const INITIAL_D = STEP3;
       }, autoplayMs);
     }
 
-    // mouseenter/leave (não pointer) para pausar no hover sem travar no touch.
-    root.addEventListener('mouseenter', stopAutoplay);
-    root.addEventListener('mouseleave', startAutoplay);
-
-    let swipeStartX: number | null = null;
-    let swipePointerId: number | null = null;
-    root.addEventListener('pointerdown', (event) => {
-      if (event.pointerType === 'mouse' && event.button !== 0) return;
-      swipeStartX = event.clientX;
-      swipePointerId = event.pointerId;
-    });
-    root.addEventListener('pointerup', (event) => {
-      if (swipePointerId !== event.pointerId || swipeStartX === null) return;
-      const deltaX = event.clientX - swipeStartX;
-      swipeStartX = null;
-      swipePointerId = null;
-      if (Math.abs(deltaX) < SWIPE_THRESHOLD_PX) return;
-      if (deltaX < 0) next();
-      else prev();
-      startAutoplay();
-    });
-    root.addEventListener('pointercancel', () => {
-      swipeStartX = null;
-      swipePointerId = null;
-    });
-
-    function onKeyUp(event: KeyboardEvent): void {
-      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-      if (!root.isConnected) {
-        document.removeEventListener('keyup', onKeyUp);
-        return;
-      }
-      const rect = root.getBoundingClientRect();
-      const inViewport =
-        rect.bottom > 0 &&
-        rect.top < (window.innerHeight || document.documentElement.clientHeight) &&
-        rect.right > 0 &&
-        rect.left < (window.innerWidth || document.documentElement.clientWidth);
-      if (!inViewport) return;
-      if (event.key === 'ArrowRight') next();
-      else prev();
+    function onMotionChange(): void {
+      // Finaliza uma transição em curso antes de desativar o movimento.
+      if (reducedMotion.matches) timeline?.progress(1);
       startAutoplay();
     }
-    document.addEventListener('keyup', onKeyUp);
 
+    function destroy(): void {
+      stopAutoplay();
+      timeline?.kill();
+      reducedMotion.removeEventListener('change', onMotionChange);
+      instances.delete(root);
+      delete root.dataset.curveReady;
+    }
+
+    instances.set(root, { slides, destroy });
+    root.dataset.curveReady = 'true';
+    reducedMotion.addEventListener('change', onMotionChange);
     startAutoplay();
   }
 
-  function tryInit(): void {
-    const roots = document.querySelectorAll<HTMLElement>(
-      '[data-hero-curve-slider]:not([data-curve-ready])',
-    );
-    roots.forEach(initSlider);
+  function syncSliders(): void {
+    for (const [root, instance] of instances) {
+      const slides = Array.from(root.querySelectorAll('[data-curve-slide]'));
+      if (!root.isConnected || slides.length !== instance.slides.length ||
+          slides.some((slide, index) => slide !== instance.slides[index])) {
+        instance.destroy();
+      }
+    }
+    document.querySelectorAll<HTMLElement>(SLIDER_SELECTOR).forEach(initSlider);
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', tryInit, { once: true });
-  } else {
-    tryInit();
+  let syncFrame = 0;
+  function scheduleSync(): void {
+    if (syncFrame) return;
+    syncFrame = window.requestAnimationFrame(() => {
+      syncFrame = 0;
+      syncSliders();
+    });
   }
 
-  // A drawer Vue recria o DOM do slot a cada troca de rota SPA (":key" em
-  // displayedSlot), gerando uma raiz nova sem o guard. O observer abaixo fica
-  // persistente e só reage quando um nó com slider pendente é adicionado,
-  // reinicializando o componente de forma confiável.
-  function hasPendingSlider(node: Node): boolean {
-    if (node.nodeType !== Node.ELEMENT_NODE) return false;
-    const el = node as Element;
-    const selector = '[data-hero-curve-slider]:not([data-curve-ready])';
-    if (typeof el.matches === 'function' && el.matches(selector)) return true;
-    return typeof el.querySelector === 'function' && el.querySelector(selector) !== null;
+  function containsSlider(node: Node): boolean {
+    return node instanceof Element &&
+      (node.matches(SLIDER_SELECTOR) || node.querySelector(SLIDER_SELECTOR) !== null);
   }
 
   let observer: MutationObserver | null = null;
-  function startObserver(): void {
+  function start(): void {
     if (observer || !document.body) return;
     observer = new MutationObserver((mutations) => {
-      for (const mutation of mutations) {
-        for (const node of Array.from(mutation.addedNodes)) {
-          if (hasPendingSlider(node)) {
-            tryInit();
-            return;
-          }
-        }
-      }
+      if (mutations.some((mutation) =>
+        (mutation.target instanceof Element && mutation.target.closest(SLIDER_SELECTOR)) ||
+        Array.from(mutation.addedNodes).some(containsSlider) ||
+        Array.from(mutation.removedNodes).some(containsSlider),
+      )) scheduleSync();
     });
     observer.observe(document.body, { childList: true, subtree: true });
+    scheduleSync();
   }
-  startObserver();
 
-  // Rede de segurança: o evento dispara quando o drawer abre de fato.
-  window.addEventListener('fibramfer:drawer-open', tryInit);
+  // astro:hydrate não faz bubbling; capture recebe o evento da ilha após mount.
+  // Diferente de drawer-open, também acontece no carregamento direto/F5.
+  document.addEventListener('astro:hydrate', scheduleSync, true);
+  window.addEventListener('fibramfer:drawer-open', scheduleSync);
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start, { once: true });
+  } else {
+    start();
+  }
 </script>
 
 <style>

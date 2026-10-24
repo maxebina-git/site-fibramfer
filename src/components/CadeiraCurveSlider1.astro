@@ -1,0 +1,12 @@
+---
+const { class: className = '' } = Astro.props;
+---
+
+<div class={`relative w-full h-48 overflow-hidden rounded-lg bg-surface-alt ${className}`}>
+  <img loading="eager" decoding="async" src="/assets/cadeira-suspensa/001.webp" alt="" loading="eager" decoding="async" class="absolute inset-0 w-full h-full object-cover opacity-100 transition-opacity duration-700" style="animation: fadeS1 3s infinite" />
+  <img loading="eager" decoding="async" src="/assets/cadeira-suspensa/002.webp" alt="" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" style="animation: fadeS1 3s infinite; animation-delay: 1s" />
+  <img loading="eager" decoding="async" src="/assets/cadeira-suspensa/003.webp" alt="" class="absolute inset-0 w-full h-full object-cover opacity-0 transition-opacity duration-700" style="animation: fadeS1 3s infinite; animation-delay: 2s" />
+</div>
+<style>
+  @keyframes fadeS1 { 0%,33%{opacity:1} 33.33%,66%{opacity:0} 66.33%,100%{opacity:0} }
+</style>

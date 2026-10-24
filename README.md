@@ -152,6 +152,7 @@ SPA fallback.
 - `npm run dev` - Start the development server
 - `npm run build` - Build for production
 - `npm run preview` - Preview the production build
+- `npm run test:slider` - Browser regression for the automatic slider (local Chrome/Chromium required; see `docs/hero-slider-smoke.md` for setup and reload scenarios)
 - `npm run lint` - Run ESLint
 - `npm run format` - Format code with Prettier
 
