@@ -20,6 +20,7 @@ interface Props {
   class?: string
   width?: string
   height?: string
+  speed?: string
 }
 
 const {
@@ -33,6 +34,7 @@ const {
   class: className = '',
   width,
   height,
+  speed,
 } = Astro.props
 const iconStyle = [width && `width:${width}`, height && `height:${height}`].filter(Boolean).join(';') || undefined
 ---
@@ -47,6 +49,7 @@ const iconStyle = [width && `width:${width}`, height && `height:${height}`].filt
   aria-label={!decorative ? label : undefined}
   class={className}
   style={iconStyle}
+  speed={speed}
 ></lord-icon>
 
 <script>

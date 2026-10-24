@@ -55,16 +55,25 @@ const { class: className = '' } = Astro.props;
       </p>
     </div>
     <div class="flex flex-col gap-6">
-      <div class="bg-surface p-6 rounded-lg shadow-card border border-border">
-        <h3 class="font-display text-xl font-bold mb-2 text-ink">MISSÃO</h3>
+      <div class="bg-surface p-6 rounded-lg shadow-card border border-border group hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300">
+        <div class="flex items-center gap-3 mb-2">
+          <h3 class="font-display text-xl font-bold text-ink">MISSÃO</h3>
+          <div class="h-2 bg-fibra-gold-500 rounded-full w-1/3 group-hover:w-full transition-all duration-300 ease-in-out"></div>
+        </div>
         <p class="text-text-secondary">Garantir a integridade física de profissionais em altura através de equipamentos certificados e de alta durabilidade.</p>
       </div>
-      <div class="bg-surface p-6 rounded-lg shadow-card border border-border">
-        <h3 class="font-display text-xl font-bold mb-2 text-ink">VISÃO</h3>
+      <div class="bg-surface p-6 rounded-lg shadow-card border border-border group hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300">
+        <div class="flex items-center gap-3 mb-2">
+          <h3 class="font-display text-xl font-bold text-ink">VISÃO</h3>
+          <div class="h-2 bg-fibra-gold-500 rounded-full w-1/3 group-hover:w-full transition-all duration-300 ease-in-out"></div>
+        </div>
         <p class="text-text-secondary">Ser a marca de referência nacional em soluções de segurança para trabalho em altura.</p>
       </div>
-      <div class="bg-surface p-6 rounded-lg shadow-card border border-border">
-        <h3 class="font-display text-xl font-bold mb-2 text-ink">VALORES</h3>
+      <div class="bg-surface p-6 rounded-lg shadow-card border border-border group hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300">
+        <div class="flex items-center gap-3 mb-2">
+          <h3 class="font-display text-xl font-bold text-ink">VALORES</h3>
+          <div class="h-2 bg-fibra-gold-500 rounded-full w-1/3 group-hover:w-full transition-all duration-300 ease-in-out"></div>
+        </div>
         <p class="text-text-secondary">Segurança inegociável, Conformidade (NR-18), Inovação e Transparência.</p>
       </div>
     </div>
@@ -75,22 +84,40 @@ const { class: className = '' } = Astro.props;
   <div class="max-w-5xl mx-auto">
     <h2 class="font-display text-3xl font-bold mb-6 text-ink text-center">POR QUE ESCOLHER A FIBRAMFER?</h2>
     <ul class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border">
-        <span class="text-2xl">🏅</span>
+      <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border group hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out">
+        <LordIcon
+          src="/lordicon/system-outline-3235-badge-ribbon-hover-pinch.json"
+          trigger="loop"
+          speed="0.3"
+          width="6rem"
+          height="6rem"
+        />
         <div>
           <h3 class="font-display text-xl font-bold mb-2 text-ink">Certificação Total</h3>
           <p class="text-text-secondary mb-4">Todos os produtos com CA válido e testes rigorosos.</p>
         </div>
       </li>
-      <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border">
-        <span class="text-2xl">🔬</span>
+      <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border group hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out">
+        <LordIcon
+          src="/lordicon/system-outline-409-wrench-hover-pinch.json"
+          trigger="loop"
+          width="6rem"
+          height="6rem"
+          class="inline-block text-ink rotate-180"
+        />
         <div>
           <h3 class="font-display text-xl font-bold mb-2 text-ink">Controle de Qualidade</h3>
           <p class="text-text-secondary mb-4">Processos de fabricação que seguem padrões internacionais de segurança.</p>
         </div>
       </li>
-      <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border">
-        <span class="text-2xl">🛠️</span>
+      <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border group hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out">
+        <LordIcon
+          src="/lordicon/system-outline-1122-thumb-down-hover-pinch.json"
+          trigger="loop"
+          width="6rem"
+          height="6rem"
+          class="inline-block text-ink rotate-180"
+        />
         <div>
           <h3 class="font-display text-xl font-bold mb-2 text-ink">Engenharia de Precisão</h3>
           <p class="text-text-secondary mb-4">Cada peça projetada para durar e proteger em condições extremas.</p>

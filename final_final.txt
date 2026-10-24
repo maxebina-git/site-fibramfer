@@ -1,0 +1,26 @@
+77:     <ul class="grid grid-cols-1 md:grid-cols-3 gap-6">
+78:       <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border">
+79:         <LordIcon
+80:           src="/lordicon/system-outline-3235-badge-ribbon-hover-pinch.json"
+81:           trigger="loop"
+82:           class="w-8 h-8 inline-block text-ink"
+83:         />
+84:         <div>
+85:           <h3 class="font-display text-xl font-bold mb-2 text-ink">Certificação Total</h3>
+86:           <p class="text-text-secondary mb-4">Todos os produtos com CA válido e testes rigorosos.</p>
+87:         </div>
+88:       </li>
+89:       <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border">
+90:         <span class="text-2xl">🔬</span>
+91:         <div>
+92:           <h3 class="font-display text-xl font-bold mb-2 text-ink">Controle de Qualidade</h3>
+93:           <p class="text-text-secondary mb-4">Processos de fabricação que seguem padrões internacionais de segurança.</p>
+94:         </div>
+95:       </li>
+96:       <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border">
+97:         <span class="text-2xl">🛠️</span>
+98:         <div>
+99:           <h3 class="font-display text-xl font-bold mb-2 text-ink">Engenharia de Precisão</h3>
+100:           <p class="text-text-secondary mb-4">Cada peça projetada para durar e proteger em condições extremas.</p>
+101:         </div>
+102:       </li>

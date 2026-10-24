@@ -1,0 +1,10 @@
+76:     <h2 class="font-display text-3xl font-bold mb-6 text-ink text-center">POR QUE ESCOLHER A FIBRAMFER?</h2>
+77:     <ul class="grid grid-cols-1 md:grid-cols-3 gap-6">
+78:       <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border">
+79:         <span class="text-2xl">🏅</span>
+80:         <div>
+81:           <h3 class="font-display text-xl font-bold mb-2 text-ink">Certificação Total</h3>
+82:           <p class="text-text-secondary mb-4">Todos os produtos com CA válido e testes rigorosos.</p>
+83:         </div>
+84:       </li>
+85:       <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border">

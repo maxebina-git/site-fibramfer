@@ -1,0 +1,16 @@
+79:         <LordIcon
+80:           src=" /lordicon/system-outline-3235-badge-ribbon-hover-pinch.json\n
+81:         <div>
+82:           <h3 class="font-display text-xl font-bold mb-2 text-ink">Certificação Total</h3>
+83:           <p class="text-text-secondary mb-4">Todos os produtos com CA válido e testes rigorosos.</p>
+84:         </div>
+85:       </li>
+86:       <li class="flex items-start gap-4 p-4 bg-surface rounded-lg shadow-card border border-border">
+87:         <LordIcon
+88:           src="/lordicon/system-outline-3235-badge-ribbon-hover-pinch.json"
+89:           trigger="loop"
+90:           class="w-8 h-8 inline-block text-ink"
+91:         />
+92:         <div>
+93:           <h3 class="font-display text-xl font-bold mb-2 text-ink">Controle de Qualidade</h3>
+94:           <p class="text-text-secondary mb-4">Processos de fabricação que seguem padrões internacionais de segurança.</p>
