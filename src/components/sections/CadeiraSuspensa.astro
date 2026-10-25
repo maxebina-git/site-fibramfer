@@ -24,7 +24,7 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     </div>
     <h3 id="cs1-h3" class="font-display text-xl font-bold mb-2 text-ink transition-all duration-300">Cadeira Suspensa 1</h3>
     <p id="cs1-desc" class="text-text-secondary mb-4 transition-all duration-300">Descrição detalhada do produto.</p>
-    <Button variant="secondary" size="sm" onclick="const d=document.getElementById('cs1-overlay'); d.classList.toggle('cs-open'); this.innerText = this.innerText === 'Ver Detalhes' ? 'Ocultar detalhes' : 'Ver Detalhes';">Ver Detalhes</Button>
+    <Button variant="secondary" size="sm" onclick="const d=document.getElementById('cs1-overlay'); d.classList.toggle('cs-open'); const h=document.getElementById('cs1-h3'); const p=document.getElementById('cs1-desc'); h.classList.toggle('hidden'); p.classList.toggle('hidden'); this.innerText = this.innerText === 'Ver Detalhes' ? 'Ocultar detalhes' : 'Ver Detalhes';">Ver Detalhes</Button>
     <div id="cs1-overlay" class="cs-overlay absolute top-0 left-0 w-full h-full bg-surface p-6 rounded-lg shadow-elevation-3 border border-border opacity-0 pointer-events-none transition-all duration-500 ease-in-out z-50 flex flex-col justify-center">
       <h3 class="font-display text-xl font-bold mb-2 text-ink">Cadeira Suspensa 1</h3>
       <p class="text-text-secondary mb-4">Descrição detalhada do produto.</p>
@@ -63,6 +63,6 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
 <FibramferFloat asset="f2" />
 <style>
   .cs-overlay { left: 100%; opacity: 0; pointer-events: none; }
-  .cs-overlay.cs-open { left: 0; width: 300%; opacity: 1; pointer-events: auto; }
+  .cs-overlay.cs-open { left: 0; width: 350%; opacity: 1; pointer-events: auto; }
 </style>
 <FibramferFloat asset="f2" mirror />
