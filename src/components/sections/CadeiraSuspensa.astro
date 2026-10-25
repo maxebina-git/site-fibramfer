@@ -22,9 +22,9 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
       idPrefix="cs1"
     />
     </div>
-    <h3 class="font-display text-xl font-bold mb-2 text-ink">Cadeira Suspensa 1</h3>
-    <p class="text-text-secondary mb-4">Descrição detalhada do produto.</p>
-    <Button variant="secondary" size="sm">Ver Detalhes</Button>
+    <h3 id="cs1-h3" class="font-display text-xl font-bold mb-2 text-ink">Cadeira Suspensa 1</h3>
+    <p id="cs1-desc" class="text-text-secondary mb-4">Descrição detalhada do produto.</p>
+    <Button variant="secondary" size="sm" onclick="document.getElementById('cs1-h3').classList.toggle('hidden'); document.getElementById('cs1-desc').classList.toggle('hidden'); this.innerText = this.innerText === 'Ver Detalhes' ? 'Ocultar detalhes' : 'Ver Detalhes';">Ver Detalhes</Button>
   </div>
   <div class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out">
     <HeroCurveSlider
