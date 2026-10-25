@@ -24,11 +24,7 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     </div>
     <h3 id="cs1-h3" class="font-display text-xl font-bold mb-2 text-ink transition-all duration-300">Cadeira Suspensa 1</h3>
     <p id="cs1-desc" class="text-text-secondary mb-4 transition-all duration-300">Descrição detalhada do produto.</p>
-    <Button variant="secondary" size="sm" onclick="const d=document.getElementById('cs1-overlay'); d.classList.toggle('cs-open'); const h=document.getElementById('cs1-h3'); const p=document.getElementById('cs1-desc'); h.classList.toggle('hidden'); p.classList.toggle('hidden'); this.innerText = this.innerText === 'Ver Detalhes' ? 'Ocultar detalhes' : 'Ver Detalhes';">Ver Detalhes</Button>
-    <div id="cs1-overlay" class="cs-overlay absolute top-0 left-0 w-full h-full bg-surface p-6 rounded-lg shadow-elevation-3 border border-border opacity-0 pointer-events-none transition-all duration-500 ease-in-out z-50 flex flex-col justify-center">
-      <h3 class="font-display text-xl font-bold mb-2 text-ink">Cadeira Suspensa 1</h3>
-      <p class="text-text-secondary mb-4">Descrição detalhada do produto.</p>
-    </div>
+    <Button variant="secondary" size="sm" onclick="const c=document.getElementById('cs-card-1'); c.classList.toggle('cs-expanded'); this.innerText = this.innerText === 'Ver Detalhes' ? 'Ocultar detalhes' : 'Ver Detalhes';">Ver Detalhes</Button>
   </div>
   <div class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out">
     <HeroCurveSlider
@@ -62,7 +58,7 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
 </div>
 <FibramferFloat asset="f2" />
 <style>
-  .cs-overlay { left: 100%; opacity: 0; pointer-events: none; }
-  .cs-overlay.cs-open { left: 0; width: 350%; opacity: 1; pointer-events: auto; }
+  #cs-card-1 { transition: width 0.5s ease-in-out, box-shadow 0.3s ease; }
+  #cs-card-1.cs-expanded { width: 350%; z-index: 50; }
 </style>
 <FibramferFloat asset="f2" mirror />
