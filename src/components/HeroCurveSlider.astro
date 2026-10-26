@@ -72,6 +72,15 @@ const INITIAL_D = STEP3;
               width={VIEW_W}
               height={VIEW_H}
               preserveAspectRatio="xMidYMid slice"
+              class="hero-curve-image hero-curve-image--cover"
+              clip-path={`url(#${idPrefix}-clip-${index})`}
+            />
+            <image
+              href={slide.src}
+              width={VIEW_W}
+              height={VIEW_H}
+              preserveAspectRatio="xMidYMid meet"
+              class="hero-curve-image hero-curve-image--meet"
               clip-path={`url(#${idPrefix}-clip-${index})`}
             />
           </svg>
@@ -258,6 +267,23 @@ const INITIAL_D = STEP3;
 </script>
 
 <style>
+  .hero-curve-image {
+    opacity: 1;
+    transition: opacity 0.35s ease-out;
+  }
+
+  .hero-curve-image--meet {
+    opacity: 0;
+  }
+
+  [data-hero-curve-slider].cs-card-slider--expanded .hero-curve-image--cover {
+    opacity: 0;
+  }
+
+  [data-hero-curve-slider].cs-card-slider--expanded .hero-curve-image--meet {
+    opacity: 1;
+  }
+
   .hero-curve-slide {
     opacity: 0;
     z-index: 0;
