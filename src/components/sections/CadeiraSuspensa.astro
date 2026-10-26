@@ -24,7 +24,7 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     />
     <h3 id="cs1-h3" class="font-display text-xl font-bold mb-2 text-ink transition-all duration-300">Cadeira Suspensa 1</h3>
     <p id="cs1-desc" class="text-text-secondary mb-4 transition-all duration-300">Descrição detalhada do produto.</p>
-    <Button variant="secondary" size="sm" onclick="const c=document.getElementById('cs-card-1'); if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); this.innerText = this.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) c.classList.remove('cs-top'); }, 50);">Ver detalhes</Button>
+    <Button variant="secondary" size="sm" onclick="const c=document.getElementById('cs-card-1'); if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); this.innerText = this.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 100); }, 50);">Ver detalhes</Button>
     </div>
     <div class="h-full w-full bg-fibra-gold-500 rounded-lg"></div>
     </div>
@@ -44,7 +44,7 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     />
     <h3 id="cs2-h3" class="font-display text-xl font-bold mb-2 text-ink transition-all duration-300">Cadeira Suspensa 2</h3>
     <p id="cs2-desc" class="text-text-secondary mb-4 transition-all duration-300">Descrição detalhada do produto.</p>
-    <Button variant="secondary" size="sm" onclick="const c=document.getElementById('cs-card-2'); if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); this.innerText = this.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) c.classList.remove('cs-top'); }, 50);">Ver detalhes</Button>
+    <Button variant="secondary" size="sm" onclick="const c=document.getElementById('cs-card-2'); if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); this.innerText = this.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 100); }, 50);">Ver detalhes</Button>
     </div>
     <div class="h-full w-full bg-fibra-gold-500 rounded-lg"></div>
     </div>
@@ -63,7 +63,7 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     />
     <h3 id="cs3-h3" class="font-display text-xl font-bold mb-2 text-ink transition-all duration-300">Cadeira Suspensa 3</h3>
     <p id="cs3-desc" class="text-text-secondary mb-4 transition-all duration-300">Descrição detalhada do produto.</p>
-    <Button variant="secondary" size="sm" onclick="const c=document.getElementById('cs-card-3'); if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); this.innerText = this.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) c.classList.remove('cs-top'); }, 50);">Ver detalhes</Button>
+    <Button variant="secondary" size="sm" onclick="const c=document.getElementById('cs-card-3'); if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); this.innerText = this.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 100); }, 50);">Ver detalhes</Button>
     </div>
     <div class="h-full w-full bg-fibra-gold-500 rounded-lg"></div>
     </div>
