@@ -86,20 +86,44 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
 </style>
 <script>
   (function(){
-    var s = document.querySelector('.grid');
-    if(!s) return;
-    var obs = new IntersectionObserver(function(entries){
-      entries.forEach(function(e){
-        if(e.isIntersecting){
-          var cards = e.target.querySelectorAll('#cs-card-1, #cs-card-2, #cs-card-3');
-          cards.forEach(function(c){ c.classList.add('cs-anim'); });
-        } else {
-          var cards = e.target.querySelectorAll('#cs-card-1, #cs-card-2, #cs-card-3');
-          cards.forEach(function(c){ c.classList.remove('cs-anim'); });
+    var cards = document.querySelectorAll('#cs-card-1, #cs-card-2, #cs-card-3');
+    function trigger() { cards.forEach(function(c){ c.classList.add('cs-anim'); }); }
+    // Drawer close via MutationObserver (data-panel-drawer-open removed)
+    var target = document.body || document.querySelector('header');
+    if(target){
+      var obs = new MutationObserver(function(mutations){
+        mutations.forEach(function(m){
+          if(m.type === 'attributes' && m.attributeName === 'data-panel-drawer-open'){
+            var open = target.getAttribute('data-panel-drawer-open');
+            if(open === null || open === 'false'){
+              // small delay to match curtain close timing then trigger
+              setTimeout(trigger, 800);
+            }
+          }
+        });
+      });
+      obs.observe(target, { attributes: true, attributeFilter: ['data-panel-drawer-open'] });
+    }
+    // Direct page load / already open: trigger once when visible
+    if(document.readyState === 'complete' || document.readyState === 'interactive'){
+      var s = document.querySelector('.grid');
+      if(s){
+        var io = new IntersectionObserver(function(entries){
+          entries.forEach(function(e){ if(e.isIntersecting) trigger(); });
+        }, { threshold: 0.2 });
+        io.observe(s);
+      }
+    } else {
+      window.addEventListener('load', function(){
+        var s = document.querySelector('.grid');
+        if(s){
+          var io = new IntersectionObserver(function(entries){
+            entries.forEach(function(e){ if(e.isIntersecting) trigger(); });
+          }, { threshold: 0.2 });
+          io.observe(s);
         }
       });
-    }, { threshold: 0.2 });
-    obs.observe(s);
+    }
   })();
 </script>
 <FibramferFloat asset="f2" mirror />
