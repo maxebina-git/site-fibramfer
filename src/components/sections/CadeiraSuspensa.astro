@@ -89,10 +89,17 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
 <script>
   (function(){
     var cards = document.querySelectorAll('#cs-card-1, #cs-card-2, #cs-card-3');
+    function getGateDur() {
+      var gates = document.querySelector('[data-drawer-reveal-gates]');
+      if (!gates) return 600;
+      var raw = window.getComputedStyle(gates).getPropertyValue('--drawer-reveal-gate-duration').trim();
+      var n = parseFloat(raw);
+      return (isFinite(n) && n > 0) ? n : 600;
+    }
     function reveal(){ cards.forEach(function(c){ c.classList.remove('cs-hide'); c.classList.add('cs-anim'); }); }
     function hide(){ cards.forEach(function(c){ c.classList.remove('cs-anim'); c.classList.add('cs-hide'); }); }
-    window.addEventListener('fibramfer:drawer-open', reveal);
-    window.addEventListener('fibramfer:drawer-close', hide);
+    window.addEventListener('fibramfer:drawer-open', function(){ setTimeout(reveal, getGateDur()); });
+    window.addEventListener('fibramfer:drawer-close', function(){ setTimeout(hide, getGateDur()); });
   })();
 </script>
 <FibramferFloat asset="f2" mirror />
