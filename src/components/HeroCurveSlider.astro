@@ -31,7 +31,7 @@ const INITIAL_D = STEP3;
 ---
 
 <section
-  class="relative mx-auto aspect-[1179/700] w-full max-w-[393px] overflow-hidden bg-deep rounded-lg shadow-card border border-border"
+  class="relative mx-auto aspect-[1179/700] w-full max-w-[393px] overflow-hidden bg-surface rounded-lg shadow-card border border-border"
   data-hero-curve-slider
   data-step1={STEP1}
   data-step2={STEP2}
@@ -58,6 +58,7 @@ const INITIAL_D = STEP3;
           <svg
             viewBox={`0 0 ${VIEW_W} ${VIEW_H}`}
             class="block h-full w-full"
+            preserveAspectRatio="xMidYMid slice"
             role="img"
             aria-label={slide.alt}
           >
@@ -71,8 +72,6 @@ const INITIAL_D = STEP3;
               width={VIEW_W}
               height={VIEW_H}
               preserveAspectRatio="xMidYMid slice"
-              width="100%"
-              height="100%"
               clip-path={`url(#${idPrefix}-clip-${index})`}
             />
           </svg>

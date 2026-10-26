@@ -9,9 +9,10 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
   <p class="text-text-secondary">Este equipamento atende as normas do ministério do trabalho - NR18 Portaria 13 de 09.07.2002.</p>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-  <div id="cs-card-1" onclick="const c=this; if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); const btn=c.querySelector('button'); if(btn) btn.innerText = btn.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 500); }, 50);" class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full cursor-pointer cs-anim cs-delay-1">
+  <div id="cs-card-1" data-cadeira-card class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full">
     <div class="flex h-full gap-4 items-stretch">
       <div class="w-[393px] max-w-full flex-shrink-0 self-stretch">
+        <div data-card-toggle class="cursor-pointer" role="button" tabindex="0" aria-label="Abrir detalhes da Cadeira Suspensa 1">
         <HeroCurveSlider
       slides={[
         { src: '/assets/cadeira-suspensa/001.webp', alt: 'Cadeira Suspensa 1 - vista 1' },
@@ -22,16 +23,18 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
       autoplayMs={3000}
       idPrefix="cs1"
     />
-    <h3 id="cs1-h3" class="font-display text-xl font-bold mb-2 text-ink transition-all duration-300">Indicação de Uso</h3>
-    <p id="cs1-desc" class="text-text-secondary mb-4 transition-all duration-300">Versatilidade e segurança para serviços em altura</p>
-    <Button variant="secondary" size="sm">Ver detalhes</Button>
+        </div>
+    <h3 id="cs1-h3" class="cs-card-title-source font-display text-xl font-bold mb-2 text-ink transition-all duration-300">Indicação de Uso</h3>
+    <p id="cs1-desc" class="cs-card-subtitle-source text-text-secondary mb-4 transition-all duration-300">Versatilidade e segurança para serviços em altura</p>
+    <Button variant="secondary" size="sm" data-card-toggle class="cs-card-button-source">Ver detalhes</Button>
     </div>
-    <div class="h-full w-full bg-fibra-gold-500 rounded-lg p-4 hidden opacity-0 transition-opacity duration-500 delay-300 cs-expanded:!block cs-expanded:opacity-100"><p class="text-sm font-medium text-ink leading-relaxed">Projetada para serviços seguros em altura ou profundidade, como pintura, reparos, manutenção e lavagem em edificações, torres, viadutos e estruturas complexas. Garante ergonomia e estabilidade na movimentação vertical descendente, sendo a escolha ideal para obras que exigem máxima conformidade, eficiência operacional e segurança absoluta para o trabalhador.</p></div>
+    <div class="h-full w-full bg-fibra-gold-500 rounded-lg p-4 relative overflow-hidden cs-card-details" aria-hidden="true"><h3 class="absolute inset-x-4 top-4 m-0 font-display text-xl font-bold text-ink cs-card-title-detail">Indicação de Uso</h3><p class="absolute inset-x-4 top-12 m-0 text-text-secondary cs-card-subtitle-detail">Versatilidade e segurança para serviços em altura</p><p class="absolute inset-x-4 top-24 bottom-16 m-0 text-sm font-medium text-ink leading-relaxed cs-card-details-text">Projetada para serviços seguros em altura ou profundidade, como pintura, reparos, manutenção e lavagem em edificações, torres, viadutos e estruturas complexas. Garante ergonomia e estabilidade na movimentação vertical descendente, sendo a escolha ideal para obras que exigem máxima conformidade, eficiência operacional e segurança absoluta para o trabalhador.</p><Button variant="secondary" size="sm" data-card-toggle class="cs-card-button-detail absolute left-4 bottom-4">Ver detalhes</Button></div>
     </div>
   </div>
-  <div id="cs-card-2" onclick="const c=this; if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); const btn=c.querySelector('button'); if(btn) btn.innerText = btn.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 500); }, 50);" class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full cursor-pointer cs-anim cs-delay-2">
+  <div id="cs-card-2" data-cadeira-card class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full">
     <div class="flex h-full gap-4 items-stretch">
       <div class="w-[393px] max-w-full flex-shrink-0 self-stretch">
+        <div data-card-toggle class="cursor-pointer" role="button" tabindex="0" aria-label="Abrir detalhes da Cadeira Suspensa 2">
         <HeroCurveSlider
       slides={[
         { src: '/assets/cadeira-suspensa/004.webp', alt: 'Cadeira Suspensa 2 - vista 1' },
@@ -42,16 +45,18 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
       autoplayMs={3250}
       idPrefix="cs2"
     />
+        </div>
     <h3 id="cs2-h3" class="font-display text-xl font-bold mb-2 text-ink transition-all duration-300">Cadeira Suspensa 2</h3>
     <p id="cs2-desc" class="text-text-secondary mb-4 transition-all duration-300">Descrição detalhada do produto.</p>
-    <Button variant="secondary" size="sm">Ver detalhes</Button>
+    <Button variant="secondary" size="sm" data-card-toggle>Ver detalhes</Button>
     </div>
     <div class="h-full w-full bg-fibra-gold-500 rounded-lg"></div>
     </div>
   </div>
-  <div id="cs-card-3" onclick="const c=this; if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); const btn=c.querySelector('button'); if(btn) btn.innerText = btn.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 500); }, 50);" class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full cursor-pointer cs-anim cs-delay-3">
+  <div id="cs-card-3" data-cadeira-card class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full">
     <div class="flex h-full gap-4 items-stretch">
       <div class="w-[393px] max-w-full flex-shrink-0 self-stretch">
+        <div data-card-toggle class="cursor-pointer" role="button" tabindex="0" aria-label="Abrir detalhes da Cadeira Suspensa 3">
         <HeroCurveSlider
       slides={[
         { src: '/assets/cadeira-suspensa/007.webp', alt: 'Cadeira Suspensa 3 - vista 1' },
@@ -61,9 +66,10 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
       autoplayMs={3500}
       idPrefix="cs3"
     />
+        </div>
     <h3 id="cs3-h3" class="font-display text-xl font-bold mb-2 text-ink transition-all duration-300">Cadeira Suspensa 3</h3>
     <p id="cs3-desc" class="text-text-secondary mb-4 transition-all duration-300">Descrição detalhada do produto.</p>
-    <Button variant="secondary" size="sm">Ver detalhes</Button>
+    <Button variant="secondary" size="sm" data-card-toggle>Ver detalhes</Button>
     </div>
     <div class="h-full w-full bg-fibra-gold-500 rounded-lg"></div>
     </div>
@@ -71,29 +77,224 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
 </div>
 <FibramferFloat asset="f2" />
 <style>
-  @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes fadeSlideDown { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(24px); } }
-  .cs-anim { animation: fadeSlideUp 0.6s ease-out both; }
-  .cs-hide { animation: fadeSlideDown 0.5s ease-out both; }
-  .cs-delay-1 { animation-delay: 0s; }
-  .cs-delay-2 { animation-delay: 0.15s; }
-  .cs-delay-3 { animation-delay: 0.3s; }
-  .cs-top { z-index: 100 !important; }
-  #cs-card-1 { position: relative; z-index: 50; transition: width 0.5s ease-in-out, box-shadow 0.3s ease; will-change: width; }
+  .cs-card-details { display: none; }
+  .cs-card-title-source { transition: opacity 0.35s ease-out, transform 0.35s ease-out; }
+  .cs-card-title-source--hidden { opacity: 0; transform: translateY(-24px); }
+  .cs-card-title-detail { opacity: 0; transform: translateY(-24px); transition: opacity 0.35s ease-out, transform 0.35s ease-out; }
+  .cs-card-title-detail--visible { opacity: 1; transform: translateY(0); }
+  .cs-card-subtitle-source { transition: opacity 0.35s ease-out, transform 0.35s ease-out; }
+  .cs-card-subtitle-source--hidden { opacity: 0; transform: translateY(-24px); }
+  .cs-card-subtitle-detail { opacity: 0; transform: translateY(-24px); transition: opacity 0.35s ease-out, transform 0.35s ease-out; }
+  .cs-card-subtitle-detail--visible { opacity: 1; transform: translateY(0); }
+  .cs-card-button-source { transition: opacity 0.35s ease-out, transform 0.35s ease-out; }
+  .cs-card-button-source--hidden { opacity: 0; transform: translateY(-24px); }
+  .cs-card-button-detail { opacity: 0; transform: translateY(-24px); transition: opacity 0.35s ease-out, transform 0.35s ease-out; }
+  .cs-card-button-detail--visible { opacity: 1; transform: translateY(0); }
+  .cs-card-source--collapsed { max-height: 0; margin-bottom: 0; overflow: hidden; }
+  .cs-card-details-text { opacity: 0; transform: translateY(-24px); transition: opacity 0.35s ease-out, transform 0.35s ease-out; }
+  .cs-card-details-text--visible { opacity: 1; transform: translateY(0); }
+  :global(#cs-card-1 [data-hero-curve-slider]) { transition: height 0.35s ease-out; will-change: height; }
+  .cs-top { z-index: 4 !important; }
+  #cs-card-1 { position: relative; z-index: 1; transition: width 0.5s ease-in-out, box-shadow 0.3s ease; will-change: width; }
   #cs-card-1.cs-expanded { width: calc(300% + 4rem); }
-  #cs-card-1.cs-expanded .bg-fibra-gold-500 { display: block !important; opacity: 1 !important; }
-  #cs-card-2 { position: relative; z-index: 60; transition: width 0.5s ease-in-out, box-shadow 0.3s ease, margin-left 0.5s ease-in-out; will-change: width, margin-left; }
+  #cs-card-2 { position: relative; z-index: 2; transition: width 0.5s ease-in-out, box-shadow 0.3s ease, margin-left 0.5s ease-in-out; will-change: width, margin-left; }
   #cs-card-2.cs-expanded { width: calc(300% + 4rem); margin-left: calc(-100% - 2rem); }
-  #cs-card-3 { position: relative; z-index: 70; transition: width 0.5s ease-in-out, box-shadow 0.3s ease, margin-left 0.5s ease-in-out; will-change: width, margin-left; }
+  #cs-card-3 { position: relative; z-index: 3; transition: width 0.5s ease-in-out, box-shadow 0.3s ease, margin-left 0.5s ease-in-out; will-change: width, margin-left; }
   #cs-card-3.cs-expanded { width: calc(300% + 4rem); margin-left: calc(-200% - 4rem); }
 </style>
 <script>
-  (function(){
-    var cards = document.querySelectorAll('#cs-card-1, #cs-card-2, #cs-card-3');
-    function reveal(){ cards.forEach(function(c){ c.classList.remove('cs-hide'); c.classList.add('cs-anim'); }); }
-    function hide(){ cards.forEach(function(c){ c.classList.remove('cs-anim'); c.classList.add('cs-hide'); }); }
-    window.addEventListener('fibramfer:drawer-open', reveal);
-    window.addEventListener('fibramfer:drawer-close', hide);
-  })();
+  const CARD_REVEAL_DELAY_MS = 500;
+  const CARD_STAGGER_MS = 150;
+  const CARD_FADE_MS = 350;
+  const CARD_CONTENT_EXIT_DURATION_MS = CARD_STAGGER_MS * 3 + CARD_FADE_MS;
+  const CARD_WIDTH_TRANSITION_MS = 500;
+  const CARD_SLIDER_TRANSITION_MS = 350;
+  const CARD_SLIDER_HEIGHT_RATIO = 700 / 1179;
+  const cardAnimationTimers = new WeakMap<HTMLElement, number[]>();
+
+  function clearCardAnimationTimers(details: HTMLElement): void {
+    cardAnimationTimers.get(details)?.forEach((timer) => window.clearTimeout(timer));
+    cardAnimationTimers.delete(details);
+  }
+
+  function scheduleCardAnimation(details: HTMLElement, callback: () => void, delay: number): void {
+    const timer = window.setTimeout(callback, delay);
+    const timers = cardAnimationTimers.get(details) ?? [];
+    timers.push(timer);
+    cardAnimationTimers.set(details, timers);
+  }
+
+  function expandCadeiraSlider(card: HTMLElement, details: HTMLElement): void {
+    const slider = card.querySelector<HTMLElement>('[data-hero-curve-slider]');
+    const svg = slider?.querySelector<SVGSVGElement>('svg');
+    const images = slider?.querySelectorAll<SVGImageElement>('image');
+    const currentHeight = slider?.getBoundingClientRect().height ?? 0;
+    const targetHeight = details.getBoundingClientRect().height;
+    if (!slider || !currentHeight || !targetHeight) return;
+
+    details.style.height = `${targetHeight}px`;
+    svg?.setAttribute('preserveAspectRatio', 'xMidYMid slice');
+    images?.forEach((image) => image.setAttribute('preserveAspectRatio', 'xMidYMid meet'));
+    slider.style.aspectRatio = 'auto';
+    slider.style.height = `${currentHeight}px`;
+    requestAnimationFrame(() => {
+      slider.style.height = `${targetHeight}px`;
+    });
+  }
+
+  function collapseCadeiraSlider(card: HTMLElement, details: HTMLElement): void {
+    const slider = card.querySelector<HTMLElement>('[data-hero-curve-slider]');
+    const svg = slider?.querySelector<SVGSVGElement>('svg');
+    const images = slider?.querySelectorAll<SVGImageElement>('image');
+    const currentHeight = slider?.getBoundingClientRect().height ?? 0;
+    const targetWidth = slider?.getBoundingClientRect().width ?? 0;
+    if (!slider || !currentHeight || !targetWidth) return;
+
+    const targetHeight = targetWidth * CARD_SLIDER_HEIGHT_RATIO;
+    slider.style.aspectRatio = 'auto';
+    slider.style.height = `${currentHeight}px`;
+    details.style.removeProperty('height');
+    requestAnimationFrame(() => {
+      slider.style.height = `${targetHeight}px`;
+    });
+    window.setTimeout(() => {
+      slider.style.removeProperty('height');
+      slider.style.removeProperty('aspect-ratio');
+      svg?.removeAttribute('preserveAspectRatio');
+      images?.forEach((image) => image.setAttribute('preserveAspectRatio', 'xMidYMid slice'));
+    }, CARD_SLIDER_TRANSITION_MS);
+  }
+
+  function toggleCadeiraCard(card: HTMLElement): void {
+    const details = card.querySelector<HTMLElement>('.cs-card-details');
+    const titleSource = card.querySelector<HTMLElement>('.cs-card-title-source');
+    const titleDetail = card.querySelector<HTMLElement>('.cs-card-title-detail');
+    const subtitleSource = card.querySelector<HTMLElement>('.cs-card-subtitle-source');
+    const subtitleDetail = card.querySelector<HTMLElement>('.cs-card-subtitle-detail');
+    const detailText = card.querySelector<HTMLElement>('.cs-card-details-text');
+    const buttonSource = card.querySelector<HTMLElement>('.cs-card-button-source');
+    const buttonDetail = card.querySelector<HTMLElement>('.cs-card-button-detail');
+    const opening = !card.classList.contains('cs-expanded');
+
+    if (details) {
+      clearCardAnimationTimers(details);
+      if (opening) {
+        titleSource?.classList.remove('cs-card-title-source--hidden');
+        titleDetail?.classList.remove('cs-card-title-detail--visible');
+        subtitleSource?.classList.remove('cs-card-subtitle-source--hidden');
+        subtitleDetail?.classList.remove('cs-card-subtitle-detail--visible');
+        detailText?.classList.remove('cs-card-details-text--visible');
+        buttonSource?.classList.remove('cs-card-button-source--hidden');
+        buttonDetail?.classList.remove('cs-card-button-detail--visible');
+        titleSource?.classList.remove('cs-card-source--collapsed');
+        subtitleSource?.classList.remove('cs-card-source--collapsed');
+        buttonSource?.classList.remove('cs-card-source--collapsed');
+        details.style.display = 'none';
+        details.setAttribute('aria-hidden', 'true');
+      } else {
+        details.style.display = 'block';
+        details.removeAttribute('aria-hidden');
+      }
+    }
+
+    if (opening) card.classList.add('cs-top');
+
+    if (opening) {
+      window.setTimeout(() => {
+        card.classList.add('cs-expanded');
+        card.querySelectorAll<HTMLButtonElement>('button').forEach((button) => {
+          button.innerText = 'Ocultar detalhes';
+        });
+
+        if (!details) return;
+
+        details.style.display = 'block';
+        scheduleCardAnimation(details, () => {
+          titleSource?.classList.add('cs-card-title-source--hidden');
+          titleDetail?.classList.add('cs-card-title-detail--visible');
+        }, CARD_REVEAL_DELAY_MS);
+        scheduleCardAnimation(details, () => {
+          subtitleSource?.classList.add('cs-card-subtitle-source--hidden');
+          subtitleDetail?.classList.add('cs-card-subtitle-detail--visible');
+        }, CARD_REVEAL_DELAY_MS + CARD_STAGGER_MS);
+        scheduleCardAnimation(details, () => {
+          detailText?.classList.add('cs-card-details-text--visible');
+        }, CARD_REVEAL_DELAY_MS + CARD_STAGGER_MS * 2);
+        scheduleCardAnimation(details, () => {
+          buttonSource?.classList.add('cs-card-button-source--hidden');
+          buttonDetail?.classList.add('cs-card-button-detail--visible');
+          expandCadeiraSlider(card, details);
+          titleSource?.classList.add('cs-card-source--collapsed');
+          subtitleSource?.classList.add('cs-card-source--collapsed');
+          buttonSource?.classList.add('cs-card-source--collapsed');
+          details.removeAttribute('aria-hidden');
+        }, CARD_REVEAL_DELAY_MS + CARD_STAGGER_MS * 3);
+      }, 50);
+      return;
+    }
+
+    card.querySelectorAll<HTMLButtonElement>('button').forEach((button) => {
+      button.innerText = 'Ver detalhes';
+    });
+
+    if (details) {
+      // Keep the yellow box mounted while its contents leave, then start the
+      // card contraction only after the last element has finished moving out.
+      scheduleCardAnimation(details, () => {
+        buttonSource?.classList.remove('cs-card-button-source--hidden');
+        buttonDetail?.classList.remove('cs-card-button-detail--visible');
+        buttonSource?.classList.remove('cs-card-source--collapsed');
+      }, 0);
+      scheduleCardAnimation(details, () => {
+        detailText?.classList.remove('cs-card-details-text--visible');
+      }, CARD_STAGGER_MS);
+      scheduleCardAnimation(details, () => {
+        subtitleSource?.classList.remove('cs-card-subtitle-source--hidden');
+        subtitleDetail?.classList.remove('cs-card-subtitle-detail--visible');
+        subtitleSource?.classList.remove('cs-card-source--collapsed');
+      }, CARD_STAGGER_MS * 2);
+      scheduleCardAnimation(details, () => {
+        titleSource?.classList.remove('cs-card-title-source--hidden');
+        titleDetail?.classList.remove('cs-card-title-detail--visible');
+        titleSource?.classList.remove('cs-card-source--collapsed');
+      }, CARD_STAGGER_MS * 3);
+      scheduleCardAnimation(details, () => {
+        collapseCadeiraSlider(card, details);
+        card.classList.remove('cs-expanded');
+      }, CARD_CONTENT_EXIT_DURATION_MS);
+      scheduleCardAnimation(details, () => {
+        details.style.display = 'none';
+        details.setAttribute('aria-hidden', 'true');
+        card.classList.remove('cs-top');
+        clearCardAnimationTimers(details);
+      }, CARD_CONTENT_EXIT_DURATION_MS + CARD_WIDTH_TRANSITION_MS);
+      return;
+    }
+
+    window.setTimeout(() => {
+      card.classList.remove('cs-expanded');
+      window.setTimeout(() => card.classList.remove('cs-top'), CARD_WIDTH_TRANSITION_MS);
+    }, 50);
+  }
+
+  function cardToggleFromTarget(target: EventTarget | null): HTMLElement | null {
+    if (!(target instanceof Element)) return null;
+    const trigger = target.closest<HTMLElement>('[data-card-toggle]');
+    return trigger?.closest<HTMLElement>('[data-cadeira-card]') ?? null;
+  }
+
+  document.addEventListener('click', (event) => {
+    const card = cardToggleFromTarget(event.target);
+    if (card) toggleCadeiraCard(card);
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    if (!(event.target instanceof HTMLElement) || event.target.tagName === 'BUTTON') return;
+    const card = cardToggleFromTarget(event.target);
+    if (!card) return;
+    event.preventDefault();
+    toggleCadeiraCard(card);
+  });
 </script>
 <FibramferFloat asset="f2" mirror />
