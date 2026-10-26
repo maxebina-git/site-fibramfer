@@ -89,46 +89,10 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
 <script>
   (function(){
     var cards = document.querySelectorAll('#cs-card-1, #cs-card-2, #cs-card-3');
-    function reveal() { cards.forEach(function(c){ c.classList.remove('cs-hide'); c.classList.add('cs-anim'); }); }
-    function hide() { cards.forEach(function(c){ c.classList.remove('cs-anim'); c.classList.add('cs-hide'); }); }
-    var dia = document.querySelector("aside[role='dialog']");
-    if(dia){
-      dia.addEventListener('transitionend', function(e){
-        if(dia.getAttribute('data-panel-drawer-open') === 'true') reveal();
-      });
-    }
-    var target = document.body || document.querySelector('header');
-    if(target){
-      var obs = new MutationObserver(function(mutations){
-        mutations.forEach(function(m){
-          if(m.type === 'attributes' && m.attributeName === 'data-panel-drawer-open'){
-            var open = target.getAttribute('data-panel-drawer-open');
-            if(open === null || open === 'false') hide();
-          }
-        });
-      });
-      obs.observe(target, { attributes: true, attributeFilter: ['data-panel-drawer-open'] });
-    }
-    // Direct load / already visible
-    if(document.readyState === 'complete' || document.readyState === 'interactive'){
-      var s = document.querySelector('.grid');
-      if(s){
-        var io = new IntersectionObserver(function(entries){
-          entries.forEach(function(e){ if(e.isIntersecting && document.body.getAttribute('data-panel-drawer-open') === 'true') reveal(); });
-        }, { threshold: 0.2 });
-        io.observe(s);
-      }
-    } else {
-      window.addEventListener('load', function(){
-        var s = document.querySelector('.grid');
-        if(s){
-          var io = new IntersectionObserver(function(entries){
-            entries.forEach(function(e){ if(e.isIntersecting && document.body.getAttribute('data-panel-drawer-open') === 'true') reveal(); });
-          }, { threshold: 0.2 });
-          io.observe(s);
-        }
-      });
-    }
+    function reveal(){ cards.forEach(function(c){ c.classList.remove('cs-hide'); c.classList.add('cs-anim'); }); }
+    function hide(){ cards.forEach(function(c){ c.classList.remove('cs-anim'); c.classList.add('cs-hide'); }); }
+    window.addEventListener('fibramfer:drawer-open', reveal);
+    window.addEventListener('fibramfer:drawer-close', hide);
   })();
 </script>
 <FibramferFloat asset="f2" mirror />
