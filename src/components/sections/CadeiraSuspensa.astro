@@ -26,7 +26,7 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     <p id="cs1-desc" class="text-text-secondary mb-4 transition-all duration-300">Versatilidade e segurança para serviços em altura</p>
     <Button variant="secondary" size="sm">Ver detalhes</Button>
     </div>
-    <div class="h-full w-full bg-fibra-gold-500 rounded-lg p-4"><p class="text-sm font-medium text-ink leading-relaxed">Projetada para serviços seguros em altura ou profundidade, como pintura, reparos, manutenção e lavagem em edificações, torres, viadutos e estruturas complexas. Garante ergonomia e estabilidade na movimentação vertical descendente, sendo a escolha ideal para obras que exigem máxima conformidade, eficiência operacional e segurança absoluta para o trabalhador.</p></div>
+    <div class="h-full w-full bg-fibra-gold-500 rounded-lg p-4 hidden cs-expanded:!block"><p class="text-sm font-medium text-ink leading-relaxed">Projetada para serviços seguros em altura ou profundidade, como pintura, reparos, manutenção e lavagem em edificações, torres, viadutos e estruturas complexas. Garante ergonomia e estabilidade na movimentação vertical descendente, sendo a escolha ideal para obras que exigem máxima conformidade, eficiência operacional e segurança absoluta para o trabalhador.</p></div>
     </div>
   </div>
   <div id="cs-card-2" onclick="const c=this; if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); const btn=c.querySelector('button'); if(btn) btn.innerText = btn.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 500); }, 50);" class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full cursor-pointer cs-anim cs-delay-2">
@@ -81,6 +81,7 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
   .cs-top { z-index: 100 !important; }
   #cs-card-1 { position: relative; z-index: 50; transition: width 0.5s ease-in-out, box-shadow 0.3s ease; will-change: width; }
   #cs-card-1.cs-expanded { width: calc(300% + 4rem); }
+  #cs-card-1.cs-expanded .bg-fibra-gold-500 { display: block !important; }
   #cs-card-2 { position: relative; z-index: 60; transition: width 0.5s ease-in-out, box-shadow 0.3s ease, margin-left 0.5s ease-in-out; will-change: width, margin-left; }
   #cs-card-2.cs-expanded { width: calc(300% + 4rem); margin-left: calc(-100% - 2rem); }
   #cs-card-3 { position: relative; z-index: 70; transition: width 0.5s ease-in-out, box-shadow 0.3s ease, margin-left 0.5s ease-in-out; will-change: width, margin-left; }
