@@ -29,8 +29,10 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     <div class="h-full w-full bg-fibra-gold-500 rounded-lg"></div>
     </div>
   </div>
-  <div class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out">
-    <HeroCurveSlider
+  <div id="cs-card-2" class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full">
+    <div class="flex h-full gap-4 items-stretch">
+      <div class="h-[240px] w-[393px] max-w-full flex-shrink-0 self-stretch">
+        <HeroCurveSlider
       slides={[
         { src: '/assets/cadeira-suspensa/004.webp', alt: 'Cadeira Suspensa 2 - vista 1' },
         { src: '/assets/cadeira-suspensa/005.webp', alt: 'Cadeira Suspensa 2 - vista 2' },
@@ -40,9 +42,12 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
       autoplayMs={3250}
       idPrefix="cs2"
     />
-    <h3 class="font-display text-xl font-bold mb-2 text-ink">Cadeira Suspensa 2</h3>
-    <p class="text-text-secondary mb-4">Descrição detalhada do produto.</p>
-    <Button variant="secondary" size="sm">Ver Detalhes</Button>
+    <h3 id="cs2-h3" class="font-display text-xl font-bold mb-2 text-ink transition-all duration-300">Cadeira Suspensa 2</h3>
+    <p id="cs2-desc" class="text-text-secondary mb-4 transition-all duration-300">Descrição detalhada do produto.</p>
+    <Button variant="secondary" size="sm" onclick="const c=document.getElementById('cs-card-2'); c.classList.toggle('cs-expanded'); this.innerText = this.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes';">Ver detalhes</Button>
+    </div>
+    <div class="h-full w-full bg-fibra-gold-500 rounded-lg"></div>
+    </div>
   </div>
   <div class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out">
     <HeroCurveSlider
@@ -63,5 +68,7 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
 <style>
   #cs-card-1 { position: relative; z-index: 50; transition: width 0.5s ease-in-out, box-shadow 0.3s ease; will-change: width; }
   #cs-card-1.cs-expanded { width: calc(300% + 4rem); }
+  #cs-card-2 { position: relative; z-index: 60; transition: width 0.5s ease-in-out, box-shadow 0.3s ease, margin-left 0.5s ease-in-out; will-change: width, margin-left; }
+  #cs-card-2.cs-expanded { width: calc(300% + 4rem); margin-left: calc(-100% - 2rem); }
 </style>
 <FibramferFloat asset="f2" mirror />
