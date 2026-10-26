@@ -9,7 +9,7 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
   <p class="text-text-secondary">Este equipamento atende as normas do ministério do trabalho - NR18 Portaria 13 de 09.07.2002.</p>
 </div>
 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-  <div id="cs-card-1" onclick="const c=this; if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); const btn=c.querySelector('button'); if(btn) btn.innerText = btn.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 500); }, 50);" class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full cursor-pointer">
+  <div id="cs-card-1" onclick="const c=this; if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); const btn=c.querySelector('button'); if(btn) btn.innerText = btn.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 500); }, 50);" class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full cursor-pointer cs-anim cs-delay-1">
     <div class="flex h-full gap-4 items-stretch">
       <div class="w-[393px] max-w-full flex-shrink-0 self-stretch">
         <HeroCurveSlider
@@ -29,7 +29,7 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     <div class="h-full w-full bg-fibra-gold-500 rounded-lg"></div>
     </div>
   </div>
-  <div id="cs-card-2" onclick="const c=this; if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); const btn=c.querySelector('button'); if(btn) btn.innerText = btn.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 500); }, 50);" class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full cursor-pointer">
+  <div id="cs-card-2" onclick="const c=this; if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); const btn=c.querySelector('button'); if(btn) btn.innerText = btn.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 500); }, 50);" class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full cursor-pointer cs-anim cs-delay-2">
     <div class="flex h-full gap-4 items-stretch">
       <div class="w-[393px] max-w-full flex-shrink-0 self-stretch">
         <HeroCurveSlider
@@ -49,7 +49,7 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     <div class="h-full w-full bg-fibra-gold-500 rounded-lg"></div>
     </div>
   </div>
-  <div id="cs-card-3" onclick="const c=this; if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); const btn=c.querySelector('button'); if(btn) btn.innerText = btn.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 500); }, 50);" class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full cursor-pointer">
+  <div id="cs-card-3" onclick="const c=this; if(!c.classList.contains('cs-expanded')) c.classList.add('cs-top'); setTimeout(() => { c.classList.toggle('cs-expanded'); const btn=c.querySelector('button'); if(btn) btn.innerText = btn.innerText === 'Ver detalhes' ? 'Ocultar detalhes' : 'Ver detalhes'; if(!c.classList.contains('cs-expanded')) setTimeout(() => c.classList.remove('cs-top'), 500); }, 50);" class="bg-surface p-6 rounded-lg shadow-card border border-border hover:-translate-y-0.5 hover:border-ink/30 hover:shadow-elevation-3 transition-all duration-300 ease-in-out relative overflow-visible w-full cursor-pointer cs-anim cs-delay-3">
     <div class="flex h-full gap-4 items-stretch">
       <div class="w-[393px] max-w-full flex-shrink-0 self-stretch">
         <HeroCurveSlider
@@ -71,6 +71,11 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
 </div>
 <FibramferFloat asset="f2" />
 <style>
+  @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .cs-anim { animation: fadeSlideUp 0.6s ease-out both; }
+  .cs-delay-1 { animation-delay: 0s; }
+  .cs-delay-2 { animation-delay: 0.15s; }
+  .cs-delay-3 { animation-delay: 0.3s; }
   .cs-top { z-index: 100 !important; }
   #cs-card-1 { position: relative; z-index: 50; transition: width 0.5s ease-in-out, box-shadow 0.3s ease; will-change: width; }
   #cs-card-1.cs-expanded { width: calc(300% + 4rem); }
@@ -79,4 +84,22 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
   #cs-card-3 { position: relative; z-index: 70; transition: width 0.5s ease-in-out, box-shadow 0.3s ease, margin-left 0.5s ease-in-out; will-change: width, margin-left; }
   #cs-card-3.cs-expanded { width: calc(300% + 4rem); margin-left: calc(-200% - 4rem); }
 </style>
+<script>
+  (function(){
+    var s = document.querySelector('.grid');
+    if(!s) return;
+    var obs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){
+          var cards = e.target.querySelectorAll('#cs-card-1, #cs-card-2, #cs-card-3');
+          cards.forEach(function(c){ c.classList.add('cs-anim'); });
+        } else {
+          var cards = e.target.querySelectorAll('#cs-card-1, #cs-card-2, #cs-card-3');
+          cards.forEach(function(c){ c.classList.remove('cs-anim'); });
+        }
+      });
+    }, { threshold: 0.2 });
+    obs.observe(s);
+  })();
+</script>
 <FibramferFloat asset="f2" mirror />
