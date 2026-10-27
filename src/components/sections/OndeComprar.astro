@@ -75,6 +75,20 @@ const partners = [
         obs.observe(section);
       }
       window.addEventListener('shuffle-partners', shuffleTable);
+      // Reagir se a tabela for inserida depois pelo Vue/drawer
+      const mo = new MutationObserver((mutations) => {
+        for (const m of mutations) {
+          if (m.type === 'childList') {
+            for (const node of m.addedNodes) {
+              if (node.nodeType === 1 && ((node.id === 'partners-tbody') || node.querySelector?.('#partners-tbody'))){
+                shuffleTable();
+                mo.disconnect();
+              }
+            }
+          }
+        }
+      });
+      mo.observe(document.body, { childList: true, subtree: true });
     })();
   </script>
 </section>
