@@ -27,6 +27,7 @@ function shuffle(arr: typeof partners) {
 }
 
 onMounted(() => {
+  console.log('PartnerTable montado');
   shuffle(partners);
 });
 </script>

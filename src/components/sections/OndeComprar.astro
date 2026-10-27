@@ -1,6 +1,5 @@
 ---
 import FibramferFloat from '../FibramferFloat.astro';
-import PartnerTable from '../PartnerTable.vue';
 const { class: className = '' } = Astro.props;
 ---
 
@@ -12,9 +11,51 @@ const { class: className = '' } = Astro.props;
       <p class="mt-4 font-body text-base text-text-secondary">Principais distribuidores e revendas de cadeiras suspensas certificadas.</p>
     </div>
 
-    <PartnerTable client:load />
+    <div class="overflow-x-auto rounded-lg border border-border shadow-card">
+      <table class="w-full text-left border-collapse">
+        <thead class="bg-surface-alt">
+          <tr>
+            <th class="font-display text-sm font-bold uppercase tracking-wide px-6 py-3 text-ink">Parceria</th>
+            <th class="font-display text-sm font-bold uppercase tracking-wide px-6 py-3 text-ink">Contato</th>
+          </tr>
+        </thead>
+        <tbody id="partners-tbody" class="divide-y divide-border">
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">AMC PROTESTE DISTRIBUIDORA BRASIL LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel AMC</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">CASA DAS CORDAS LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel CASA</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">ECOHABITAT COMERCIO E REPRESENTACOES LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel ECOHABITAT</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">EDSEG - EQUIPAMENTOS DE PROTECAO LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel EDSEG</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">EQUIVALE - EQUIPAMENTOS DE PROTECAO LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel EQUIVALE</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">JACKSON ALEXANDRE MARIA ME</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel JACKSON</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">LITORAL COMERCIO DE EPI LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel LITORAL</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">LMF UNIFORMES E EPIS LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel LMF</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">MARCOS PEREIRA DE SOUSA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel MARCOS</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">NICOVER BRASIL COMERCIO E REPRESENTACOES LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel NICOVER</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">OCL COMERCIO E IMPORTACAO LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel OCL</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">PRATICIBOR - COMERCIO DE PLASTICOS E BORRACHAS LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel PRATICIBOR</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">STILO BORRACHAS E PLASTICOS LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel STILO</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">SUPER MIX COMERCIO E ARTIGOS DE USO PESSOAL LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel SUPER</td></tr>
+          <tr class="bg-surface hover:bg-surface-alt transition-colors"><td class="px-6 py-3 font-body text-base font-medium text-ink">TH SAFE EQUIPAMENTOS DE SEGURANCA LTDA</td><td class="px-6 py-3 font-body text-base text-text-secondary">tel TH</td></tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 
   <FibramferFloat asset="f3" />
   <FibramferFloat asset="f3" mirror />
+
+  <script>
+    (function () {
+      function shuffleTable() {
+        const tbody = document.getElementById('partners-tbody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        for (let i = rows.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [rows[i], rows[j]] = [rows[j], rows[i]];
+        }
+        rows.forEach((r) => tbody.appendChild(r));
+      }
+      shuffleTable();
+    })();
+  </script>
 </section>
