@@ -72,7 +72,7 @@ const routes = computed<RouteDefinition[]>(() => [
 const currentPath = ref(normalizePath(props.initialPath))
 
 watch(currentPath, (newPath, oldPath) => {
-  if (oldPath === '/onde-comprar/' && newPath !== '/onde-comprar/') {
+  if ((oldPath === '/onde-comprar/' && newPath !== '/onde-comprar/') || (newPath === '/onde-comprar/' && oldPath !== '/onde-comprar/')) {
     window.dispatchEvent(new CustomEvent('shuffle-partners'))
     setTimeout(() => window.dispatchEvent(new CustomEvent('shuffle-partners')), 500)
   }
