@@ -65,6 +65,15 @@ const partners = [
         rows.forEach((r) => tbody.appendChild(r));
       }
       shuffleTable();
+      const section = document.querySelector('section');
+      if (section && 'IntersectionObserver' in window) {
+        const obs = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) shuffleTable();
+          });
+        }, { threshold: 0.1 });
+        obs.observe(section);
+      }
       window.addEventListener('shuffle-partners', shuffleTable);
     })();
   </script>
