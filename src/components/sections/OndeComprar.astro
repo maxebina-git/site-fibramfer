@@ -1,24 +1,7 @@
 ---
 import FibramferFloat from '../FibramferFloat.astro';
+import PartnerTable from '../PartnerTable.vue';
 const { class: className = '' } = Astro.props;
-
-const partners = [
-  { name: 'AMC PROTESTE DISTRIBUIDORA BRASIL LTDA', tel: 'tel AMC' },
-  { name: 'CASA DAS CORDAS LTDA', tel: 'tel CASA' },
-  { name: 'ECOHABITAT COMERCIO E REPRESENTACOES LTDA', tel: 'tel ECOHABITAT' },
-  { name: 'EDSEG - EQUIPAMENTOS DE PROTECAO LTDA', tel: 'tel EDSEG' },
-  { name: 'EQUIVALE - EQUIPAMENTOS DE PROTECAO LTDA', tel: 'tel EQUIVALE' },
-  { name: 'JACKSON ALEXANDRE MARIA ME', tel: 'tel JACKSON' },
-  { name: 'LITORAL COMERCIO DE EPI LTDA', tel: 'tel LITORAL' },
-  { name: 'LMF UNIFORMES E EPIS LTDA', tel: 'tel LMF' },
-  { name: 'MARCOS PEREIRA DE SOUSA', tel: 'tel MARCOS' },
-  { name: 'NICOVER BRASIL COMERCIO E REPRESENTACOES LTDA', tel: 'tel NICOVER' },
-  { name: 'OCL COMERCIO E IMPORTACAO LTDA', tel: 'tel OCL' },
-  { name: 'PRATICIBOR - COMERCIO DE PLASTICOS E BORRACHAS LTDA', tel: 'tel PRATICIBOR' },
-  { name: 'STILO BORRACHAS E PLASTICOS LTDA', tel: 'tel STILO' },
-  { name: 'SUPER MIX COMERCIO E ARTIGOS DE USO PESSOAL LTDA', tel: 'tel SUPER' },
-  { name: 'TH SAFE EQUIPAMENTOS DE SEGURANCA LTDA', tel: 'tel TH' },
-];
 ---
 
 <section class={`py-20 ${className}`}>
@@ -29,84 +12,9 @@ const partners = [
       <p class="mt-4 font-body text-base text-text-secondary">Principais distribuidores e revendas de cadeiras suspensas certificadas.</p>
     </div>
 
-    <div class="overflow-x-auto rounded-lg border border-border shadow-card">
-      <table class="w-full text-left border-collapse">
-        <thead class="bg-surface-alt">
-          <tr>
-            <th class="font-display text-sm font-bold uppercase tracking-wide px-6 py-3 text-ink">Parceria</th>
-            <th class="font-display text-sm font-bold uppercase tracking-wide px-6 py-3 text-ink">Contato</th>
-          </tr>
-        </thead>
-        <tbody id="partners-tbody" class="divide-y divide-border">
-          {partners.map((p) => (
-            <tr class="bg-surface hover:bg-surface-alt transition-colors">
-              <td class="px-6 py-3 font-body text-base font-medium text-ink">{p.name}</td>
-              <td class="px-6 py-3 font-body text-base text-text-secondary">{p.tel}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <PartnerTable />
   </div>
 
   <FibramferFloat asset="f3" />
   <FibramferFloat asset="f3" mirror />
-
-  <script>
-    (function () {
-      function shuffleTable() {
-        const tbody = document.getElementById('partners-tbody');
-        if (!tbody) return;
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        for (let i = rows.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [rows[i], rows[j]] = [rows[j], rows[i]];
-        }
-        rows.forEach((r) => tbody.appendChild(r));
-      }
-      shuffleTable();
-      const section = document.querySelector('section');
-      if (section && 'IntersectionObserver' in window) {
-        const obs = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) shuffleTable();
-          });
-        }, { threshold: 0.1 });
-        obs.observe(section);
-      }
-      window.addEventListener('shuffle-partners', shuffleTable);
-      // Qualquer clique em link que leve para fora de /onde-comprar/
-      document.addEventListener('click', function(e){
-        if (window.location.pathname === '/onde-comprar/') {
-          const clickedTable = e.target.closest('#partners-tbody') || e.target.closest('table');
-          if (!clickedTable) shuffleTable();
-        }
-      });
-      // Monitorar mudança de URL (drawer/SPA) independentemente de eventos
-      let prevPath = window.location.pathname;
-      setInterval(() => {
-        const curr = window.location.pathname;
-        if (curr === '/onde-comprar/' && curr !== prevPath) {
-          shuffleTable();
-          prevPath = curr;
-        } else if (curr !== prevPath) {
-          prevPath = curr;
-        }
-      }, 600);
-      // Reagir se a tabela for inserida depois pelo Vue/drawer
-      const mo = new MutationObserver((mutations) => {
-        for (const m of mutations) {
-          if (m.type === 'childList') {
-            for (const node of m.addedNodes) {
-              if (node.nodeType === 1 && ((node.id === 'partners-tbody') || node.querySelector?.('#partners-tbody'))){
-                shuffleTable();
-                mo.disconnect();
-              }
-            }
-          }
-        }
-      });
-      mo.observe(document.body, { childList: true, subtree: true });
-    })();
-  </script>
 </section>
