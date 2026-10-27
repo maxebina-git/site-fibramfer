@@ -67,7 +67,7 @@ behind the current content panel.
 | --- | --- |
 | `/` | Home overview with the `TrueHero` only |
 | `/a-fibramfer/` | Home background with the `A Fibramfer` drawer open |
-| `/produtos/` | Home background with the `Produtos` drawer open |
+| `/cadeira-suspensa/` | Home background with the `Cadeira Suspensa` drawer open |
 | `/seguranca/` | Home background with the `Segurança` drawer open |
 | `/blog/` | Home background with the full Blog drawer open |
 | `/contato/` | Home background with the `Contato` drawer open |
@@ -117,7 +117,7 @@ this consumer; the Design System remains the source of truth for reusable UI com
 
 The primary CTAs follow the same route contract:
 
-- `Explorar Soluções` → `/produtos/`
+- `Explorar Soluções` → `/cadeira-suspensa/`
 - `Falar com Especialista` → `/contato/`
 - `Conheça nossa história` → `/a-fibramfer/`
 
@@ -135,15 +135,18 @@ structure includes:
 ```text
 dist/index.html
 dist/a-fibramfer/index.html
-dist/produtos/index.html
+dist/cadeira-suspensa/index.html
 dist/seguranca/index.html
+dist/onde-comprar/index.html
 dist/blog/index.html
 dist/blog/<slug>/index.html
 dist/contato/index.html
+dist/privacidade/index.html
+dist/termos/index.html
 ```
 
 The FTP server must serve each directory's `index.html`, so the canonical deployed URLs
-are expected to use a trailing slash, such as `/produtos/`. Direct access and refresh on
+are expected to use a trailing slash, such as `/cadeira-suspensa/`. Direct access and refresh on
 each main route must resolve to the generated directory index instead of a client-only
 SPA fallback.
 

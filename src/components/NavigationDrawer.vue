@@ -4,7 +4,6 @@ import { Drawer } from 'ds-grupo-rkb'
 
 type MainDrawerSlot =
   | 'a-fibramfer'
-  | 'produtos'
   | 'onde-comprar'
   | 'seguranca'
   | 'blog'
@@ -38,7 +37,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const mainRoutes: RouteDefinition[] = [
   { path: '/a-fibramfer/', title: 'A Fibramfer', slot: 'a-fibramfer', revealKey: 'a-fibramfer' },
-  { path: '/produtos/', title: 'Produtos', slot: 'produtos', revealKey: 'produtos' },
   { path: '/onde-comprar/', title: 'Onde Comprar', slot: 'onde-comprar', revealKey: 'onde-comprar' },
   { path: '/cadeira-suspensa/', title: 'Cadeira Suspensa', slot: 'cadeira-suspensa', revealKey: 'cadeira-suspensa' },
   { path: '/seguranca/', title: 'Segurança', slot: 'seguranca', revealKey: 'seguranca' },

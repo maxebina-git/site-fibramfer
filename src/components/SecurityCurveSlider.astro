@@ -1,0 +1,21 @@
+---
+import FibramferCurveSlider from './FibramferCurveSlider.astro';
+
+const slides = [
+  {
+    src: '/assets/a-fibramfer-1.webp',
+    alt: 'Profissional em trabalho em altura com equipamento Fibramfer',
+  },
+  {
+    src: '/assets/a-fibramfer-2.webp',
+    alt: 'Equipe realizando acesso por cordas com equipamentos Fibramfer',
+  },
+];
+---
+
+<FibramferCurveSlider
+  slides={slides}
+  label="Galeria de segurança e conformidade Fibramfer"
+  autoplayMs={3000}
+  idPrefix="security-curve"
+/>
