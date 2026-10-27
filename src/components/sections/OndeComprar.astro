@@ -42,20 +42,4 @@ const { class: className = '' } = Astro.props;
 
   <FibramferFloat asset="f3" />
   <FibramferFloat asset="f3" mirror />
-
-  <script>
-    (function () {
-      function shuffleTable() {
-        const tbody = document.getElementById('partners-tbody');
-        if (!tbody) return;
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        for (let i = rows.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [rows[i], rows[j]] = [rows[j], rows[i]];
-        }
-        rows.forEach((r) => tbody.appendChild(r));
-      }
-      shuffleTable();
-    })();
-  </script>
 </section>
