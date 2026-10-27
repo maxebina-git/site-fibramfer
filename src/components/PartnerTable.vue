@@ -26,7 +26,9 @@ function shuffle(arr: typeof partners) {
   }
 }
 
-shuffle(partners);
+onMounted(() => {
+  shuffle(partners);
+});
 </script>
 
 <template>
