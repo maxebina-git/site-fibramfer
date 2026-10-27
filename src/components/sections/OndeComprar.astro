@@ -48,12 +48,17 @@ const { class: className = '' } = Astro.props;
       function shuffleTable() {
         const tbody = document.getElementById('partners-tbody');
         if (!tbody) return;
-        const rows = Array.from(tbody.querySelectorAll('tr'));
-        for (let i = rows.length - 1; i > 0; i--) {
-          const j = Math.floor(Math.random() * (i + 1));
-          [rows[i], rows[j]] = [rows[j], rows[i]];
-        }
-        rows.forEach((r) => tbody.appendChild(r));
+        tbody.style.transition = 'opacity 0.3s ease';
+        tbody.style.opacity = '0.4';
+        setTimeout(() => {
+          const rows = Array.from(tbody.querySelectorAll('tr'));
+          for (let i = rows.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [rows[i], rows[j]] = [rows[j], rows[i]];
+          }
+          rows.forEach((r) => tbody.appendChild(r));
+          tbody.style.opacity = '1';
+        }, 300);
       }
       shuffleTable();
       setInterval(shuffleTable, 3000);
