@@ -268,6 +268,12 @@ function handleOpenUpdate(value: boolean): void {
   if (!value) navigateTo('/')
 }
 
+function onDrawerClose(): void {
+  if (currentPath.value === '/onde-comprar/') {
+    window.dispatchEvent(new CustomEvent('shuffle-partners'))
+  }
+}
+
 function handleRevealContent(slot: string | number | undefined): void {
   if (slot === undefined) return
   const route = routes.value.find((item) => item.revealKey === String(slot))
@@ -451,6 +457,7 @@ watch([displayedPostId, displayedSlot], () => {
       panel-width="three-quarters"
       @update:open="handleOpenUpdate"
       @reveal-content="handleRevealContent"
+      @close="onDrawerClose"
       >
         <div
           v-if="displayedSlot"

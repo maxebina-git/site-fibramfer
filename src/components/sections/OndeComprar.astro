@@ -1,41 +1,71 @@
 ---
-import { Button } from 'ds-grupo-rkb';
 import FibramferFloat from '../FibramferFloat.astro';
 const { class: className = '' } = Astro.props;
 
-const channels = [
-  {
-    title: 'Distribuidores autorizados',
-    text: 'Rede de parceiros homologados com estoque local e suporte técnico próprio.',
-    action: 'Ver parceiros',
-  },
-  {
-    title: 'Venda direta',
-    text: 'Atendimento comercial da Fibramfer com orçamento sob medida para sua planta.',
-    action: 'Solicitar orçamento',
-  },
-  {
-    title: 'Presencial',
-    text: 'Unidades de atendimento para conhecer os equipamentos e falar com um especialista.',
-    action: 'Encontrar unidade',
-  },
+const partners = [
+  { name: 'AMC PROTESTE DISTRIBUIDORA BRASIL LTDA', tel: 'tel AMC' },
+  { name: 'CASA DAS CORDAS LTDA', tel: 'tel CASA' },
+  { name: 'ECOHABITAT COMERCIO E REPRESENTACOES LTDA', tel: 'tel ECOHABITAT' },
+  { name: 'EDSEG - EQUIPAMENTOS DE PROTECAO LTDA', tel: 'tel EDSEG' },
+  { name: 'EQUIVALE - EQUIPAMENTOS DE PROTECAO LTDA', tel: 'tel EQUIVALE' },
+  { name: 'JACKSON ALEXANDRE MARIA ME', tel: 'tel JACKSON' },
+  { name: 'LITORAL COMERCIO DE EPI LTDA', tel: 'tel LITORAL' },
+  { name: 'LMF UNIFORMES E EPIS LTDA', tel: 'tel LMF' },
+  { name: 'MARCOS PEREIRA DE SOUSA', tel: 'tel MARCOS' },
+  { name: 'NICOVER BRASIL COMERCIO E REPRESENTACOES LTDA', tel: 'tel NICOVER' },
+  { name: 'OCL COMERCIO E IMPORTACAO LTDA', tel: 'tel OCL' },
+  { name: 'PRATICIBOR - COMERCIO DE PLASTICOS E BORRACHAS LTDA', tel: 'tel PRATICIBOR' },
+  { name: 'STILO BORRACHAS E PLASTICOS LTDA', tel: 'tel STILO' },
+  { name: 'SUPER MIX COMERCIO E ARTIGOS DE USO PESSOAL LTDA', tel: 'tel SUPER' },
+  { name: 'TH SAFE EQUIPAMENTOS DE SEGURANCA LTDA', tel: 'tel TH' },
 ];
 ---
 
 <section class={`py-20 ${className}`}>
-  <div class="text-center mb-12">
-    <h2 class="font-display text-3xl font-bold mb-4 text-ink">Onde Comprar</h2>
-    <p class="text-text-secondary">Escolha o canal que melhor combina com a sua operação.</p>
+  <div class="mx-auto max-w-5xl px-4 md:px-8">
+    <div class="text-center mb-12">
+      <p class="mb-4 font-body text-sm font-semibold uppercase tracking-[0.16em] text-accent-500">Parceiros autorizados</p>
+      <h2 class="font-display text-4xl font-black uppercase leading-tight text-primary-500 md:text-6xl">Onde Comprar</h2>
+      <p class="mt-4 font-body text-base text-text-secondary">Principais distribuidores e revendas de cadeiras suspensas certificadas.</p>
+    </div>
+
+    <div class="overflow-x-auto rounded-lg border border-border shadow-card">
+      <table class="w-full text-left border-collapse">
+        <thead class="bg-surface-alt">
+          <tr>
+            <th class="font-display text-sm font-bold uppercase tracking-wide px-6 py-3 text-ink">Parceria</th>
+            <th class="font-display text-sm font-bold uppercase tracking-wide px-6 py-3 text-ink">Contato</th>
+          </tr>
+        </thead>
+        <tbody id="partners-tbody" class="divide-y divide-border">
+          {partners.map((p) => (
+            <tr class="bg-surface hover:bg-surface-alt transition-colors">
+              <td class="px-6 py-3 font-body text-base font-medium text-ink">{p.name}</td>
+              <td class="px-6 py-3 font-body text-base text-text-secondary">{p.tel}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   </div>
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-    {channels.map((channel) => (
-      <div class="bg-surface p-6 rounded-lg shadow-card border border-border hover:shadow-elevation-3 transition-shadow">
-        <h3 class="font-display text-xl font-bold mb-2 text-ink">{channel.title}</h3>
-        <p class="text-text-secondary mb-4">{channel.text}</p>
-        <Button variant="secondary" size="sm">{channel.action}</Button>
-      </div>
-    ))}
-  </div>
+
   <FibramferFloat asset="f3" />
   <FibramferFloat asset="f3" mirror />
+
+  <script>
+    (function () {
+      function shuffleTable() {
+        const tbody = document.getElementById('partners-tbody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr'));
+        for (let i = rows.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [rows[i], rows[j]] = [rows[j], rows[i]];
+        }
+        rows.forEach((r) => tbody.appendChild(r));
+      }
+      shuffleTable();
+      window.addEventListener('shuffle-partners', shuffleTable);
+    })();
+  </script>
 </section>
