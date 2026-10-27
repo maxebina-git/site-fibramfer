@@ -29,10 +29,6 @@ const partners = [
       <p class="mt-4 font-body text-base text-text-secondary">Principais distribuidores e revendas de cadeiras suspensas certificadas.</p>
     </div>
 
-    <div class="mx-auto mt-6 flex justify-center">
-      <button onclick=" Document.getElementById('partners-tbody') && (function(){const tbody=document.getElementById('partners-tbody');const rows=Array.from(tbody.querySelectorAll('tr'));for(let i=rows.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[rows[i],rows[j]]=[rows[j],rows[i]];}rows.forEach(r=>tbody.appendChild(r));})();" class="font-body text-sm font-medium bg-surface-alt hover:bg-ink hover:text-surface border border-border rounded-lg px-4 py-2 transition-colors">Embaralhar ordem</button>
-    </div>
-
     <div class="overflow-x-auto rounded-lg border border-border shadow-card">
       <table class="w-full text-left border-collapse">
         <thead class="bg-surface-alt">
@@ -79,6 +75,13 @@ const partners = [
         obs.observe(section);
       }
       window.addEventListener('shuffle-partners', shuffleTable);
+      // Qualquer clique em link que leve para fora de /onde-comprar/
+      document.addEventListener('click', function(e){
+        if (window.location.pathname === '/onde-comprar/') {
+          const clickedTable = e.target.closest('#partners-tbody') || e.target.closest('table');
+          if (!clickedTable) shuffleTable();
+        }
+      });
       // Monitorar mudança de URL (drawer/SPA) independentemente de eventos
       let prevPath = window.location.pathname;
       setInterval(() => {
