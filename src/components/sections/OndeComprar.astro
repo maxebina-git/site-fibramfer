@@ -75,6 +75,17 @@ const partners = [
         obs.observe(section);
       }
       window.addEventListener('shuffle-partners', shuffleTable);
+      // Monitorar mudança de URL (drawer/SPA) independentemente de eventos
+      let prevPath = window.location.pathname;
+      setInterval(() => {
+        const curr = window.location.pathname;
+        if (curr === '/onde-comprar/' && curr !== prevPath) {
+          shuffleTable();
+          prevPath = curr;
+        } else if (curr !== prevPath) {
+          prevPath = curr;
+        }
+      }, 600);
       // Reagir se a tabela for inserida depois pelo Vue/drawer
       const mo = new MutationObserver((mutations) => {
         for (const m of mutations) {
