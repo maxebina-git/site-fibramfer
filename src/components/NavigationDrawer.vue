@@ -51,6 +51,13 @@ const DRAWER_REVEAL_CLOSE_DELAY_MS = 500
 const LEGAL_DRAWER_CONTENT_SWAP_MS = 2100
 const LEGAL_DRAWER_CLOSE_TOTAL_MS = 2700
 
+watch(currentPath, (newPath, oldPath) => {
+  if (oldPath === '/onde-comprar/' && newPath !== '/onde-comprar/') {
+    window.dispatchEvent(new CustomEvent('shuffle-partners'))
+    setTimeout(() => window.dispatchEvent(new CustomEvent('shuffle-partners')), 500)
+  }
+})
+
 const legalLinks = [
   { path: '/privacidade', label: 'Privacidade' },
   { path: '/termos', label: 'Termos' },
