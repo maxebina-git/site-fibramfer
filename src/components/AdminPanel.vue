@@ -376,19 +376,20 @@ function savePost() {
 
           <div class="flex flex-col gap-1.5">
             <label for="post-content" class="text-sm font-medium text-ink">Conteúdo</label>
-            <div class="rounded-t-lg border border-b-0 border-border bg-surface p-2 flex items-center gap-2">
-              <button type="button" aria-label="Negrito (Bold)" class="rounded bg-surface-alt px-2 py-0.5 text-xs font-bold hover:bg-surface cursor-pointer" @click="exec('bold')">B</button>
-              <button type="button" aria-label="Itálico (Italic)" class="rounded bg-surface-alt px-2 py-0.5 text-xs italic hover:bg-surface cursor-pointer" @click="exec('italic')">I</button>
-              <button type="button" aria-label="Lista com marcadores" class="rounded bg-surface-alt px-2 py-0.5 text-xs hover:bg-surface cursor-pointer" @click="exec('insertUnorderedList')">•</button>
-              <button type="button" aria-label="Lista numerada" class="rounded bg-surface-alt px-2 py-0.5 text-xs hover:bg-surface cursor-pointer" @click="exec('insertOrderedList')">1.</button>
-              <button type="button" aria-label="Inserir link" class="rounded bg-surface-alt px-2 py-0.5 text-xs hover:bg-surface cursor-pointer" @click="exec('createLink', prompt('URL do link'))">Link</button>
+            <div class="flex flex-wrap items-center gap-1 border-b border-border bg-surface-alt p-2">
+              <button type="button" title="Negrito" aria-label="Aplicar negrito" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm font-bold text-ink hover:bg-surface cursor-pointer" @click="exec('bold')">B</button>
+              <button type="button" title="Sublinhado" aria-label="Aplicar sublinhado" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm underline text-ink hover:bg-surface cursor-pointer" @click="exec('underline')">U</button>
+              <button type="button" title="Lista com marcadores" aria-label="Inserir lista com marcadores" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('insertUnorderedList')">• Lista</button>
+              <button type="button" title="Citação" aria-label="Aplicar citação" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('formatBlock', '<blockquote>')">❝ Citação</button>
+              <button type="button" title="Inserir tabela" aria-label="Inserir tabela" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('insertHTML', '<table class=\'w-full text-left border-collapse\'><tr><th class=\'p-2 bg-surface-alt\'>Título</th><th class=\'p-2 bg-surface-alt\'>Data</th></tr><tr><td class=\'p-2\'></td><td class=\'p-2\'></td></tr></table>')">▦ Tabela</button>
+              <button type="button" title="Inserir link" aria-label="Inserir link" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('createLink', prompt('URL do link'))">🔗 Link</button>
             </div>
             <div
               ref="editorRef"
               id="post-content"
               contenteditable="true"
               @input="formContent = ($event.target as HTMLElement).innerHTML || ''"
-              class="w-full min-h-[12rem] resize-y rounded-b-lg border border-t-0 border-border bg-surface px-3.5 py-3 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 overflow-auto"
+              class="w-full min-h-[12rem] resize-y rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 overflow-auto"
             ></div>
           </div>
 
