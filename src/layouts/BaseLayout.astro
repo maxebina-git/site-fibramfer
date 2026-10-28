@@ -11,7 +11,7 @@ interface Props {
 
 const { title = 'Site Fibramfer', description, home = false } = Astro.props;
 
-const panelRoutes = ['/a-fibramfer', '/cadeira-suspensa', '/onde-comprar', '/seguranca', '/blog', '/contato', '/privacidade', '/termos'];
+const panelRoutes = ['/a-fibramfer', '/cadeira-suspensa', '/onde-comprar', '/seguranca', '/blog', '/contato', '/privacidade', '/termos', '/admin'];
 const legalRoutes = ['/privacidade', '/termos'];
 const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
 const isRouteActive = (route: string): boolean =>
@@ -48,6 +48,7 @@ const isLegalOpen = legalRoutes.some(isRouteActive);
           '/a-fibramfer': 'A Fibramfer',
           '/cadeira-suspensa': 'Cadeira Suspensa',
           '/onde-comprar': 'Onde Comprar',
+          '/admin': 'Admin',
           '/seguranca': 'Segurança',
           '/blog': 'Blog',
           '/contato': 'Contato',

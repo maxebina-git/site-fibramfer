@@ -11,6 +11,7 @@ type MainDrawerSlot =
   | 'privacidade'
   | 'termos'
   | 'cadeira-suspensa'
+  | 'admin'
 type LegalDrawerSlot = 'privacidade' | 'termos'
 type DrawerSlot = MainDrawerSlot | 'blog-posts'
 
@@ -38,6 +39,7 @@ const props = withDefaults(defineProps<Props>(), {
 const mainRoutes: RouteDefinition[] = [
   { path: '/a-fibramfer/', title: 'A Fibramfer', slot: 'a-fibramfer', revealKey: 'a-fibramfer' },
   { path: '/onde-comprar/', title: 'Onde Comprar', slot: 'onde-comprar', revealKey: 'onde-comprar' },
+  { path: '/admin/', title: 'Admin', slot: 'admin', revealKey: 'admin' },
   { path: '/cadeira-suspensa/', title: 'Cadeira Suspensa', slot: 'cadeira-suspensa', revealKey: 'cadeira-suspensa' },
   { path: '/seguranca/', title: 'Segurança', slot: 'seguranca', revealKey: 'seguranca' },
   { path: '/blog/', title: 'Blog', slot: 'blog', revealKey: 'blog' },
@@ -76,6 +78,7 @@ const currentPath = ref(normalizePath(props.initialPath))
       '/a-fibramfer/': 'A Fibramfer',
       '/cadeira-suspensa/': 'Cadeira Suspensa',
       '/onde-comprar/': 'Onde Comprar',
+      '/admin/': 'Admin',
       '/seguranca/': 'Segurança',
       '/blog/': 'Blog',
       '/contato/': 'Contato',
@@ -177,6 +180,24 @@ const drawerScrollSelector =
   "[data-fibramfer-drawers] aside[role='dialog'] [data-drawer-reveal-content]"
 
 const drawerRef = ref<InstanceType<typeof Drawer> | null>(null)
+
+function shufflePartnersTable() {
+  if (typeof document === 'undefined') return
+  const tbody = document.getElementById('partners-tbody')
+  if (!tbody) return
+  tbody.style.transition = 'opacity 0.3s ease'
+  tbody.style.opacity = '0.4'
+  setTimeout(() => {
+    const rows = Array.from(tbody.querySelectorAll('tr'))
+    if (rows.length === 0) return
+    for (let i = rows.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [rows[i], rows[j]] = [rows[j], rows[i]]
+    }
+    rows.forEach((r) => tbody.appendChild(r))
+    tbody.style.opacity = '1'
+  }, 250)
+}
 
 let drawerScrollObserver: ResizeObserver | null = null
 let drawerContentObserver: MutationObserver | null = null
@@ -312,8 +333,24 @@ function handleDocumentClick(event: MouseEvent): void {
   const route = href === '/' ? { path: '/' } : routeForHref(href)
   if (!route) return
 
+  if (route.path === '/onde-comprar/' || route.path === '/onde-comprar' || href === '/onde-comprar' || href === '/onde-comprar/') {
+    shufflePartnersTable()
+    setTimeout(shufflePartnersTable, 300)
+    setTimeout(shufflePartnersTable, 600)
+    setTimeout(shufflePartnersTable, 900)
+  }
+
   event.preventDefault()
   navigateTo(route.path)
+}
+
+function handleAdminShortcut(event: KeyboardEvent): void {
+  if (!(event.ctrlKey || event.metaKey)) return
+  if (event.key.toLowerCase() !== 'y') return
+  const active = document.activeElement as HTMLElement | null
+  if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) return
+  event.preventDefault()
+  navigateTo('/admin/')
 }
 
 onMounted(() => {
@@ -330,6 +367,7 @@ onMounted(() => {
   })
   window.addEventListener('resize', scheduleDrawerScrollSync)
   document.addEventListener('click', handleDocumentClick)
+  window.addEventListener('keydown', handleAdminShortcut, true)
   void nextTick(() => {
     observeDrawerScrollContainer()
     if (isOpen.value) {
@@ -434,6 +472,15 @@ watch([displayedPostId, displayedSlot], () => {
   void syncBlogPostVisibility()
 })
 
+watch(displayedSlot, (slot) => {
+  if (slot === 'onde-comprar') {
+    shufflePartnersTable()
+    setTimeout(shufflePartnersTable, 400)
+    setTimeout(shufflePartnersTable, 700)
+    setTimeout(shufflePartnersTable, 1000)
+  }
+})
+
   onBeforeUnmount(() => {
   if (legalCloseTimer) { clearTimeout(legalCloseTimer); legalCloseTimer = null }
   applyLegalContext(false)
@@ -442,6 +489,7 @@ watch([displayedPostId, displayedSlot], () => {
     document.body.removeAttribute('data-fibramfer-drawer-ready')
     window.removeEventListener('popstate', syncFromLocation)
   document.removeEventListener('click', handleDocumentClick)
+  window.removeEventListener('keydown', handleAdminShortcut, true)
 })
 </script>
 

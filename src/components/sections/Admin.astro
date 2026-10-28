@@ -1,0 +1,79 @@
+---
+import { Button, Input } from 'ds-grupo-rkb';
+import FibramferFloat from '../FibramferFloat.astro';
+const { class: className = '' } = Astro.props;
+---
+
+<section class={`pb-16 ${className}`}>
+  <div class="mx-auto max-w-5xl px-4 md:px-8">
+    <div class="text-center mb-12">
+      <p class="mb-4 font-body text-sm font-semibold uppercase tracking-[0.16em] text-accent-500">Área restrita</p>
+      <h1 class="font-display text-4xl font-black uppercase leading-tight text-primary-500 md:text-6xl">Admin</h1>
+      <p class="mt-4 font-body text-base text-text-secondary">Acesso restrito à equipe Fibramfer.</p>
+    </div>
+
+    <div class="mx-auto max-w-md rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
+      <form id="admin-login-form" class="flex flex-col gap-5" novalidate>
+        <div class="flex flex-col gap-1.5">
+          <label for="admin-email" class="text-sm font-medium text-ink">E-mail</label>
+          <Input id="admin-email" name="email" type="email" placeholder="seu@email.com.br" />
+          <p id="admin-email-error" class="text-sm text-error-500 hidden">E-mail inválido</p>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label for="admin-password" class="text-sm font-medium text-ink">Senha</label>
+          <Input id="admin-password" name="password" type="password" placeholder="••••••" />
+          <p id="admin-password-error" class="text-sm text-error-500 hidden">Senha inválida</p>
+        </div>
+
+        <Button id="admin-submit-cta" variant="primary" size="lg" type="submit" fullWidth>
+          Entrar
+        </Button>
+
+        <p id="admin-success" class="text-sm text-success-500 hidden text-center">Login realizado</p>
+      </form>
+    </div>
+  </div>
+
+  <FibramferFloat asset="f3" />
+  <FibramferFloat asset="f3" mirror />
+</section>
+
+<script>
+  (function () {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    document.addEventListener('submit', (event) => {
+      const form = event.target as HTMLFormElement | null;
+      if (!form || form.id !== 'admin-login-form') return;
+      event.preventDefault();
+
+      const emailInput = form.querySelector<HTMLInputElement>('#admin-email');
+      const passwordInput = form.querySelector<HTMLInputElement>('#admin-password');
+      const emailError = form.querySelector<HTMLElement>('#admin-email-error');
+      const passwordError = form.querySelector<HTMLElement>('#admin-password-error');
+      const success = form.querySelector<HTMLElement>('#admin-success');
+
+      const email = (emailInput?.value || '').trim();
+      const password = passwordInput?.value || '';
+
+      emailError?.classList.add('hidden');
+      passwordError?.classList.add('hidden');
+      success?.classList.add('hidden');
+
+      let valid = true;
+      if (!emailRegex.test(email)) {
+        emailError?.classList.remove('hidden');
+        valid = false;
+      }
+      if (password.length < 6) {
+        passwordError?.classList.remove('hidden');
+        valid = false;
+      }
+
+      if (valid) {
+        success?.classList.remove('hidden');
+      }
+    }, true);
+  })();
+</script>
