@@ -41,6 +41,25 @@ const isLegalOpen = legalRoutes.some(isRouteActive);
     data-fibramfer-initializing={isPanelOpen ? 'true' : undefined}
     data-fibramfer-direct-drawer={isPanelOpen ? 'true' : undefined}
   >
+    <script>
+      (function () {
+        const titles = {
+          '/a-fibramfer': 'A Fibramfer',
+          '/cadeira-suspensa': 'Cadeira Suspensa',
+          '/onde-comprar': 'Onde Comprar',
+          '/seguranca': 'Segurança',
+          '/blog': 'Blog',
+          '/contato': 'Contato',
+        };
+        function update() {
+          const path = window.location.pathname.replace(/\/$/, '') || '/';
+          if (titles[path]) document.title = titles[path] + ' | Fibramfer';
+        }
+        update();
+        window.addEventListener('popstate', update);
+        setInterval(update, 800);
+      })();
+    </script>
     <Header />
     <main class="home-main flex min-h-0 flex-1 flex-col w-full">
       <slot />
