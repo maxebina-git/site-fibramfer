@@ -214,10 +214,12 @@ function savePost() {
 <template>
   <!-- LOGIN VIEW -->
   <div v-if="!authed" class="mx-auto max-w-md">
-    <div class="mb-4 rounded-lg bg-primary-500 px-6 py-4 text-center">
-      <h2 class="font-display text-2xl font-black uppercase tracking-wide text-accent-500">Login</h2>
+    <div class="mb-6 text-center">
+      <p class="mb-2 font-body text-sm font-semibold uppercase tracking-[0.16em] text-accent-500">Área restrita</p>
+      <h1 class="font-display text-4xl font-black uppercase leading-tight text-primary-500 md:text-6xl">Admin</h1>
     </div>
     <div class="rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
+      <h2 class="mb-6 font-display text-2xl font-bold text-ink">Login</h2>
     <form class="flex flex-col gap-5" @submit.prevent="handleLogin">
       <div class="flex flex-col gap-1.5">
         <label for="admin-email" class="text-sm font-medium text-ink">E-mail</label>
