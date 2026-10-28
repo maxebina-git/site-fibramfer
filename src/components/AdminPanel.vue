@@ -168,11 +168,12 @@ function onImageChange(e: Event) {
   const target = e.target as HTMLInputElement
   const file = target.files && target.files[0]
   if (!file) return
-  if (formImagePreview.value && formImagePreview.value.startsWith('blob:')) {
-    URL.revokeObjectURL(formImagePreview.value)
-  }
   formImage.value = file
-  formImagePreview.value = URL.createObjectURL(file)
+  const reader = new FileReader()
+  reader.onload = () => {
+    formImagePreview.value = reader.result as string
+  }
+  reader.readAsDataURL(file)
 }
 
 function savePost() {
