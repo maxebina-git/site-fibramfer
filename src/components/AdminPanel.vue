@@ -258,7 +258,6 @@ function savePost() {
       <h1 class="font-display text-3xl font-black uppercase leading-tight text-primary-500 md:text-4xl">Administrar Blog</h1>
       <div class="flex items-center gap-3">
         <Button variant="primary" size="sm" @click="openModal()">+ Novo post</Button>
-        <button type="button" class="text-sm text-text-secondary hover:text-ink" @click="logout">Sair</button>
       </div>
     </div>
 
@@ -269,7 +268,7 @@ function savePost() {
             <th class="font-display text-sm font-bold uppercase tracking-wide px-6 py-3 text-ink">Título</th>
             <th class="font-display text-sm font-bold uppercase tracking-wide px-6 py-3 text-ink">Data</th>
             <th class="font-display text-sm font-bold uppercase tracking-wide px-6 py-3 text-ink">Categoria</th>
-            <th class="font-display text-sm font-bold uppercase tracking-wide px-6 py-3 text-ink">Ações</th>
+            <th class="font-display text-sm font-bold uppercase tracking-wide px-6 py-3 text-ink text-right">Ações</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-border">
@@ -277,10 +276,10 @@ function savePost() {
             <td class="px-6 py-3 font-body text-base font-medium text-ink">{{ post.title }}</td>
             <td class="px-6 py-3 font-body text-base text-text-secondary">{{ formatDate(post.date) }}</td>
             <td class="px-6 py-3 font-body text-base text-text-secondary">{{ post.category || '—' }}</td>
-            <td class="px-6 py-3 font-body text-base">
-              <div class="flex items-center gap-3">
-                <button type="button" class="text-primary-500 hover:underline" @click="openModal(post)">Editar</button>
-                <button type="button" class="text-error-500 hover:underline" @click="deletePost(post.id)">Excluir</button>
+            <td class="px-6 py-3 font-body text-base text-right">
+              <div class="flex items-center justify-end gap-2">
+                <button type="button" class="rounded-md bg-surface-alt px-2 py-1 text-sm font-medium text-primary-500 hover:bg-surface" @click="openModal(post)">Editar</button>
+                <button type="button" class="rounded-md bg-surface-alt px-2 py-1 text-sm font-medium text-error-500 hover:bg-surface" @click="deletePost(post.id)">Excluir</button>
               </div>
             </td>
           </tr>
@@ -289,6 +288,10 @@ function savePost() {
           </tr>
         </tbody>
       </table>
+    </div>
+
+    <div class="mt-4 flex justify-end">
+      <button type="button" class="text-sm font-medium text-text-secondary hover:text-ink" @click="logout">Sair p/ login</button>
     </div>
   </div>
 
