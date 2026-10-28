@@ -21,6 +21,8 @@ const emailError = ref('')
 const passwordError = ref('')
 
 const posts = ref<Post[]>([])
+const editorRef = ref<HTMLDivElement | null>(null)
+
 const editingId = ref<string | null>(null)
 
 // modal state
@@ -140,14 +142,15 @@ function deletePost(id: string) {
 
 function openModal(post?: Post) {
   editingId.value = post ? post.id : null
-  if (post) {
-    formTitle.value = post.title
-    formDate.value = post.date
-    formCategory.value = post.category
-    formContent.value = post.content
-    formImagePreview.value = post.image
-    formImage.value = null
-  } else {
+    if (post) {
+      formTitle.value = post.title
+      formDate.value = post.date
+      formCategory.value = post.category
+      formContent.value = post.content
+      setTimeout(() => { if (editorRef.value) editorRef.value.innerHTML = post.content || '' }, 0)
+      formImagePreview.value = post.image
+      formImage.value = null
+    } else {
     formTitle.value = ''
     formDate.value = new Date().toISOString().slice(0, 10)
     formCategory.value = ''
@@ -372,21 +375,20 @@ function savePost() {
           </div>
 
           <div class="flex flex-col gap-1.5">
-            <div class="flex items-center gap-2 mb-2">
-              <button type="button" class="rounded bg-surface-alt px-2 py-1 text-sm font-bold hover:bg-surface cursor-pointer" @click="exec('bold')">B</button>
-              <button type="button" class="rounded bg-surface-alt px-2 py-1 text-sm italic hover:bg-surface cursor-pointer" @click="exec('italic')">I</button>
-              <button type="button" class="rounded bg-surface-alt px-2 py-1 text-sm hover:bg-surface cursor-pointer" @click="exec('insertUnorderedList')">• Lista</button>
-              <button type="button" class="rounded bg-surface-alt px-2 py-1 text-sm hover:bg-surface cursor-pointer" @click="exec('insertOrderedList')">1. Lista</button>
-              <button type="button" class="rounded bg-surface-alt px-2 py-1 text-sm hover:bg-surface cursor-pointer" @click="exec('createLink', prompt('URL do link'))">Link</button>
-            </div>
             <label for="post-content" class="text-sm font-medium text-ink">Conteúdo</label>
+            <div class="rounded-t-lg border border-b-0 border-border bg-surface p-2 flex items-center gap-2">
+              <button type="button" class="rounded bg-surface-alt px-2 py-0.5 text-xs font-bold hover:bg-surface cursor-pointer" @click="exec('bold')">B</button>
+              <button type="button" class="rounded bg-surface-alt px-2 py-0.5 text-xs italic hover:bg-surface cursor-pointer" @click="exec('italic')">I</button>
+              <button type="button" class="rounded bg-surface-alt px-2 py-0.5 text-xs hover:bg-surface cursor-pointer" @click="exec('insertUnorderedList')">•</button>
+              <button type="button" class="rounded bg-surface-alt px-2 py-0.5 text-xs hover:bg-surface cursor-pointer" @click="exec('insertOrderedList')">1.</button>
+              <button type="button" class="rounded bg-surface-alt px-2 py-0.5 text-xs hover:bg-surface cursor-pointer" @click="exec('createLink', prompt('URL do link'))">Link</button>
+            </div>
             <div
+              ref="editorRef"
               id="post-content"
               contenteditable="true"
-              @input="(e: Event) => { const el = e.target as HTMLElement; formContent = el.innerHTML || '' }"
-              v-html="formContent"
-              class="w-full min-h-[8rem] resize-y rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 overflow-auto"
-              placeholder="Escreva o conteúdo do post..."
+              @input="formContent = ($event.target as HTMLElement).innerHTML || ''"
+              class="w-full min-h-[12rem] resize-y rounded-b-lg border border-t-0 border-border bg-surface px-3.5 py-3 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 overflow-auto"
             ></div>
           </div>
 
