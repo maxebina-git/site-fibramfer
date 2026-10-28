@@ -278,8 +278,8 @@ function savePost() {
             <td class="px-6 py-3 font-body text-base text-text-secondary">{{ post.category || '—' }}</td>
             <td class="px-6 py-3 font-body text-base text-right">
               <div class="flex items-center justify-end gap-2">
-                <button type="button" class="rounded-md bg-surface-alt px-2 py-1 text-sm font-medium text-primary-500 hover:bg-surface" @click="openModal(post)">Editar</button>
-                <button type="button" class="rounded-md bg-surface-alt px-2 py-1 text-sm font-medium text-error-500 hover:bg-surface" @click="deletePost(post.id)">Excluir</button>
+                <button type="button" class="rounded-md bg-surface-alt px-2 py-1 text-sm font-medium text-primary-500 hover:bg-surface cursor-pointer" @click="openModal(post)">Editar</button>
+                <button type="button" class="rounded-md bg-surface-alt px-2 py-1 text-sm font-medium text-error-500 hover:bg-surface cursor-pointer" @click="deletePost(post.id)">Excluir</button>
               </div>
             </td>
           </tr>
@@ -291,7 +291,7 @@ function savePost() {
     </div>
 
     <div class="mt-4 flex justify-end">
-      <button type="button" class="text-sm font-medium text-text-secondary hover:text-ink" @click="logout">Sair p/ login</button>
+      <button type="button" class="text-sm font-medium text-text-secondary hover:text-ink cursor-pointer" @click="logout">Sair p/ login</button>
     </div>
   </div>
 
