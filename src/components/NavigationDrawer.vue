@@ -72,7 +72,20 @@ const routes = computed<RouteDefinition[]>(() => [
 const currentPath = ref(normalizePath(props.initialPath))
 
 watch(currentPath, (newPath, oldPath) => {
-  if ((oldPath === '/onde-comprar/' && newPath !== '/onde-comprar/') || (newPath === '/onde-comprar/' && oldPath !== '/onde-comprar/')) {
+  const titles: Record<string, string> = {
+    '/a-fibramfer/': 'A Fibramfer',
+    '/cadeira-suspensa/': 'Cadeira Suspensa',
+    '/onde-comprar/': 'Onde Comprar',
+    '/seguranca/': 'Segurança',
+    '/blog/': 'Blog',
+    '/contato/': 'Contato',
+  };
+  if (titles[newPath]) document.title = titles[newPath] + ' | Fibramfer';
+  if (oldPath === '/onde-comprar/' && newPath !== '/onde-comprar/') {
+    window.dispatchEvent(new CustomEvent('shuffle-partners'))
+    setTimeout(() => window.dispatchEvent(new CustomEvent('shuffle-partners')), 500)
+  }
+  if (newPath === '/onde-comprar/' && oldPath !== '/onde-comprar/') {
     window.dispatchEvent(new CustomEvent('shuffle-partners'))
     setTimeout(() => window.dispatchEvent(new CustomEvent('shuffle-partners')), 500)
   }
