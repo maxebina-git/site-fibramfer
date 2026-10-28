@@ -377,11 +377,11 @@ function savePost() {
           <div class="flex flex-col gap-1.5">
             <label for="post-content" class="text-sm font-medium text-ink">Conteúdo</label>
             <div class="rounded-t-lg border border-b-0 border-border bg-surface p-2 flex items-center gap-2">
-              <button type="button" class="rounded bg-surface-alt px-2 py-0.5 text-xs font-bold hover:bg-surface cursor-pointer" @click="exec('bold')">B</button>
-              <button type="button" class="rounded bg-surface-alt px-2 py-0.5 text-xs italic hover:bg-surface cursor-pointer" @click="exec('italic')">I</button>
-              <button type="button" class="rounded bg-surface-alt px-2 py-0.5 text-xs hover:bg-surface cursor-pointer" @click="exec('insertUnorderedList')">•</button>
-              <button type="button" class="rounded bg-surface-alt px-2 py-0.5 text-xs hover:bg-surface cursor-pointer" @click="exec('insertOrderedList')">1.</button>
-              <button type="button" class="rounded bg-surface-alt px-2 py-0.5 text-xs hover:bg-surface cursor-pointer" @click="exec('createLink', prompt('URL do link'))">Link</button>
+              <button type="button" aria-label="Negrito (Bold)" class="rounded bg-surface-alt px-2 py-0.5 text-xs font-bold hover:bg-surface cursor-pointer" @click="exec('bold')">B</button>
+              <button type="button" aria-label="Itálico (Italic)" class="rounded bg-surface-alt px-2 py-0.5 text-xs italic hover:bg-surface cursor-pointer" @click="exec('italic')">I</button>
+              <button type="button" aria-label="Lista com marcadores" class="rounded bg-surface-alt px-2 py-0.5 text-xs hover:bg-surface cursor-pointer" @click="exec('insertUnorderedList')">•</button>
+              <button type="button" aria-label="Lista numerada" class="rounded bg-surface-alt px-2 py-0.5 text-xs hover:bg-surface cursor-pointer" @click="exec('insertOrderedList')">1.</button>
+              <button type="button" aria-label="Inserir link" class="rounded bg-surface-alt px-2 py-0.5 text-xs hover:bg-surface cursor-pointer" @click="exec('createLink', prompt('URL do link'))">Link</button>
             </div>
             <div
               ref="editorRef"
