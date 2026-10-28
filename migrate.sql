@@ -1,7 +1,6 @@
 -- Schema Fibramfer Blog (dev -> prod)
--- Executar em phpMyAdmin (banco 'fibramfer')
-
-CREATE DATABASE IF NOT EXISTS fibramfer DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- Executar APÓS renomear banco para 'fibramfer' via phpMyAdmin (Operações)
+-- Se já estiver no banco fibramfer, remova a linha USE abaixo se necessário
 USE fibramfer;
 
 CREATE TABLE IF NOT EXISTS posts (
