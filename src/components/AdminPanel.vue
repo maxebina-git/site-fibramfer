@@ -286,12 +286,13 @@ function savePost() {
   </div>
 
   <!-- MODAL -->
-  <Transition name="modal">
-    <div
-      v-if="modalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      @click.self="closeModal"
-    >
+  <Teleport to="body">
+    <Transition name="modal">
+      <div
+        v-if="modalOpen"
+        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
+        @click.self="closeModal"
+      >
       <div class="w-full max-w-2xl rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
         <div class="mb-4 flex items-center justify-between">
           <h2 class="font-display text-2xl font-bold text-ink">{{ editingId ? 'Editar post' : 'Novo post' }}</h2>
@@ -375,6 +376,7 @@ function savePost() {
       </div>
     </div>
   </Transition>
+  </Teleport>
 </template>
 
 <style scoped>
