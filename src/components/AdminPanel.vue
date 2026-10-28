@@ -115,6 +115,7 @@ function logout() {
 }
 
 function exec(cmd: string, value?: string) {
+  if (editorRef.value) editorRef.value.focus()
   document.execCommand(cmd, false, value || '')
 }
 
@@ -382,7 +383,7 @@ function savePost() {
               <button type="button" title="Lista com marcadores" aria-label="Inserir lista com marcadores" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('insertUnorderedList')">• Lista</button>
               <button type="button" title="Citação" aria-label="Aplicar citação" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('formatBlock', '<blockquote>')">❝ Citação</button>
               <button type="button" title="Inserir tabela" aria-label="Inserir tabela" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('insertHTML', '<table class=\'w-full text-left border-collapse\'><tr><th class=\'p-2 bg-surface-alt\'>Título</th><th class=\'p-2 bg-surface-alt\'>Data</th></tr><tr><td class=\'p-2\'></td><td class=\'p-2\'></td></tr></table>')">▦ Tabela</button>
-              <button type="button" title="Inserir link" aria-label="Inserir link" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('createLink', prompt('URL do link'))">🔗 Link</button>
+              <button type="button" title="Inserir link" aria-label="Inserir link" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('createLink', (prompt('URL do link') || ''))">🔗 Link</button>
             </div>
             <div
               ref="editorRef"
