@@ -369,13 +369,14 @@ function savePost() {
 
           <div class="flex flex-col gap-1.5">
             <label for="post-content" class="text-sm font-medium text-ink">Conteúdo</label>
-            <textarea
+            <div
               id="post-content"
-              v-model="formContent"
-              rows="8"
+              contenteditable="true"
+              @input="(e: Event) => { const el = e.target as HTMLElement; formContent = el.innerHTML || '' }"
+              v-html="formContent"
+              class="w-full min-h-[8rem] resize-y rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 overflow-auto"
               placeholder="Escreva o conteúdo do post..."
-              class="w-full resize-y rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink placeholder:text-text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
-            ></textarea>
+            ></div>
           </div>
 
           <div class="flex items-center justify-end gap-3">
