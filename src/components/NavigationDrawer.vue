@@ -350,7 +350,12 @@ function handleAdminShortcut(event: KeyboardEvent): void {
   const active = document.activeElement as HTMLElement | null
   if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) return
   event.preventDefault()
-  navigateTo('/admin/')
+  const path = normalizePath(window.location.pathname)
+  if (path === '/admin') {
+    navigateTo('/')
+  } else {
+    navigateTo('/admin/')
+  }
 }
 
 onMounted(() => {

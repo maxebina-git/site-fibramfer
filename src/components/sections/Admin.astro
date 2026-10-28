@@ -1,8 +1,12 @@
 ---
 import AdminPanel from '../AdminPanel.vue';
+import FibramferFloat from '../FibramferFloat.astro';
 const { class: className = '' } = Astro.props;
 ---
 
 <section class={`pb-16 ${className}`}>
   <AdminPanel client:load />
 </section>
+
+<FibramferFloat asset="f1" />
+<FibramferFloat asset="f1" mirror />
