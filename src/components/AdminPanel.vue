@@ -35,6 +35,13 @@ const formImage = ref<File | null>(null)
 const formImagePreview = ref<string | null>(null)
 
 function loadPosts() {
+  if (import.meta.env.PROD) {
+    fetch('/api/admin.php?action=list')
+      .then((r) => r.json())
+      .then((d) => { if (d.posts) posts.value = d.posts })
+      .catch(() => { /* fallback localStorage */ });
+    return;
+  }
   try {
     const raw = localStorage.getItem(POSTS_KEY)
     if (raw) posts.value = JSON.parse(raw)
@@ -45,6 +52,13 @@ function loadPosts() {
 
 function savePosts() {
   localStorage.setItem(POSTS_KEY, JSON.stringify(posts.value))
+  if (import.meta.env.PROD) {
+    fetch('/api/admin.php?action=save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ post: posts.value[posts.value.length - 1] || {} })
+    }).catch(() => {})
+  }
 }
 
 function seedPosts() {
