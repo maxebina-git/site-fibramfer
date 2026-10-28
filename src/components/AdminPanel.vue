@@ -112,6 +112,10 @@ function logout() {
   password.value = ''
 }
 
+function exec(cmd: string, value?: string) {
+  document.execCommand(cmd, false, value || '')
+}
+
 function formatDate(iso: string): string {
   if (!iso) return '—'
   const d = new Date(iso)
@@ -368,6 +372,13 @@ function savePost() {
           </div>
 
           <div class="flex flex-col gap-1.5">
+            <div class="flex items-center gap-2 mb-2">
+              <button type="button" class="rounded bg-surface-alt px-2 py-1 text-sm font-bold hover:bg-surface cursor-pointer" @click="exec('bold')">B</button>
+              <button type="button" class="rounded bg-surface-alt px-2 py-1 text-sm italic hover:bg-surface cursor-pointer" @click="exec('italic')">I</button>
+              <button type="button" class="rounded bg-surface-alt px-2 py-1 text-sm hover:bg-surface cursor-pointer" @click="exec('insertUnorderedList')">• Lista</button>
+              <button type="button" class="rounded bg-surface-alt px-2 py-1 text-sm hover:bg-surface cursor-pointer" @click="exec('insertOrderedList')">1. Lista</button>
+              <button type="button" class="rounded bg-surface-alt px-2 py-1 text-sm hover:bg-surface cursor-pointer" @click="exec('createLink', prompt('URL do link'))">Link</button>
+            </div>
             <label for="post-content" class="text-sm font-medium text-ink">Conteúdo</label>
             <div
               id="post-content"
