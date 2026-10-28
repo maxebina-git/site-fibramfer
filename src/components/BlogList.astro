@@ -23,7 +23,7 @@ const { posts, class: className = '' } = Astro.props;
   <div class="mx-auto max-w-7xl px-6">
     <h1 class="font-display text-4xl font-bold text-center text-ink mb-2">Blog e Novidades</h1>
     <p class="text-text-secondary mb-12">Fique por dentro das tendências do setor e atualizações técnicas.</p>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8" data-admin-loaded="false">
       {posts.map((post) => (
         <article class="bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col">
           {post.data.image && <img src={post.data.image} alt={post.data.title} class="h-48 w-full object-cover bg-surface-alt" />}
@@ -44,4 +44,54 @@ const { posts, class: className = '' } = Astro.props;
   </div>
   <FibramferFloat asset="f2" />
   <FibramferFloat asset="f2" mirror />
+
+  <script is:inline define:vars={{ posts }}>
+    (function () {
+      try {
+        const raw = localStorage.getItem('admin_posts');
+        if (raw && !document.querySelector('[data-admin-loaded="true"]')) {
+          const adminPosts = JSON.parse(raw);
+          const grid = document.querySelector('.blog-grid-loaded');
+          if (grid && adminPosts && adminPosts.length > 0) {
+            adminPosts.forEach((p) => {
+              const article = document.createElement('article');
+              article.className = 'bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col';
+              const imgWrap = document.createElement('div');
+              imgWrap.className = p.image ? '' : 'h-48 bg-surface-alt';
+              if (p.image) {
+                const img = document.createElement('img');
+                img.src = p.image;
+                img.alt = p.title || '';
+                img.className = 'h-48 w-full object-cover bg-surface-alt';
+                imgWrap.appendChild(img);
+              }
+              article.appendChild(imgWrap);
+              const body = document.createElement('div');
+              body.className = 'p-6 flex flex-col flex-1';
+              const h2 = document.createElement('h2');
+              h2.className = 'font-display text-xl font-bold text-ink mb-2';
+              const a = document.createElement('a');
+              a.href = '/blog/' + p.id + '/';
+              a.className = 'hover:underline decoration-accent-500 decoration-2 underline-offset-4';
+              a.textContent = p.title || '';
+              h2.appendChild(a);
+              body.appendChild(h2);
+              const desc = document.createElement('p');
+              desc.className = 'text-text-secondary text-sm mb-4';
+              desc.textContent = (p.content ? p.content.substring(0, 120) + '...' : '');
+              body.appendChild(desc);
+              const time = document.createElement('time');
+              time.className = 'text-text-secondary text-sm mt-auto';
+              time.setAttribute('datetime', p.date || '');
+              time.textContent = new Date(p.date || Date.now()).toLocaleDateString('pt-BR');
+              body.appendChild(time);
+              article.appendChild(body);
+              grid.appendChild(article);
+            });
+            grid.setAttribute('data-admin-loaded', 'true');
+          }
+        }
+      } catch (e) {}
+    })();
+  </script>
 </section>

@@ -2,7 +2,7 @@
 title: Welcome to the Blog
 date: 2026-09-29
 description: This is the first post on the new site-fibramfer blog.
-image: /uploads/welcome.jpg
+image: /assets/f1.png
 author: Site Admin
 category: News
 tags: [welcome, announcement]

@@ -1,7 +1,7 @@
 -- Schema Fibramfer Blog (dev -> prod)
 -- Executar APÓS renomear banco para 'fibramfer' via phpMyAdmin (Operações)
 -- Se já estiver no banco fibramfer, remova a linha USE abaixo se necessário
-USE fibramfer;
+USE fibrerbr;
 
 CREATE TABLE IF NOT EXISTS posts (
   id VARCHAR(255) PRIMARY KEY,
