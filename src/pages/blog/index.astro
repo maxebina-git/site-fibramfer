@@ -1,0 +1,15 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import HomeScene from '../../components/HomeScene.astro';
+import FibramferDrawers from '../../components/FibramferDrawers.astro';
+import BlogList from '../../components/BlogList.astro';
+import { getCollection } from 'astro:content';
+---
+
+<BaseLayout title="Blog | Fibramfer">
+  <HomeScene home />
+  <FibramferDrawers />
+  <main class="max-w-7xl mx-auto px-6 py-12">
+    <BlogList posts={await getCollection('blog')} />
+  </main>
+</BaseLayout>

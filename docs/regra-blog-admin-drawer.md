@@ -35,7 +35,13 @@
 - Edição de post aberto (`/blog/slug/`) precisa refletir no drawer sem fechar
 - Build estático pode perder conteúdo dinâmico se não for client-renderizado
 - Múltiplos posts dinâmicos → `routes.value` precisa ser variável
-- Decisão: `welcome` estatico (referência); posts admin dinâmicos via componente cliente (`DynamicBlogPost.vue`) + `BlogList`; adapter SSR tentado mas não compatível com esta versão Astro — manter estático
+- Pacote 0.2 — Blog /drawer/jornada (novo item de menu /blog/ inserido; não restauração de rotas antigas):
+  * Menu `/blog/` (novo) → drawer → cortinas → índice com lista de posts do admin (BlogList + injeção localStorage/API)
+  * `/blog/<slug>/` → post dinâmico revelado no drawer via DynamicBlogPost.vue (sem getStaticPaths estatico; renderizado client-side no shelf do drawer)
+  * Interação drawer/cortinas: abrir/fechar sincronizado (NavigationDrawer); F5/atualização na rota `/blog/` ou `/blog/<slug>` mantém comportamento (não some conteúdo, não aparece inesperado)
+  * Admin → Blog: posts salvos refletem imediatamente na listagem ao atualizar
+  * Foco QA: se a frase do hero sumir ao atualizar `/blog/`, o `panelOpen` pode ocultar `.home-true-hero-copy h1`; garantir `opacity/visibility` no CSS quando `data-panel-open='true'`
+  * Interação drawer/cortina: abrindo/fechando funciona igual aos outros itens do menu
 - Auto-slug implementado: campo `Slug (URL)` na modal; `id = slugify(title)` sem timestamp
 - Removido subtítulo do logo (`FibramferLogo.astro`) conforme pedido do usuário
 - NOTA: em `/blog/` com drawer aberto, frase do hero (`Soluções...`) pode sumir no F5 até `syncHeroTitlePosition()` ser executado; ajuste recomendado no `Header.astro` quando `normalizedPath === '/blog/'`
