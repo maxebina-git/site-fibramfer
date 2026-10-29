@@ -5,16 +5,15 @@ import FibramferLogo from './FibramferLogo.astro';
 
 const path = Astro.url.pathname;
 const normalizePath = (value: string): string => value === '/' ? value : value.replace(/\/+$/, '');
-const panelRoutes = ['/a-fibramfer', '/cadeira-suspensa', '/onde-comprar', '/seguranca', '/blog', '/contato', '/privacidade', '/termos'];
+const panelRoutes = ['/a-fibramfer', '/cadeira-suspensa', '/onde-comprar', '/seguranca', '/contato', '/privacidade', '/termos'];
 const normalizedPath = normalizePath(path);
 const homeRoute = normalizedPath === '/';
-const panelOpen = panelRoutes.includes(normalizedPath) || (normalizedPath.startsWith('/blog/') && normalizedPath !== '/blog');
+const panelOpen = panelRoutes.includes(normalizedPath);
 const navItems = [
   { label: 'A Fibramfer', href: '/a-fibramfer' },
   { label: 'Cadeira Suspensa', href: '/cadeira-suspensa' },
   { label: 'Onde Comprar', href: '/onde-comprar' },
   { label: 'Segurança', href: '/seguranca' },
-  { label: 'Blog', href: '/blog' },
 ];
 const nav = navItems.map((item) => ({
   ...item,
@@ -414,7 +413,10 @@ const nav = navItems.map((item) => ({
       if (!hasDrawerShell || (!isHome && !route)) return;
 
       event.preventDefault();
-      if (isHome) navigate('/');
+      if (isHome) {
+        navigate('/');
+        window.dispatchEvent(new CustomEvent('fibramfer:drawer-close', { detail: { delay: 500, legal: false } }));
+      }
       else if (route) navigate(route);
     });
 
