@@ -77,7 +77,7 @@ if (($method === 'POST' || $method === 'PUT') && $action === 'save') {
     $mdDir = dirname(__DIR__, 2) . '/src/content/blog';
     if (!is_dir($mdDir)) mkdir($mdDir, 0777, true);
     $mdFile = $mdDir . '/' . $id . '.md';
-    $mdContent = "---\nlayout: ../../layouts/BaseLayout.astro\ntitle: " . $title . "\ndescription: \"\"\ndate: " . $date . "\nimage: " . ($image ?: "") . "\n---\n\n" . $content . "\n";
+    $mdContent = "---\ntitle: " . $title . "\ndate: " . $date . "\ncategory: " . ($category ?: "") . "\n---\n\n" . $content . "\n";
     file_put_contents($mdFile, $mdContent);
 
     respond(['ok' => true, 'id' => $id]);
@@ -93,6 +93,29 @@ if (($method === 'POST' || $method === 'DELETE') && $action === 'delete' && !emp
     if (file_exists($mdFile)) unlink($mdFile);
 
     respond(['ok' => true]);
+    exit;
+}
+
+// Sync .md with DB
+if ($method === 'GET' && $action === 'sync') {
+    $stmt = $pdo->query("SELECT id, title, date, category, image, content FROM posts ORDER BY date DESC, created_at DESC");
+    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $dbIds = array_column($rows, 'id');
+    $mdDir = dirname(__DIR__, 2) . '/src/content/blog';
+    $existing = glob($mdDir . '/*.md');
+    foreach ($existing as $f) {
+        $fname = basename($f, '.md');
+        if (!in_array($fname, $dbIds)) {
+            @unlink($f);
+        }
+    }
+    foreach ($rows as $r) {
+        $mdFile = $mdDir . '/' . $r['id'] . '.md';
+        $content = ($r['content'] ?? '') ? $r['content'] : '';
+        $mdData = "---\ntitle: " . ($r['title'] ?? '') . "\ndate: " . ($r['date'] ?? '') . "\ncategory: " . ($r['category'] ?? '') . "\n---\n\n" . $content . "\n";
+        file_put_contents($mdFile, $mdData);
+    }
+    respond(['ok' => true, 'synced' => count($rows)]);
     exit;
 }
 

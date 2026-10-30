@@ -15,6 +15,7 @@ const AUTH_KEY = 'admin_auth'
 const POSTS_KEY = 'admin_posts'
 
 const authed = ref(false)
+const ready = ref(false)
 const email = ref('')
 const password = ref('')
 const emailError = ref('')
@@ -53,42 +54,123 @@ function loadPosts() {
   } catch {
     posts.value = []
   }
+  let alreadySynced = false
+  try {
+    alreadySynced = sessionStorage.getItem('admin_md_sync') === '1'
+    sessionStorage.setItem('admin_md_sync', '1')
+  } catch {
+    alreadySynced = false
+  }
+  if (!alreadySynced) syncAll(posts.value)
+}
+
+function markBlogDirty(changed: boolean) {
+  if (changed && typeof window !== 'undefined') {
+    ;(window as any).__fibramferBlogDirty = true
+  }
+}
+
+// No dev o content store do Astro leva ~1,5s para refletir o .md recém-gravado.
+// Antes de navegar para o blog, espera o link do post aparecer (ou sumir) no HTML
+// de /blog/ para não carregar uma versão desatualizada.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+}
+
+async function waitForBlog(id: string, mode: 'present' | 'absent', title?: string): Promise<void> {
+  if (import.meta.env.PROD) return
+  const needle = `/blog/${id}/`
+  const titleNeedle = title ? escapeHtml(title) : null
+  const startedAt = Date.now()
+  const deadline = startedAt + 9000
+  // Mesmo quando a lista já reflete o post, o corpo/edição só aparece ~1,4s depois.
+  const minWait = 1800
+  while (Date.now() < deadline) {
+    try {
+      const html = await (await fetch('/blog/', { cache: 'no-store' })).text()
+      const has = html.includes(needle)
+      const titleOk = !titleNeedle || html.includes(titleNeedle)
+      const settled = mode === 'present' ? has && titleOk : !has
+      if (settled && Date.now() - startedAt >= minWait) return
+    } catch { /* tenta de novo */ }
+    await new Promise((resolve) => setTimeout(resolve, 250))
+  }
+}
+
+async function syncAll(list: Post[]) {
+  const url = import.meta.env.PROD ? '/api/admin.php?action=sync' : '/api/blog-sync'
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ posts: list })
+    })
+    const d = await res.json()
+    const changed = import.meta.env.PROD ? true : Number(d?.written) > 0
+    if (changed) {
+      markBlogDirty(true)
+      if (typeof window !== 'undefined') {
+        ;(window as any).__fibramferBlogSyncPromise = new Promise((resolve) => setTimeout(resolve, 1800))
+      }
+    }
+  } catch { /* ignore */ }
 }
 
 function savePosts() {
-  localStorage.setItem(POSTS_KEY, JSON.stringify(posts.value))
+  try {
+    localStorage.setItem(POSTS_KEY, JSON.stringify(posts.value))
+  } catch { /* quota excedida: mantém em memória e sincroniza via .md */ }
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('fibramfer:posts-updated', { detail: { count: posts.value.length } }))
   }
-  if (import.meta.env.PROD) {
-    fetch('/api/admin.php?action=save', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ post: posts.value[posts.value.length - 1] || {} })
-    }).catch(() => {})
-  }
 }
 
-function seedPosts() {
-  if (posts.value.length === 0) {
-    posts.value = [
-      {
-        id: 'welcome',
-        title: 'Welcome to the Blog',
-        date: '2026-09-29',
-        category: 'News',
-        image: '/uploads/welcome.jpg',
-        content: "We're excited to launch the new site-fibramfer blog!",
-      },
-    ]
-    savePosts()
-  }
+async function syncMd(post: Post) {
+  const url = import.meta.env.PROD ? '/api/admin.php?action=save' : '/api/blog-sync'
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ post })
+    })
+    const d = await res.json()
+    if (!import.meta.env.PROD && typeof d?.image === 'string' && d.image.startsWith('/uploads/')) {
+      const idx = posts.value.findIndex((p) => p.id === post.id)
+      if (idx !== -1 && posts.value[idx].image !== d.image) {
+        posts.value[idx] = { ...posts.value[idx], image: d.image }
+        savePosts()
+      }
+    }
+    const changed = import.meta.env.PROD ? true : d?.unchanged === false
+    if (changed) await waitForBlog(post.id, 'present', post.title)
+    markBlogDirty(changed)
+  } catch { /* ignore */ }
+}
+
+async function deleteMd(id: string) {
+  const url = import.meta.env.PROD ? '/api/admin.php?action=delete' : '/api/blog-sync'
+  const payload = import.meta.env.PROD ? { id } : { id, delete: true }
+  try {
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+    const d = await res.json()
+    const changed = import.meta.env.PROD ? true : Boolean(d?.deleted)
+    if (changed) await waitForBlog(id, 'absent')
+    markBlogDirty(changed)
+  } catch { /* ignore */ }
 }
 
 onMounted(() => {
   authed.value = localStorage.getItem(AUTH_KEY) === '1'
   loadPosts()
-  seedPosts()
+  ready.value = true
   window.addEventListener('keydown', handleEsc)
 })
 
@@ -161,6 +243,8 @@ function deletePost(id: string) {
   if (!confirm('Excluir este post?')) return
   posts.value = posts.value.filter((p) => p.id !== id)
   savePosts()
+  ;(window as any).__fibramferBlogDirty = true
+  ;(window as any).__fibramferBlogSyncPromise = deleteMd(id)
 }
 
 function openModal(post?: Post) {
@@ -212,6 +296,7 @@ function savePost() {
 
   const imageValue = formImagePreview.value
 
+  let synced: Post | undefined
   if (editingId.value) {
     const idx = posts.value.findIndex((p) => p.id === editingId.value)
     if (idx !== -1) {
@@ -223,27 +308,37 @@ function savePost() {
         image: imageValue,
         content: formContent.value,
       }
+      synced = posts.value[idx]
     }
   } else {
     const id = formSlug.value || slugify(formTitle.value) || 'post'
-    posts.value.unshift({
+    const created: Post = {
       id,
       title: formTitle.value.trim(),
       date: formDate.value,
       category: formCategory.value.trim(),
       image: imageValue,
       content: formContent.value,
-    })
+    }
+    posts.value.unshift(created)
+    synced = created
   }
 
   savePosts()
+  if (synced) {
+    ;(window as any).__fibramferBlogDirty = true
+    ;(window as any).__fibramferBlogSyncPromise = syncMd(synced)
+  }
   closeModal()
 }
 </script>
 
 <template>
+  <!-- LOADING (evita flash da tela de login no SSR/recarregamento) -->
+  <div v-if="!ready" class="mx-auto max-w-7xl px-4 py-8 md:px-8" aria-busy="true"></div>
+
   <!-- LOGIN VIEW -->
-  <div v-if="!authed" class="mx-auto max-w-md">
+  <div v-else-if="!authed" class="mx-auto max-w-md">
     <div class="mb-6 text-center">
       <p class="mb-2 font-body text-sm font-semibold uppercase tracking-[0.16em] text-accent-500">Área restrita</p>
       <h1 class="font-display text-4xl font-black uppercase leading-tight text-primary-500 md:text-6xl">Admin</h1>

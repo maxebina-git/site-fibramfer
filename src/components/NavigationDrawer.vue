@@ -285,6 +285,27 @@ function syncFromLocation(): void {
 function navigateTo(path: string): void {
   const normalizedPath = normalizePath(path)
 
+  // Se o admin acabou de criar/editar/excluir um post, o HTML já carregado do
+  // blog está desatualizado (o reload automático foi suprimido). Nesse caso,
+  // espera a sincronização terminar e faz um carregamento real da rota do blog.
+  const isBlogRoute = normalizedPath === '/blog' || normalizedPath.startsWith('/blog/')
+  const blogState = typeof window !== 'undefined' ? (window as any) : null
+  if (isBlogRoute && blogState && (blogState.__fibramferBlogDirty || blogState.__fibramferBlogSyncPromise)) {
+    const pending: Promise<unknown> | undefined = blogState.__fibramferBlogSyncPromise
+    blogState.__fibramferBlogDirty = false
+    blogState.__fibramferBlogSyncPromise = undefined
+    const go = () => window.location.assign(path)
+    if (pending && typeof pending.then === 'function') {
+      Promise.race([
+        Promise.resolve(pending).catch(() => undefined),
+        new Promise((resolve) => setTimeout(resolve, 9000)),
+      ]).then(go)
+    } else {
+      go()
+    }
+    return
+  }
+
   if (normalizePath(window.location.pathname) !== normalizedPath) {
     // A direct-load lock is only for the first paint after refresh. Once the
     // user navigates, restore the normal transition behavior for route changes.
@@ -299,8 +320,10 @@ function navigateTo(path: string): void {
 
 function handleOpenUpdate(value: boolean): void {
   if (!value) {
-    const current = window.location.pathname.replace(/\/+$/, '') || '/'
-    if (current === '/blog' || current.startsWith('/blog/')) {
+    const current = normalizePath(window.location.pathname)
+    // Post do blog fecha para a lista; a própria lista /blog/ fecha para a home,
+    // igual às outras páginas (senão a rota não muda e a cortina não fecha).
+    if (current.startsWith('/blog/')) {
       navigateTo('/blog/')
     } else {
       navigateTo('/')

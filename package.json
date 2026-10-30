@@ -9,8 +9,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "test:slider": "node scripts/hero-slider-smoke.cjs",
-    "dev": "astro dev --port 4334",
-    "build": "astro build",
+    "dev": "astro dev --port 4321",
+    "build": "node scripts/check-blog-sync.js && astro build",
     "preview": "astro preview"
   },
   "keywords": [],

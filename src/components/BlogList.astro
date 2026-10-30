@@ -48,6 +48,23 @@ const allPosts = posts;
   <FibramferFloat asset="f2" mirror />
 
   <script is:inline>
-    /* conteúdo renderizado pelo Astro server-side */
+    (function(){
+      var grid=document.querySelector('#blog-grid-root');
+      if(!grid||grid.getAttribute('data-admin-loaded')==='true') return;
+      fetch('/api/admin.php?action=list').then(function(r){return r.json();}).then(function(d){
+        if(d.posts&&d.posts.length&&grid.getAttribute('data-admin-loaded')==='false'){
+          d.posts.forEach(function(p){
+            if(!p)return; var pid=p.id||(p.data&&p.data.id)||''; if(!pid)return;
+            var article=document.createElement('article'); article.className='bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col';
+            var imgWrap=document.createElement('div'); imgWrap.className=(p.image||(p.data&&p.data.image))?'':'h-48 bg-surface-alt';
+            if(p.image||(p.data&&p.data.image)){var img=document.createElement('img');img.src=p.image||(p.data&&p.data.image);img.alt=(p.title||(p.data&&p.data.title))||'';img.className='h-48 w-full object-cover bg-surface-alt';imgWrap.appendChild(img);}
+            article.appendChild(imgWrap); var body=document.createElement('div'); body.className='p-6 flex flex-col flex-1';
+            var h2=document.createElement('h2'); h2.className='font-display text-xl font-bold text-ink mb-2';
+            var a=document.createElement('a'); a.href='/blog/'+pid+'/'; a.className='hover:underline decoration-accent-500 decoration-2 underline-offset-4'; a.textContent=(p.title||(p.data&&p.data.title))||''; h2.appendChild(a); body.appendChild(h2);
+            var time=document.createElement('time'); time.className='text-text-secondary text-sm mt-auto'; time.setAttribute('datetime',p.date||(p.data&&p.data.date)||''); time.textContent=new Date(p.date||(p.data&&p.data.date)||Date.now()).toLocaleDateString('pt-BR'); body.appendChild(time); article.appendChild(body); grid.appendChild(article);
+          }); grid.setAttribute('data-admin-loaded','true'); var emptyMsg=grid.querySelector('.msg-empty-blog'); if(emptyMsg) emptyMsg.style.display='none';
+        }
+      }).catch(function(){});
+    })();
   </script>
 </section>
