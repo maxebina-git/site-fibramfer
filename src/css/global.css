@@ -1026,6 +1026,11 @@ header[data-panel-open='true'] nav[aria-label='Navegação principal'] {
     transition-delay: 1300ms;
   }
 
+  /* Esconder mensagem vazia quando posts do admin estão injetados */
+  [data-admin-loaded="true"] .msg-empty-blog {
+    display: none !important;
+  }
+
   body.home-page:has(header[data-fibramfer-header='true'][data-panel-open='true']) .home-true-hero-copy > :not(h1) {
     opacity: 0;
     pointer-events: none;

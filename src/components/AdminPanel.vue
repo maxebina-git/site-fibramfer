@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { Button } from 'ds-grupo-rkb'
 
 interface Post {
@@ -33,6 +33,11 @@ const formCategory = ref('')
 const formContent = ref('')
 const formImage = ref<File | null>(null)
 const formImagePreview = ref<string | null>(null)
+const formSlug = ref('')
+
+watch(formTitle, (val) => {
+  formSlug.value = val ? val.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : ''
+})
 
 function loadPosts() {
   if (import.meta.env.PROD) {
@@ -52,6 +57,9 @@ function loadPosts() {
 
 function savePosts() {
   localStorage.setItem(POSTS_KEY, JSON.stringify(posts.value))
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent('fibramfer:posts-updated', { detail: { count: posts.value.length } }))
+  }
   if (import.meta.env.PROD) {
     fetch('/api/admin.php?action=save', {
       method: 'POST',
@@ -165,6 +173,7 @@ function openModal(post?: Post) {
       setTimeout(() => { if (editorRef.value) editorRef.value.innerHTML = post.content || '' }, 0)
       formImagePreview.value = post.image
       formImage.value = null
+      formSlug.value = post ? (post.id || slugify(post.title) || '') : ''
     } else {
     formTitle.value = ''
     formDate.value = new Date().toISOString().slice(0, 10)
@@ -216,8 +225,7 @@ function savePost() {
       }
     }
   } else {
-    const base = slugify(formTitle.value) || 'post'
-    const id = `${base}-${Date.now()}`
+    const id = formSlug.value || slugify(formTitle.value) || 'post'
     posts.value.unshift({
       id,
       title: formTitle.value.trim(),
@@ -349,6 +357,8 @@ function savePost() {
               class="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink placeholder:text-text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
             />
           </div>
+
+          <div class="text-text-secondary text-sm mt-1 font-mono leading-snug" style="letter-spacing:-0.02em; margin-top: 2px;">slug: www.fibramfer.com.br/blog/{{ formSlug }}</div>
 
           <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
             <div class="flex flex-col gap-1.5">

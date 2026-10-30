@@ -10,6 +10,57 @@ import { getCollection } from 'astro:content';
   <HomeScene home />
   <FibramferDrawers />
   <main class="max-w-7xl mx-auto px-6 py-12">
+    <section class="py-16">
+      <div class="mx-auto max-w-7xl px-6">
+        <h1 class="font-display text-4xl font-bold text-center text-ink mb-2">Blog e Novidades</h1>
+        <p class="text-text-secondary mb-12">Fique por dentro das tendências do setor e atualizações técnicas.</p>
+        <ul id="blog-calls-fast" class="mb-12 space-y-2"></ul>
+        <div id="blog-last-card" class="mb-12"></div>
+      </div>
+    </section>
     <BlogList posts={await getCollection('blog')} />
   </main>
 </BaseLayout>
+
+<script is:inline>
+(function(){
+  try{
+    var raw=localStorage.getItem('admin_posts');
+    if(raw){
+      var arr=JSON.parse(raw);
+      if(arr&&arr.length){
+        var ul=document.getElementById('blog-calls-fast');
+        if(ul){
+          var last = arr[0];
+        if(last && last.title){
+          var cardDiv = document.getElementById('blog-last-card');
+          if(cardDiv){
+            var pid = last.id||last.data?.id||'';
+            var imgHtml = (last.image||last.data?.image) ? '<img src="'+(last.image||last.data?.image)+'" alt="" class="h-48 w-full object-cover bg-surface-alt">' : '<div class="h-48 bg-surface-alt"></div>';
+            cardDiv.innerHTML = '<article class="bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col">'+
+              '<div>'+imgHtml+'</div>'+
+              '<div class="p-6 flex flex-col flex-1">'+
+              '<h2 class="font-display text-xl font-bold text-ink mb-2"><a href="/blog/'+pid+'/" class="hover:underline decoration-accent-500 decoration-2 underline-offset-4">'+(last.title||last.data?.title||'')+'</a></h2>'+
+              '<p class="text-text-secondary text-sm mb-4">'+(last.content ? last.content.substring(0,120)+'...' : (last.data?.description||''))+'</p>'+
+              '<time class="text-text-secondary text-sm mt-auto">'+new Date(last.date||last.data?.date||Date.now()).toLocaleDateString('pt-BR')+'</time>'+
+              '</div></article>';
+          }
+        }
+        arr.forEach(function(p){
+            if(!p) return;
+            var pid=p.id||(p.data&&p.data.id)||'';
+            if(!pid) return;
+            var li=document.createElement('li');
+            var a=document.createElement('a');
+            a.href='/blog/'+pid+'/';
+            a.className='text-primary-500 hover:text-accent-500 font-medium';
+            a.textContent=(p.title||(p.data&&p.data.title))||'';
+            li.appendChild(a);
+            ul.appendChild(li);
+          });
+        }
+      }
+    }
+  }catch(e){}
+})();
+</script>

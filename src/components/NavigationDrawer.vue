@@ -298,7 +298,14 @@ function navigateTo(path: string): void {
 }
 
 function handleOpenUpdate(value: boolean): void {
-  if (!value) navigateTo('/')
+  if (!value) {
+    const current = window.location.pathname.replace(/\/+$/, '') || '/'
+    if (current === '/blog' || current.startsWith('/blog/')) {
+      navigateTo('/blog/')
+    } else {
+      navigateTo('/')
+    }
+  }
 }
 
 function onDrawerClose(): void {}

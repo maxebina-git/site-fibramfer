@@ -1,22 +1,10 @@
----
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import HomeScene from '../../components/HomeScene.astro';
-import FibramferDrawers from '../../components/FibramferDrawers.astro';
-import DynamicBlogPost from '../../components/DynamicBlogPost.vue';
-import { getCollection } from 'astro:content';
-
-export async function getStaticPaths() {
-  const posts = await getCollection('blog');
-  return posts.map((post) => ({ params: { slug: post.id } }));
-}
-
-const { slug } = Astro.params;
----
-
-<BaseLayout title="Post | Fibramfer">
-  <HomeScene home />
-  <FibramferDrawers />
-  <main class="max-w-3xl mx-auto px-6 py-12">
-    <DynamicBlogPost id={slug} client:load />
-  </main>
-</BaseLayout>
+--- 
+import BaseLayout from '../../layouts/BaseLayout.astro'; 
+import HomeScene from '../../components/HomeScene.astro'; 
+import FibramferDrawers from '../../components/FibramferDrawers.astro'; 
+import DynamicBlogPost from '../../components/DynamicBlogPost.vue'; 
+  
+export const prerender = false;  
+  
+const { slug } = Astro.params;  
+--- 

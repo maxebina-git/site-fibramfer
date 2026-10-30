@@ -1108,3 +1108,19 @@ const nav = navItems.map((item) => ({
     }
   }
 </style>
+<script is:inline>
+  document.addEventListener('click', preloadBlog);
+  document.addEventListener('mousedown', preloadBlog);
+  document.addEventListener('touchstart', preloadBlog);
+  function preloadBlog(e) {
+    var a = e.target.closest ? e.target.closest('a[href="/blog"]') : null;
+    if (a) {
+      fetch('/api/admin.php?action=list')
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          if (d.posts) localStorage.setItem('admin_posts', JSON.stringify(d.posts));
+        })
+        .catch(function() {});
+    }
+  }
+</script>

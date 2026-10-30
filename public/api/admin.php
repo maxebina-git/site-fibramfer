@@ -73,6 +73,13 @@ if (($method === 'POST' || $method === 'PUT') && $action === 'save') {
         $stmt = $pdo->prepare("UPDATE posts SET title = ?, date = ?, category = ?, image = ?, content = ? WHERE id = ?");
         $stmt->execute([$title, $date, $category, $image, $content, $id]);
     }
+    // Escrever .md para Astro (server-side / static)
+    $mdDir = dirname(__DIR__, 2) . '/src/content/blog';
+    if (!is_dir($mdDir)) mkdir($mdDir, 0777, true);
+    $mdFile = $mdDir . '/' . $id . '.md';
+    $mdContent = "---\nlayout: ../../layouts/BaseLayout.astro\ntitle: " . $title . "\ndescription: \"\"\ndate: " . $date . "\nimage: " . ($image ?: "") . "\n---\n\n" . $content . "\n";
+    file_put_contents($mdFile, $mdContent);
+
     respond(['ok' => true, 'id' => $id]);
     exit;
 }
@@ -81,6 +88,10 @@ if (($method === 'POST' || $method === 'PUT') && $action === 'save') {
 if (($method === 'POST' || $method === 'DELETE') && $action === 'delete' && !empty($body['id'])) {
     $stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
     $stmt->execute([$body['id']]);
+    // Deletar .md também
+    $mdFile = dirname(__DIR__, 2) . '/src/content/blog/' . $body['id'] . '.md';
+    if (file_exists($mdFile)) unlink($mdFile);
+
     respond(['ok' => true]);
     exit;
 }
