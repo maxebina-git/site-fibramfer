@@ -479,7 +479,7 @@ function savePost() {
         @click.self="closeModal"
         @keydown.escape.prevent.stop="closeModal"
       >
-      <div class="w-full max-w-2xl rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
+      <div class="w-full max-w-5xl rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
         <div class="mb-4 flex items-center justify-between">
           <h2 class="font-display text-2xl font-bold text-ink">{{ editingId ? 'Editar post' : 'Novo post' }}</h2>
           <button
@@ -493,20 +493,18 @@ function savePost() {
         </div>
 
         <form class="flex flex-col gap-5" @submit.prevent="savePost">
-          <div class="flex flex-col gap-1.5">
-            <label for="post-title" class="text-sm font-medium text-ink">Título</label>
-            <input
-              id="post-title"
-              v-model="formTitle"
-              type="text"
-              placeholder="Título do post"
-              class="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink placeholder:text-text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
-            />
-          </div>
-
-          <div class="text-text-secondary text-sm mt-1 font-mono leading-snug" style="letter-spacing:-0.02em; margin-top: 2px;">slug: www.fibramfer.com.br/blog/{{ formSlug }}</div>
-
-          <div class="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
+            <div class="flex flex-col gap-1.5 md:col-span-2">
+              <label for="post-title" class="text-sm font-medium text-ink">Título</label>
+              <input
+                id="post-title"
+                v-model="formTitle"
+                type="text"
+                placeholder="Título do post"
+                class="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink placeholder:text-text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+              />
+              <div class="text-text-secondary text-sm mt-1 font-mono leading-snug" style="letter-spacing:-0.02em; margin-top: 2px;">slug: www.fibramfer.com.br/blog/{{ formSlug }}</div>
+            </div>
             <div class="flex flex-col gap-1.5">
               <label for="post-date" class="text-sm font-medium text-ink">Data</label>
               <input
@@ -528,25 +526,25 @@ function savePost() {
             </div>
           </div>
 
-          <div class="flex flex-col gap-1.5">
-            <label for="post-image" class="text-sm font-medium text-ink">Imagem do post</label>
-            <input
-              id="post-image"
-              type="file"
-              accept="image/*"
-              class="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink file:mr-3 file:rounded-md file:border-0 file:bg-surface-alt file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-ink"
-              @change="onImageChange"
-            />
-            <img
-              v-if="formImagePreview"
-              :src="formImagePreview"
-              alt="Preview"
-              class="mt-2 h-40 w-full rounded-lg object-cover bg-surface-alt"
-            />
-          </div>
-
-          <div class="flex flex-col gap-1.5">
-            <label for="post-content" class="text-sm font-medium text-ink">Conteúdo</label>
+          <div class="flex flex-col md:flex-row gap-5">
+            <div class="md:w-1/3 flex flex-col gap-1.5">
+              <label for="post-image" class="text-sm font-medium text-ink">Imagem do post</label>
+              <input
+                id="post-image"
+                type="file"
+                accept="image/*"
+                class="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink file:mr-3 file:rounded-md file:border-0 file:bg-surface-alt file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-ink"
+                @change="onImageChange"
+              />
+              <img
+                v-if="formImagePreview"
+                :src="formImagePreview"
+                alt="Preview"
+                class="mt-2 h-40 w-full rounded-lg object-cover bg-surface-alt"
+              />
+            </div>
+            <div class="md:w-2/3 flex flex-col gap-1.5">
+              <label for="post-content" class="text-sm font-medium text-ink">Conteúdo</label>
             <div class="flex flex-wrap items-center gap-1 border-b border-border bg-surface-alt p-2">
               <button type="button" title="Negrito" aria-label="Aplicar negrito" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm font-bold text-ink hover:bg-surface cursor-pointer" @click="exec('bold')">B</button>
               <button type="button" title="Sublinhado" aria-label="Aplicar sublinhado" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm underline text-ink hover:bg-surface cursor-pointer" @click="exec('underline')">U</button>
@@ -562,6 +560,7 @@ function savePost() {
               @input="formContent = ($event.target as HTMLElement).innerHTML || ''"
               class="w-full min-h-[12rem] resize-y rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 overflow-auto"
             ></div>
+          </div>
           </div>
 
           <div class="flex items-center justify-end gap-3">
