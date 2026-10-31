@@ -243,6 +243,8 @@ function exec(cmd: string, value?: string) {
   document.execCommand(cmd, false, value || '')
 }
 
+const TABLE_HTML = '<table class="w-full text-left border-collapse"><tr><th class="p-2 bg-surface-alt">Título</th><th class="p-2 bg-surface-alt">Data</th></tr><tr><td class="p-2"></td><td class="p-2"></td></tr></table>'
+
 function formatDate(iso: string): string {
   if (!iso) return '—'
   const d = new Date(iso)
@@ -543,7 +545,7 @@ function savePost() {
               <button type="button" title="Sublinhado" aria-label="Aplicar sublinhado" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm underline text-ink hover:bg-surface cursor-pointer" @click="exec('underline')">U</button>
               <button type="button" title="Lista com marcadores" aria-label="Inserir lista com marcadores" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('insertUnorderedList')">• Lista</button>
               <button type="button" title="Citação" aria-label="Aplicar citação" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('formatBlock', '<blockquote>')">❝ Citação</button>
-              <button type="button" title="Inserir tabela" aria-label="Inserir tabela" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('insertHTML', '<table class=\'w-full text-left border-collapse\'><tr><th class=\'p-2 bg-surface-alt\'>Título</th><th class=\'p-2 bg-surface-alt\'>Data</th></tr><tr><td class=\'p-2\'></td><td class=\'p-2\'></td></tr></table>')">▦ Tabela</button>
+              <button type="button" title="Inserir tabela" aria-label="Inserir tabela" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('insertHTML', TABLE_HTML)">▦ Tabela</button>
               <button type="button" title="Inserir link" aria-label="Inserir link" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('createLink', (prompt('URL do link') || ''))">🔗 Link</button>
             </div>
             <div
