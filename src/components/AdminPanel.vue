@@ -190,10 +190,12 @@ function handleEsc(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     if (deleteConfirmOpen.value) {
       cancelDelete()
+      e.stopPropagation()
       return
     }
     if (modalOpen.value) {
       closeModal()
+      e.stopPropagation()
     }
   }
 }
