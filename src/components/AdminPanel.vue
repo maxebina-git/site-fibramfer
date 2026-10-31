@@ -187,8 +187,14 @@ onUnmounted(() => {
 })
 
 function handleEsc(e: KeyboardEvent) {
-  if (e.key === 'Escape' && modalOpen.value) {
-    closeModal()
+  if (e.key === 'Escape') {
+    if (deleteConfirmOpen.value) {
+      cancelDelete()
+      return
+    }
+    if (modalOpen.value) {
+      closeModal()
+    }
   }
 }
 
@@ -565,7 +571,10 @@ function savePost() {
         @click.self="cancelDelete"
       >
         <div class="w-full max-w-md rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
-          <h2 class="font-display text-xl font-bold text-ink mb-4">Confirmar exclusão</h2>
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="font-display text-xl font-bold text-ink">Confirmar exclusão</h2>
+            <button type="button" aria-label="Fechar" class="grid h-9 w-9 place-items-center rounded-md text-text-secondary hover:bg-surface-alt hover:text-ink" @click="cancelDelete">✕</button>
+          </div>
           <p class="text-text-secondary mb-6">Deseja realmente excluir este post? Esta ação não pode ser desfeita.</p>
           <div class="flex items-center justify-end gap-3">
             <Button variant="ghost" size="md" type="button" @click="cancelDelete">Cancelar</Button>
