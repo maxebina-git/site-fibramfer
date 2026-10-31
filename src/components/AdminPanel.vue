@@ -527,21 +527,45 @@ function savePost() {
           </div>
 
           <div class="flex flex-col md:flex-row gap-5">
-            <div class="md:w-1/3 flex flex-col gap-1.5">
-              <label for="post-image" class="text-sm font-medium text-ink">Imagem do post</label>
-              <input
-                id="post-image"
-                type="file"
-                accept="image/*"
-                class="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink file:mr-3 file:rounded-md file:border-0 file:bg-surface-alt file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-ink"
-                @change="onImageChange"
-              />
-              <img
-                v-if="formImagePreview"
-                :src="formImagePreview"
-                alt="Preview"
-                class="mt-2 h-40 w-full rounded-lg object-cover bg-surface-alt"
-              />
+            <div class="md:w-1/3 flex flex-col gap-5">
+              <div class="grid grid-cols-1 gap-5 md:grid-cols-1">
+                <div class="flex flex-col gap-1.5">
+                  <label for="post-date" class="text-sm font-medium text-ink">Data</label>
+                  <input
+                    id="post-date"
+                    v-model="formDate"
+                    type="date"
+                    class="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                  />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label for="post-category" class="text-sm font-medium text-ink">Categoria</label>
+                  <input
+                    id="post-category"
+                    v-model="formCategory"
+                    type="text"
+                    placeholder="Ex.: News"
+                    class="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink placeholder:text-text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                  />
+                </div>
+              </div>
+
+              <div class="flex flex-col gap-1.5">
+                <label for="post-image" class="text-sm font-medium text-ink">Imagem do post</label>
+                <input
+                  id="post-image"
+                  type="file"
+                  accept="image/*"
+                  class="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink file:mr-3 file:rounded-md file:border-0 file:bg-surface-alt file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-ink"
+                  @change="onImageChange"
+                />
+                <img
+                  v-if="formImagePreview"
+                  :src="formImagePreview"
+                  alt="Preview"
+                  class="mt-2 h-40 w-full rounded-lg object-cover bg-surface-alt"
+                />
+              </div>
             </div>
             <div class="md:w-2/3 flex flex-col gap-1.5">
               <label for="post-content" class="text-sm font-medium text-ink">Conteúdo</label>
