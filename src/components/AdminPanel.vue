@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { Button } from 'ds-grupo-rkb'
+import { Loader2 } from '@lucide/vue'
 
 interface Post {
   id: string
@@ -16,6 +17,8 @@ const POSTS_KEY = 'admin_posts'
 
 const authed = ref(false)
 const ready = ref(false)
+const loadingLogin = ref(false)
+const loadingLogout = ref(false)
 const email = ref('')
 const password = ref('')
 const emailError = ref('')
@@ -28,6 +31,8 @@ const editingId = ref<string | null>(null)
 
 // modal state
 const modalOpen = ref(false)
+const deleteConfirmOpen = ref(false)
+const deletePostId = ref<string | null>(null)
 const formTitle = ref('')
 const formDate = ref('')
 const formCategory = ref('')
@@ -203,19 +208,28 @@ function handleLogin() {
   }
   if (!valid) return
 
-  if (email.value.trim() === 'maxebina@gmail.com' && password.value === '4Bolot@828348') {
-    localStorage.setItem(AUTH_KEY, '1')
-    authed.value = true
-  } else {
-    passwordError.value = 'E-mail ou senha inválidos'
-  }
+  loadingLogin.value = true
+
+  setTimeout(() => {
+    if (email.value.trim() === 'maxebina@gmail.com' && password.value === '4Bolot@828348') {
+      localStorage.setItem(AUTH_KEY, '1')
+      authed.value = true
+    } else {
+      passwordError.value = 'E-mail ou senha inválidos'
+    }
+    loadingLogin.value = false
+  }, 1000)
 }
 
 function logout() {
-  localStorage.removeItem(AUTH_KEY)
-  authed.value = false
-  email.value = ''
-  password.value = ''
+  loadingLogout.value = true
+  setTimeout(() => {
+    localStorage.removeItem(AUTH_KEY)
+    authed.value = false
+    email.value = ''
+    password.value = ''
+    loadingLogout.value = false
+  }, 1000)
 }
 
 function exec(cmd: string, value?: string) {
@@ -240,11 +254,24 @@ function slugify(s: string): string {
 }
 
 function deletePost(id: string) {
-  if (!confirm('Excluir este post?')) return
+  deletePostId.value = id
+  deleteConfirmOpen.value = true
+}
+
+function confirmDelete() {
+  const id = deletePostId.value
+  if (!id) return
   posts.value = posts.value.filter((p) => p.id !== id)
   savePosts()
   ;(window as any).__fibramferBlogDirty = true
   ;(window as any).__fibramferBlogSyncPromise = deleteMd(id)
+  deleteConfirmOpen.value = false
+  deletePostId.value = null
+}
+
+function cancelDelete() {
+  deleteConfirmOpen.value = false
+  deletePostId.value = null
 }
 
 function openModal(post?: Post) {
@@ -370,8 +397,11 @@ function savePost() {
         <p v-if="passwordError" class="text-sm text-error-500">{{ passwordError }}</p>
       </div>
 
-      <Button id="admin-submit-cta" variant="primary" size="lg" type="submit" fullWidth>
-        Entrar
+      <Button id="admin-submit-cta" variant="primary" size="lg" type="submit" fullWidth :disabled="loadingLogin" class="cursor-pointer">
+        <span class="flex items-center justify-center gap-2">
+          <Loader2 v-if="loadingLogin" class="w-4 h-4 animate-spin" />
+          <span>{{ loadingLogin ? 'Entrando...' : 'Entrar' }}</span>
+        </span>
       </Button>
     </form>
   </div>
@@ -416,7 +446,10 @@ function savePost() {
     </div>
 
     <div class="mt-4 flex justify-end">
-      <button type="button" class="text-sm font-medium text-text-secondary hover:text-ink cursor-pointer" @click="logout">Sair p/ login</button>
+      <button type="button" class="text-sm font-medium text-text-secondary hover:text-ink cursor-pointer flex items-center gap-2" @click="logout" :disabled="loadingLogout">
+        <Loader2 v-if="loadingLogout" class="w-3.5 h-3.5 animate-spin" />
+        <span>{{ loadingLogout ? 'Saindo...' : 'Sair p/ login' }}</span>
+      </button>
     </div>
   </div>
 
@@ -521,6 +554,26 @@ function savePost() {
       </div>
     </div>
   </Transition>
+  </Teleport>
+
+  <!-- CONFIRM DELETE MODAL -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div
+        v-if="deleteConfirmOpen"
+        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
+        @click.self="cancelDelete"
+      >
+        <div class="w-full max-w-md rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
+          <h2 class="font-display text-xl font-bold text-ink mb-4">Confirmar exclusão</h2>
+          <p class="text-text-secondary mb-6">Deseja realmente excluir este post? Esta ação não pode ser desfeita.</p>
+          <div class="flex items-center justify-end gap-3">
+            <Button variant="ghost" size="md" type="button" @click="cancelDelete">Cancelar</Button>
+            <Button variant="primary" size="md" type="button" @click="confirmDelete">Excluir</Button>
+          </div>
+        </div>
+      </div>
+    </Transition>
   </Teleport>
 </template>
 

@@ -52,7 +52,7 @@ diretamente ao estado final acessível, sem desenho sequencial dos paths.
 ## Cobertura e limite existente
 
 Os drawers principais, legais e o post aberto a partir da home compartilham
-esse ciclo. O acesso direto/F5 em `/blog/welcome/` já usa `HomeScene` sem
+esse ciclo. O acesso direto/F5 em `/blog/terceiro-post/` já usa `HomeScene` sem
 `home` e não renderiza a cadeira; esse comportamento não foi alterado.
 
 Os testes automatizados desta alteração usaram Chromium headless, estilos

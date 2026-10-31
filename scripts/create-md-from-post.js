@@ -21,5 +21,5 @@ if (process.argv[2]) {
   create(input.post || input);
 } else {
   console.log('Uso: node scripts/create-md-from-post.js <json-file>');
-  console.log('Exemplo: echo \'{"id":"welcome","title":"..."}\' > tmp/post.json && node ...');
+  console.log('Exemplo: echo \'{"id":"meu-post","title":"..."}\' > tmp/post.json && node ...');
 }

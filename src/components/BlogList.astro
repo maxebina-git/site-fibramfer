@@ -21,11 +21,12 @@ const { posts, class: className = '' } = Astro.props;
 const allPosts = posts;
 ---
 
-<section class={`py-16 ${className}`}>
+<section class={`pb-16 ${className}`}>
   <div class="mx-auto max-w-7xl px-6">
+    <p class="mb-2 text-center font-body text-sm font-semibold uppercase tracking-[0.16em] text-accent-500">Novidades do setor</p>
     <h1 class="font-display text-4xl font-bold text-center text-ink mb-2">Blog e Novidades</h1>
-    <p class="text-text-secondary mb-12">Fique por dentro das tendências do setor e atualizações técnicas.</p>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8" data-admin-loaded="false" id="blog-grid-root">
+    <p class="text-text-secondary mb-12 text-center">Fique por dentro das tendências do setor e atualizações técnicas.</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-admin-loaded="false" id="blog-grid-root">
       {allPosts.map((post: any) => (
         <article class="bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col">
           {(post.data ? post.data.image : post.image) && <img src={post.data ? post.data.image : post.image} alt={post.data ? post.data.title : post.title} class="h-48 w-full object-cover bg-surface-alt" />}

@@ -26,7 +26,7 @@
   - `public/admin/index.html`
   - `public/admin/config.yml` (configured with git-gateway backend, blog collection)
 - Created blog content collection:
-  - Content folder: `src/content/blog` with a sample post (`welcome.md`)
+  - Content folder: `src/content/blog` with posts created through the admin flow
   - Content config: `src/content/config.ts` (defines blog schema)
   - Blog listing page: `src/pages/blog/index.astro`
   - Blog post page: `src/pages/blog/[slug].astro`
@@ -45,7 +45,7 @@ site-fibramfer/
 ├── src/
 │   ├── content/
 │   │   ├── blog/
-│   │   │   └── welcome.md      # Sample blog post
+│   │   │   └── <post>.md       # Blog post
 │   │   └── config.ts           # Blog collection configuration
 │   ├── pages/
 │   │   ├── index.astro         # Homepage with DS Button and blog links

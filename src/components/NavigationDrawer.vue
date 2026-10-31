@@ -4,7 +4,6 @@ import { Drawer } from 'ds-grupo-rkb'
 
 type MainDrawerSlot =
   | 'a-fibramfer'
-  | 'onde-comprar'
   | 'seguranca'
   | 'blog'
   | 'contato'
@@ -38,7 +37,6 @@ const props = withDefaults(defineProps<Props>(), {
 
 const mainRoutes: RouteDefinition[] = [
   { path: '/a-fibramfer/', title: 'A Fibramfer', slot: 'a-fibramfer', revealKey: 'a-fibramfer' },
-  { path: '/onde-comprar/', title: 'Onde Comprar', slot: 'onde-comprar', revealKey: 'onde-comprar' },
   { path: '/admin/', title: 'Admin', slot: 'admin', revealKey: 'admin' },
   { path: '/cadeira-suspensa/', title: 'Cadeira Suspensa', slot: 'cadeira-suspensa', revealKey: 'cadeira-suspensa' },
   { path: '/seguranca/', title: 'Segurança', slot: 'seguranca', revealKey: 'seguranca' },
@@ -77,7 +75,6 @@ const currentPath = ref(normalizePath(props.initialPath))
     const titles: Record<string, string> = {
       '/a-fibramfer/': 'A Fibramfer',
       '/cadeira-suspensa/': 'Cadeira Suspensa',
-      '/onde-comprar/': 'Onde Comprar',
       '/admin/': 'Admin',
       '/seguranca/': 'Segurança',
       '/blog/': 'Blog',
@@ -181,23 +178,6 @@ const drawerScrollSelector =
 
 const drawerRef = ref<InstanceType<typeof Drawer> | null>(null)
 
-function shufflePartnersTable() {
-  if (typeof document === 'undefined') return
-  const tbody = document.getElementById('partners-tbody')
-  if (!tbody) return
-  tbody.style.transition = 'opacity 0.3s ease'
-  tbody.style.opacity = '0.4'
-  setTimeout(() => {
-    const rows = Array.from(tbody.querySelectorAll('tr'))
-    if (rows.length === 0) return
-    for (let i = rows.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [rows[i], rows[j]] = [rows[j], rows[i]]
-    }
-    rows.forEach((r) => tbody.appendChild(r))
-    tbody.style.opacity = '1'
-  }, 250)
-}
 
 let drawerScrollObserver: ResizeObserver | null = null
 let drawerContentObserver: MutationObserver | null = null
@@ -363,13 +343,6 @@ function handleDocumentClick(event: MouseEvent): void {
   const route = href === '/' ? { path: '/' } : routeForHref(href)
   if (!route) return
 
-  if (route.path === '/onde-comprar/' || route.path === '/onde-comprar' || href === '/onde-comprar' || href === '/onde-comprar/') {
-    shufflePartnersTable()
-    setTimeout(shufflePartnersTable, 300)
-    setTimeout(shufflePartnersTable, 600)
-    setTimeout(shufflePartnersTable, 900)
-  }
-
   event.preventDefault()
   navigateTo(route.path)
 }
@@ -505,15 +478,6 @@ watch([isOpen, displayedSlot], async () => {
 
 watch([displayedPostId, displayedSlot], () => {
   void syncBlogPostVisibility()
-})
-
-watch(displayedSlot, (slot) => {
-  if (slot === 'onde-comprar') {
-    shufflePartnersTable()
-    setTimeout(shufflePartnersTable, 400)
-    setTimeout(shufflePartnersTable, 700)
-    setTimeout(shufflePartnersTable, 1000)
-  }
 })
 
   onBeforeUnmount(() => {
