@@ -172,15 +172,7 @@ async function deleteMd(id: string) {
   } catch { /* ignore */ }
 }
 
-function handleDocumentEsc(e: KeyboardEvent) {
-  if (e.key === 'Escape' && (deleteConfirmOpen.value || modalOpen.value)) {
-    e.preventDefault()
-    e.stopImmediatePropagation()
-  }
-}
-
 onMounted(() => {
-  document.addEventListener('keydown', handleDocumentEsc, true)
   authed.value = localStorage.getItem(AUTH_KEY) === '1'
   loadPosts()
   ready.value = true
@@ -188,7 +180,6 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleDocumentEsc, true)
   window.removeEventListener('keydown', handleEsc)
   if (formImagePreview.value && formImagePreview.value.startsWith('blob:')) {
     URL.revokeObjectURL(formImagePreview.value)
@@ -199,12 +190,10 @@ function handleEsc(e: KeyboardEvent) {
   if (e.key === 'Escape') {
     if (deleteConfirmOpen.value) {
       cancelDelete()
-      e.stopPropagation()
       return
     }
     if (modalOpen.value) {
       closeModal()
-      e.stopPropagation()
     }
   }
 }
@@ -477,7 +466,6 @@ function savePost() {
         v-if="modalOpen"
         class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
         @click.self="closeModal"
-        @keydown.escape.prevent.stop="closeModal"
       >
       <div class="w-full max-w-5xl rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
         <div class="mb-4 flex items-center justify-between">
@@ -585,7 +573,6 @@ function savePost() {
         v-if="deleteConfirmOpen"
         class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
         @click.self="cancelDelete"
-        @keydown.escape.prevent.stop="cancelDelete"
       >
         <div class="w-full max-w-md rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
           <div class="mb-4 flex items-center justify-between">
