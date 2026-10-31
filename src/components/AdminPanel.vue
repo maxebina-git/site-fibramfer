@@ -172,7 +172,15 @@ async function deleteMd(id: string) {
   } catch { /* ignore */ }
 }
 
+function handleDocumentEsc(e: KeyboardEvent) {
+  if (e.key === 'Escape' && (deleteConfirmOpen.value || modalOpen.value)) {
+    e.preventDefault()
+    e.stopImmediatePropagation()
+  }
+}
+
 onMounted(() => {
+  document.addEventListener('keydown', handleDocumentEsc, true)
   authed.value = localStorage.getItem(AUTH_KEY) === '1'
   loadPosts()
   ready.value = true
@@ -180,6 +188,7 @@ onMounted(() => {
 })
 
 onUnmounted(() => {
+  document.removeEventListener('keydown', handleDocumentEsc, true)
   window.removeEventListener('keydown', handleEsc)
   if (formImagePreview.value && formImagePreview.value.startsWith('blob:')) {
     URL.revokeObjectURL(formImagePreview.value)
