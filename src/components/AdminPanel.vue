@@ -468,6 +468,7 @@ function savePost() {
         v-if="modalOpen"
         class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
         @click.self="closeModal"
+        @keydown.escape.prevent.stop="closeModal"
       >
       <div class="w-full max-w-2xl rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
         <div class="mb-4 flex items-center justify-between">
@@ -571,6 +572,7 @@ function savePost() {
         v-if="deleteConfirmOpen"
         class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
         @click.self="cancelDelete"
+        @keydown.escape.prevent.stop="cancelDelete"
       >
         <div class="w-full max-w-md rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
           <div class="mb-4 flex items-center justify-between">
