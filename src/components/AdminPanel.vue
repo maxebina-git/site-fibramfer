@@ -493,8 +493,8 @@ function savePost() {
         </div>
 
         <form class="flex flex-col gap-5" @submit.prevent="savePost">
-          <div class="grid grid-cols-1 gap-5 md:grid-cols-3">
-            <div class="flex flex-col gap-1.5 md:col-span-2">
+          <div class="flex flex-col gap-5">
+            <div class="flex flex-col gap-1.5">
               <label for="post-title" class="text-sm font-medium text-ink">Título</label>
               <input
                 id="post-title"
@@ -503,26 +503,7 @@ function savePost() {
                 placeholder="Título do post"
                 class="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink placeholder:text-text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
               />
-              <div class="text-text-secondary text-sm mt-1 font-mono leading-snug" style="letter-spacing:-0.02em; margin-top: 2px;">slug: www.fibramfer.com.br/blog/{{ formSlug }}</div>
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label for="post-date" class="text-sm font-medium text-ink">Data</label>
-              <input
-                id="post-date"
-                v-model="formDate"
-                type="date"
-                class="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
-              />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label for="post-category" class="text-sm font-medium text-ink">Categoria</label>
-              <input
-                id="post-category"
-                v-model="formCategory"
-                type="text"
-                placeholder="Ex.: News"
-                class="w-full rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink placeholder:text-text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
-              />
+              <div class="text-text-secondary text-sm font-mono leading-snug" style="letter-spacing:-0.02em;">slug: www.fibramfer.com.br/blog/{{ formSlug }}</div>
             </div>
           </div>
 
