@@ -507,7 +507,7 @@ function savePost() {
             </div>
           </div>
 
-          <div class="flex flex-col md:flex-row gap-5">
+          <div class="flex flex-row gap-5">
             <div class="md:w-1/3 flex flex-col gap-5">
               <div class="grid grid-cols-1 gap-5 md:grid-cols-1">
                 <div class="flex flex-col gap-1.5">
