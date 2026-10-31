@@ -33,6 +33,9 @@ const editingId = ref<string | null>(null)
 const modalOpen = ref(false)
 const deleteConfirmOpen = ref(false)
 const deletePostId = ref<string | null>(null)
+const tableConfigOpen = ref(false)
+const tableRows = ref(3)
+const tableCols = ref(3)
 const formTitle = ref('')
 const formDate = ref('')
 const formCategory = ref('')
@@ -244,6 +247,25 @@ function exec(cmd: string, value?: string) {
 }
 
 const TABLE_HTML = '<table class="w-full text-left border-collapse"><tr><th class="p-2 bg-surface-alt">Título</th><th class="p-2 bg-surface-alt">Data</th></tr><tr><td class="p-2"></td><td class="p-2"></td></tr></table>'
+
+function openTableConfig() {
+  tableConfigOpen.value = true
+  tableRows.value = 3
+  tableCols.value = 3
+}
+
+function insertConfiguredTable() {
+  const rows = Math.max(1, Number(tableRows.value) || 3)
+  const cols = Math.max(1, Number(tableCols.value) || 3)
+  let html = '<table class="w-full text-left border-collapse">'
+  html += '<tr>' + Array(cols).fill('<th class="p-2 bg-surface-alt">Coluna</th>').join('') + '</tr>'
+  for (let i = 0; i < rows; i++) {
+    html += '<tr>' + Array(cols).fill('<td class="p-2"></td>').join('') + '</tr>'
+  }
+  html += '</table>'
+  exec('insertHTML', html)
+  tableConfigOpen.value = false
+}
 
 function formatDate(iso: string): string {
   if (!iso) return '—'
@@ -545,7 +567,7 @@ function savePost() {
               <button type="button" title="Sublinhado" aria-label="Aplicar sublinhado" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm underline text-ink hover:bg-surface cursor-pointer" @click="exec('underline')">U</button>
               <button type="button" title="Lista com marcadores" aria-label="Inserir lista com marcadores" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('insertUnorderedList')">• Lista</button>
               <button type="button" title="Citação" aria-label="Aplicar citação" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('formatBlock', '<blockquote>')">❝ Citação</button>
-              <button type="button" title="Inserir tabela" aria-label="Inserir tabela" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('insertHTML', TABLE_HTML)">▦ Tabela</button>
+              <button type="button" title="Inserir tabela" aria-label="Inserir tabela" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="openTableConfig()">▦ Tabela</button>
               <button type="button" title="Inserir link" aria-label="Inserir link" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('createLink', (prompt('URL do link') || ''))">🔗 Link</button>
             </div>
             <div
@@ -585,6 +607,39 @@ function savePost() {
           <div class="flex items-center justify-end gap-3">
             <Button variant="ghost" size="md" type="button" @click="cancelDelete">Cancelar</Button>
             <Button variant="primary" size="md" type="button" @click="confirmDelete">Excluir</Button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+
+  <!-- TABLE CONFIG MODAL -->
+  <Teleport to="body">
+    <Transition name="modal">
+      <div
+        v-if="tableConfigOpen"
+        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
+        @click.self="tableConfigOpen = false"
+        @keydown.escape.prevent.stop="tableConfigOpen = false"
+      >
+        <div class="w-full max-w-sm rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
+          <div class="mb-4 flex items-center justify-between">
+            <h2 class="font-display text-xl font-bold text-ink">Inserir Tabela</h2>
+            <button type="button" aria-label="Fechar" class="grid h-9 w-9 place-items-center rounded-md text-text-secondary hover:bg-surface-alt hover:text-ink" @click="tableConfigOpen = false">✕</button>
+          </div>
+          <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="flex flex-col gap-1.5">
+              <label for="table-rows" class="text-sm font-medium text-ink">Linhas (inclui cabeçalho)</label>
+              <input id="table-rows" v-model.number="tableRows" type="number" min="1" class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink" />
+            </div>
+            <div class="flex flex-col gap-1.5">
+              <label for="table-cols" class="text-sm font-medium text-ink">Colunas</label>
+              <input id="table-cols" v-model.number="tableCols" type="number" min="1" class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink" />
+            </div>
+          </div>
+          <div class="flex items-center justify-end gap-3">
+            <Button variant="ghost" size="md" type="button" @click="tableConfigOpen = false">Cancelar</Button>
+            <Button variant="primary" size="md" type="button" @click="insertConfiguredTable">Inserir</Button>
           </div>
         </div>
       </div>
