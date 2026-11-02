@@ -1,7 +1,8 @@
 ﻿---
-import { Button } from 'ds-grupo-rkb';
+import { Section, Button } from 'ds-grupo-rkb';
 import FibramferFloat from '../FibramferFloat.astro';
 import HeroCurveSlider from '../HeroCurveSlider.astro';
+import LordIcon from '../LordIcon.astro';
 ---
 
 <div class="text-center mb-12">
@@ -111,6 +112,56 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     </div>
     </div>
   </div>
+
+<Section id="cadeira-suspensa-cta" size="none" tone="surface" class="mb-12">
+  <div class="mx-auto max-w-5xl rounded-lg bg-surface-alt px-4 py-16 text-ink md:px-8 md:py-20">
+    <div class="mx-auto max-w-3xl text-center">
+      <h2 class="mb-6 font-display text-3xl font-extrabold text-accent-500 md:text-5xl">
+        Sua cadeira suspensa certificada começa aqui
+      </h2>
+      <p class="mb-8 font-body text-lg leading-relaxed text-text-secondary">
+        Garanta equipamento com CA válido, rastreabilidade total e suporte técnico especializado.
+        Fale com nossos especialistas para orçamento e condições.
+      </p>
+      <div class="flex flex-col justify-center gap-4 sm:flex-row">
+        <Button
+          id="cadeira-quote-cta"
+          variant="primary"
+          size="lg"
+          as="a"
+          href="/contato/"
+          class="bg-accent-500 text-ink hover:bg-accent-600 active:bg-accent-600"
+        >
+          Solicitar Orçamento
+          <LordIcon
+            src="/lordicon/system-outline-3104-thumbs-up-down-hover-pinch.json"
+            trigger="hover"
+            state="hover-pinch"
+            target="#cadeira-quote-cta"
+            currentColor
+            class="h-5 w-5 shrink-0"
+          />
+        </Button>
+        <Button
+          id="cadeira-whatsapp-cta"
+          variant="secondary"
+          size="lg"
+          as="a"
+          href="https://wa.me/551155622727?text=Olá, gostaria de orçamento para Cadeira Suspensa"
+        >
+          Falar no WhatsApp
+          <LordIcon
+            src="/lordicon/system-outline-4073-email-hover-pinch.json"
+            trigger="hover"
+            state="hover-pinch"
+            target="#cadeira-whatsapp-cta"
+            class="h-5 w-5 shrink-0"
+          />
+        </Button>
+      </div>
+    </div>
+  </div>
+</Section>
 <FibramferFloat asset="f2" />
 <style>
   .cs-card-details { display: none; }
