@@ -294,11 +294,11 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
         collapseCadeiraSlider(card, details);
         card.classList.remove('cs-expanded');
       }, CARD_CONTENT_EXIT_DURATION_MS);
+      card.querySelector('.cs-quick-nav')?.classList.remove('cs-quick-nav--visible');
         scheduleCardAnimation(details, () => {
           details.style.display = 'none';
           details.setAttribute('aria-hidden', 'true');
           card.classList.remove('cs-top');
-          card.querySelector('.cs-quick-nav')?.classList.remove('cs-quick-nav--visible');
           clearCardAnimationTimers(details);
         }, CARD_CONTENT_EXIT_DURATION_MS + CARD_WIDTH_TRANSITION_MS);
       return;
