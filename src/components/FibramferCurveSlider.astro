@@ -1,4 +1,4 @@
----
+﻿---
 const {
   slides = [
     { src: '/assets/a-fibramfer-1.webp', alt: 'Profissional em trabalho em altura com talabarte e cinto paraquedista Fibramfer' },
@@ -86,14 +86,6 @@ const INITIAL_D = STEP3;
 </noscript>
 
 <script>
-  import { gsap } from 'gsap';
-  import { CustomEase } from 'gsap/CustomEase';
-  import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
-
-  gsap.registerPlugin(CustomEase, MorphSVGPlugin);
-
-  const easeIn = CustomEase.create('fibramferCurveIn', '.42,.03,.77,.63');
-  const easeOut = CustomEase.create('fibramferCurveOut', '.27,.5,.6,.99');
   const PHASE_DURATION = 0.25;
   const SLIDER_SELECTOR = '[data-fibramfer-curve-slider]';
 
@@ -102,9 +94,17 @@ const INITIAL_D = STEP3;
     destroy: () => void;
   };
 
-  const instances = new Map<HTMLElement, SliderInstance>();
+  const instances = new Map<HTMLElement, SliderInstance>;
+  async function initSlider(root: HTMLElement): Promise<void> {
+    const { gsap } = await import('gsap');
+    const { CustomEase } = await import('gsap/CustomEase');
+    const { MorphSVGPlugin } = await import('gsap/MorphSVGPlugin');
 
-  function initSlider(root: HTMLElement): void {
+    gsap.registerPlugin(CustomEase, MorphSVGPlugin);
+
+    const easeIn = CustomEase.create('fibramferCurveIn', '.42,.03,.77,.63');
+    const easeOut = CustomEase.create('fibramferCurveOut', '.27,.5,.6,.99');
+
     if (instances.has(root) || !root.isConnected || root.closest('astro-island[ssr]')) return;
 
     const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-fibramfer-curve-slide]'));
@@ -213,7 +213,7 @@ const INITIAL_D = STEP3;
       }
     }
 
-    document.querySelectorAll<HTMLElement>(SLIDER_SELECTOR).forEach(initSlider);
+    document.querySelectorAll<HTMLElement>(SLIDER_SELECTOR).forEach((el) => { void initSlider(el); });
   }
 
   let syncFrame = 0;
@@ -264,6 +264,7 @@ const INITIAL_D = STEP3;
     start();
   }
 </script>
+
 
 <style>
   .fibramfer-curve-slide {
