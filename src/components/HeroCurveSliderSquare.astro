@@ -1,4 +1,4 @@
----
+﻿---
 // HeroCurveSlider.astro
 // Slideshow com transição de clip-path SVG animado (variante "curve"),
 // inspirado no Animated SVG Image Slider da CodyHouse (codyhouse.co).
@@ -94,23 +94,20 @@ const INITIAL_D = STEP3;
 </noscript>
 
 <script>
-  import { gsap } from 'gsap';
-  import { CustomEase } from 'gsap/CustomEase';
-  import { MorphSVGPlugin } from 'gsap/MorphSVGPlugin';
-
-  gsap.registerPlugin(CustomEase, MorphSVGPlugin);
-
-  // Mesmos eases do demo original (cubic-bezier .42,.03,.77,.63 e .27,.5,.6,.99).
-  const easeIn = CustomEase.create('heroCurveIn', '.42,.03,.77,.63');
-  const easeOut = CustomEase.create('heroCurveOut', '.27,.5,.6,.99');
-
   const PHASE_DURATION = 0.25;
   const SLIDER_SELECTOR = '[data-hero-curve-slider]';
-  // O Vue serializa o slot com innerHTML: atributos são copiados, timers não.
-  // A identidade do nó e dos slides, nunca data-curve-ready, define a instância.
   const instances = new Map<HTMLElement, { slides: HTMLElement[]; destroy: () => void }>();
 
-  function initSlider(root: HTMLElement): void {
+  async function initSlider(root: HTMLElement): Promise<void> {
+    const { gsap } = await import('gsap');
+    const { CustomEase } = await import('gsap/CustomEase');
+    const { MorphSVGPlugin } = await import('gsap/MorphSVGPlugin');
+
+    gsap.registerPlugin(CustomEase, MorphSVGPlugin);
+
+    const easeIn = CustomEase.create('heroCurveIn', '.42,.03,.77,.63');
+    const easeOut = CustomEase.create('heroCurveOut', '.27,.5,.6,.99');
+
     if (instances.has(root) || !root.isConnected || root.closest('astro-island[ssr]')) return;
 
     const slides = Array.from(root.querySelectorAll<HTMLElement>('[data-curve-slide]'));
@@ -131,7 +128,6 @@ const INITIAL_D = STEP3;
     let autoplayTimer: number | null = null;
     let timeline: gsap.core.Timeline | null = null;
 
-    // Um slot recriado pode carregar classes/paths de uma transição antiga.
     slides.forEach((slide, index) => {
       slide.classList.toggle('is-visible', index === 0);
       slide.classList.remove('is-animating');
@@ -189,7 +185,6 @@ const INITIAL_D = STEP3;
     }
 
     function onMotionChange(): void {
-      // Finaliza uma transição em curso antes de desativar o movimento.
       if (reducedMotion.matches) timeline?.progress(1);
       startAutoplay();
     }
@@ -216,7 +211,7 @@ const INITIAL_D = STEP3;
         instance.destroy();
       }
     }
-    document.querySelectorAll<HTMLElement>(SLIDER_SELECTOR).forEach(initSlider);
+    document.querySelectorAll<HTMLElement>(SLIDER_SELECTOR).forEach((el) => { void initSlider(el); });
   }
 
   let syncFrame = 0;
@@ -247,8 +242,6 @@ const INITIAL_D = STEP3;
     scheduleSync();
   }
 
-  // astro:hydrate não faz bubbling; capture recebe o evento da ilha após mount.
-  // Diferente de drawer-open, também acontece no carregamento direto/F5.
   document.addEventListener('astro:hydrate', scheduleSync, true);
   window.addEventListener('fibramfer:drawer-open', scheduleSync);
   if (document.readyState === 'loading') {
@@ -257,6 +250,7 @@ const INITIAL_D = STEP3;
     start();
   }
 </script>
+
 
 <style>
   .hero-curve-slide {
