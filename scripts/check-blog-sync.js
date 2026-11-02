@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // Mostra comparação: tabela admin vs .md em /blog/
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BLOG_DIR = path.resolve(__dirname, '../src/content/blog');
 const API_URL = 'http://localhost:4321/api/admin.php?action=list';
 const FALLBACK = path.resolve(__dirname, '../tmp/posts.json');

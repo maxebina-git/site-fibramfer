@@ -6,10 +6,9 @@ import Footer from '../components/Footer.astro';
 interface Props {
   title?: string;
   description?: string;
-  home?: boolean;
 }
 
-const { title = 'Site Fibramfer', description, home = false } = Astro.props;
+const { title = 'Site Fibramfer', description } = Astro.props;
 
 const panelRoutes = ['/a-fibramfer', '/cadeira-suspensa', '/seguranca', '/blog', '/contato', '/privacidade', '/termos', '/admin'];
 const legalRoutes = ['/privacidade', '/termos'];
@@ -66,5 +65,9 @@ const isLegalOpen = legalRoutes.some(isRouteActive);
       <slot />
     </main>
     <Footer />
+    <script type="module">
+      import { defineElement } from '@lordicon/element'
+      defineElement()
+    </script>
   </body>
 </html>

@@ -2,9 +2,11 @@
 // Sync blog .md com tabela admin (posts)
 // Regra: tabela é verdade. Se tem post -> .md existe; se tem .md sem post -> apaga.
 
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BLOG_DIR = path.resolve(__dirname, '../src/content/blog');
 const API_URL = 'http://localhost:4321/api/admin.php?action=list'; // porta 4321
 
@@ -20,8 +22,7 @@ async function main() {
   } catch (e) {}
   if (posts.length === 0) {
     try {
-      const fs2 = require('fs');
-      const file = fs2.readFileSync(path.resolve(__dirname, '../tmp/posts.json'), 'utf8');
+      const file = fs.readFileSync(path.resolve(__dirname, '../tmp/posts.json'), 'utf8');
       const data = JSON.parse(file);
       posts = data.posts || [];
       console.log('Usando tmp/posts.json (fallback):', posts.length);

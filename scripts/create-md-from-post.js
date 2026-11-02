@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // Cria .md a partir de dados do admin (recebe via arquivo ou argumentos)
-const fs = require('fs');
-const path = require('path');
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BLOG_DIR = path.resolve(__dirname, '../src/content/blog');
 
 function create(post) {
