@@ -425,6 +425,15 @@ watch(isOpen, async (open, previousOpen) => {
   if (!open) {
     document.body.removeAttribute('data-panel-drawer-open')
     document.body.removeAttribute('data-fibramfer-direct-drawer')
+    // Evita aria-hidden retido com foco descendente ao fechar
+    const active = document.activeElement as HTMLElement | null
+    if (active && active.closest?.("aside[role='dialog']")) {
+      active.blur()
+      // Devolve foco ao trigger do menu (header) quando houver
+      const header = document.querySelector<HTMLElement>('header[data-fibramfer-header="true"]')
+      const trigger = header?.querySelector<HTMLButtonElement>('button[aria-label*="Admin" i], button[data-fibramfer-admin-trigger]')
+      if (trigger) { try { trigger.focus() } catch {} }
+    }
 
     // Dispatch close event for dependent components (e.g., F1 animation)
     window.dispatchEvent(new CustomEvent('fibramfer:drawer-close', {
@@ -520,7 +529,7 @@ watch([displayedPostId, displayedSlot], () => {
           class="contents"
           :data-active-blog-post="displayedPostId"
         >
-          <slot :name="displayedSlot" />
+            <slot :name="displayedSlot" />
         </div>
       </Drawer>
       <nav

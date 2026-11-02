@@ -1,0 +1,8 @@
+---
+title: "Por que Sua Fachada Precisa Mais do que um Bom Pintor?"
+date: 2026-11-01
+category: "Garantia"
+image: "/uploads/12dfdde2c42429e5.png"
+---
+
+Já cotamos com três empresas e a diferença de preço é brutal. Por que a Camargo Gallo é mais cara?" Essa é uma pergunta justa. E a resposta está na engenharia por trás de cada intervenção.<br><div>Pintura é Estética. Engenharia é Estrutura.</div><div>Empresas que apenas pintam fachadas tratam o sintoma, não a causa. Elas aplicam tinta sobre problemas estruturais que continuam se degradando por baixo da nova camada. Em 2 anos, o condomínio gasta de novo.</div><div>O Que Fazemos Diferente:</div><div>✅ Diagnóstico com drones e termografia - Identificamos anomalias invisíveis a olho nu, como descolamentos internos e pontes térmicas.</div><div>✅ Engenheiros especialistas em patologia - Não são apenas técnicos. São 10 engenheiros civis com pós-graduação em patologia das construções analisando seu caso.</div><div>✅ Gestão em tempo real - Plataforma com reconhecimento facial, RDOs (Relatórios Diários de Obra) e fotos georreferenciadas. O síndico acompanha tudo pelo celular.</div><div>✅ Seguro de R$ 10 milhões - Total responsabilidade civil. Se algo der errado, o condomínio está protegido.</div><div>✅ Conformidade NR-35 - Trabalho em altura com equipamentos certificados e equipe treinada. Sem atalhos, sem riscos.</div><div>O Custo Real da "Economia":</div><div>Uma obra mal executada custa 3x mais a longo prazo. Além do retrabalho, há o desgaste com moradores, risco de processos e desvalorização do imóvel.</div><div>Exija um orçamento detalhado com ART. Sua fachada (e seu condomínio) merecem engenharia de verdade.</div>

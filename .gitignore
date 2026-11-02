@@ -19,3 +19,12 @@ dist/
 # Local agent/browser tooling
 .playwright-mcp/
 .qwen/
+
+# Temp/debug scripts (one-off fixes, never commit)
+temp_*
+fix_*
+check_*
+final_*
+verify_*
+remover-*.js
+*.log
