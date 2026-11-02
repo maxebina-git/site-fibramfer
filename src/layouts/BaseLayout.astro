@@ -51,13 +51,28 @@ const isLegalOpen = legalRoutes.some(isRouteActive);
           '/blog': 'Blog',
           '/contato': 'Contato',
         };
+        let titleInterval: ReturnType<typeof setInterval> | null = null;
+        function startTitleSync(): void {
+          stopTitleSync();
+          titleInterval = setInterval(update, 800);
+        }
+        function stopTitleSync(): void {
+          if (titleInterval !== null) {
+            clearInterval(titleInterval);
+            titleInterval = null;
+          }
+        }
         function update() {
           const path = window.location.pathname.replace(/\/$/, '') || '/';
           if (titles[path]) document.title = titles[path] + ' | Fibramfer';
         }
         update();
         window.addEventListener('popstate', update);
-        setInterval(update, 800);
+        startTitleSync();
+        document.addEventListener('visibilitychange', () => {
+          if (document.hidden) stopTitleSync();
+          else startTitleSync();
+        });
       })();
     </script>
     <Header />
