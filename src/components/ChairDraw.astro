@@ -25,15 +25,16 @@ const chairDrawSvg = rawSvg
 </noscript>
 
 <script>
-  import { gsap } from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
-
-  gsap.registerPlugin(ScrollTrigger);
-
   const svg = document.querySelector<SVGElement>('svg[data-chair-draw]');
 
-  if (svg && svg.dataset.drawReady !== 'true') {
-    svg.dataset.drawReady = 'true';
+  const initChairDraw = async (): Promise<void> => {
+    const { gsap } = await import('gsap');
+    const { ScrollTrigger } = await import('gsap/ScrollTrigger');
+
+    gsap.registerPlugin(ScrollTrigger);
+
+    if (svg && svg.dataset.drawReady !== 'true') {
+      svg.dataset.drawReady = 'true';
 
     const paths = Array.from(svg.querySelectorAll<SVGPathElement>('path'));
     const fill = document.querySelector<HTMLElement>('[data-chair-draw-fill]');
@@ -250,5 +251,8 @@ const chairDrawSvg = rawSvg
 
     const desktopQuery = window.matchMedia('(min-width: 768px)');
     desktopQuery.addEventListener('change', start);
-  }
+    }
+  };
+
+  void initChairDraw();
 </script>

@@ -147,11 +147,25 @@ const nav = navItems.map((item) => ({
 )}
 
 <script>
-  import { gsap } from 'gsap';
   import type { LordIconElement } from '@lordicon/element';
 
   const desktopMediaQuery = '(min-width: 1024px)';
   let logoSyncFrame: number | null = null;
+
+  let heroBadgeEase: ((progress: number) => number) | null = null;
+  let heroBadgeEasePromise: Promise<(progress: number) => number> | null = null;
+
+  const loadHeroBadgeEase = async (): Promise<(progress: number) => number> => {
+    if (heroBadgeEase) return heroBadgeEase;
+    if (!heroBadgeEasePromise) {
+      heroBadgeEasePromise = import('gsap').then(({ gsap }) => {
+        const ease = gsap.parseEase('power2.inOut');
+        heroBadgeEase = ease;
+        return ease;
+      });
+    }
+    return heroBadgeEasePromise;
+  };
 
   function renderedTransformX(element: HTMLElement): number {
     const transform = window.getComputedStyle(element).transform;
@@ -462,7 +476,6 @@ const nav = navItems.map((item) => ({
   }
 
   const HERO_BADGE_PROGRESS_DELAY = 500;
-  const badgeProgressEase = gsap.parseEase('power2.inOut');
   interface ChairProgressSample {
     time: number;
     progress: number;
@@ -524,16 +537,18 @@ const nav = navItems.map((item) => ({
     });
   }
 
-  function syncDelayedHeroBadgeProgress(now: number): void {
-    document.querySelectorAll<HTMLElement>('.home-hero-badge').forEach((badge) => {
+  async function syncDelayedHeroBadgeProgress(now: number): Promise<void> {
+    const badges = Array.from(document.querySelectorAll<HTMLElement>('.home-hero-badge'));
+    for (const badge of badges) {
       const progress = delayedProgressAt(now - badgeProgressDelay(badge));
-      if (progress === null) return;
+      if (progress === null) continue;
       // O easing atua somente na curva visual; os endpoints e os atrasos de
       // 500/250 ms continuam determinados pelo histórico do scroll.
-      const easedProgress = badgeProgressEase(progress);
+      const badgeEase = await loadHeroBadgeEase();
+      const easedProgress = badgeEase(progress);
       renderedBadgeProgress.set(badge, easedProgress);
       applyHeroBadgeProgress(badge, easedProgress);
-    });
+    }
   }
 
   function delayedProgressAt(targetTime: number): number | null {
@@ -556,10 +571,10 @@ const nav = navItems.map((item) => ({
     return chairProgressSamples.at(-1)?.progress ?? null;
   }
 
-  function flushDelayedBadgeProgress(): void {
+  async function flushDelayedBadgeProgress(): Promise<void> {
     delayedProgressFrame = null;
     const now = performance.now();
-    syncDelayedHeroBadgeProgress(now);
+      await syncDelayedHeroBadgeProgress(now);
 
     const latest = chairProgressSamples.at(-1);
     const maxDelay = Math.max(
@@ -578,7 +593,7 @@ const nav = navItems.map((item) => ({
       // Mantém a última amostra como âncora para que uma nova descida, depois
       // de uma pausa longa, também aguarde os 500 ms completos.
       chairProgressSamples.splice(0, chairProgressSamples.length, latest);
-      syncDelayedHeroBadgeProgress(now);
+    await syncDelayedHeroBadgeProgress(now);
     }
   }
 
