@@ -1,4 +1,4 @@
----
+﻿---
 import { Button } from 'ds-grupo-rkb';
 import FibramferFloat from '../FibramferFloat.astro';
 import HeroCurveSlider from '../HeroCurveSlider.astro';
@@ -147,19 +147,6 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
   const CARD_WIDTH_TRANSITION_MS = 500;
   const CARD_SLIDER_TRANSITION_MS = 350;
   const CARD_SLIDER_HEIGHT_RATIO = 700 / 1179;
-  const cardAnimationTimers = new WeakMap<HTMLElement, number[]>();
-
-  function clearCardAnimationTimers(details: HTMLElement): void {
-    cardAnimationTimers.get(details)?.forEach((timer) => window.clearTimeout(timer));
-    cardAnimationTimers.delete(details);
-  }
-
-  function scheduleCardAnimation(details: HTMLElement, callback: () => void, delay: number): void {
-    const timer = window.setTimeout(callback, delay);
-    const timers = cardAnimationTimers.get(details) ?? [];
-    timers.push(timer);
-    cardAnimationTimers.set(details, timers);
-  }
 
   function expandCadeiraSlider(card: HTMLElement, details: HTMLElement): void {
     const slider = card.querySelector<HTMLElement>('[data-hero-curve-slider]');
@@ -167,12 +154,12 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     const targetHeight = details.getBoundingClientRect().height;
     if (!slider || !currentHeight || !targetHeight) return;
 
-    details.style.height = `${targetHeight}px`;
+    details.style.height = targetHeight + 'px';
     slider.classList.add('cs-card-slider--expanded');
     slider.style.aspectRatio = 'auto';
-    slider.style.height = `${currentHeight}px`;
+    slider.style.height = currentHeight + 'px';
     requestAnimationFrame(() => {
-      slider.style.height = `${targetHeight}px`;
+      slider.style.height = targetHeight + 'px';
     });
   }
 
@@ -185,15 +172,25 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     const targetHeight = targetWidth * CARD_SLIDER_HEIGHT_RATIO;
     slider.classList.remove('cs-card-slider--expanded');
     slider.style.aspectRatio = 'auto';
-    slider.style.height = `${currentHeight}px`;
+    slider.style.height = currentHeight + 'px';
     details.style.removeProperty('height');
     requestAnimationFrame(() => {
-      slider.style.height = `${targetHeight}px`;
+      slider.style.height = targetHeight + 'px';
     });
     window.setTimeout(() => {
       slider.style.removeProperty('height');
       slider.style.removeProperty('aspect-ratio');
     }, CARD_SLIDER_TRANSITION_MS);
+  }
+
+  function setReveal(el: HTMLElement | null, visible: boolean, visibleModifier: string, delayMs: number): void {
+    if (!el) return;
+    el.style.transitionDelay = delayMs + 'ms';
+    if (visible) {
+      el.classList.add(visibleModifier);
+    } else {
+      el.classList.remove(visibleModifier);
+    }
   }
 
   function toggleCadeiraCard(card: HTMLElement): void {
@@ -207,107 +204,56 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     const buttonDetail = card.querySelector<HTMLElement>('.cs-card-button-detail');
     const opening = !card.classList.contains('cs-expanded');
 
-    if (details) {
-      clearCardAnimationTimers(details);
-      if (opening) {
-        titleSource?.classList.remove('cs-card-title-source--hidden');
-        titleDetail?.classList.remove('cs-card-title-detail--visible');
-        subtitleSource?.classList.remove('cs-card-subtitle-source--hidden');
-        subtitleDetail?.classList.remove('cs-card-subtitle-detail--visible');
-        detailText?.classList.remove('cs-card-details-text--visible');
-        buttonSource?.classList.remove('cs-card-button-source--hidden');
-        buttonDetail?.classList.remove('cs-card-button-detail--visible');
-        titleSource?.classList.remove('cs-card-source--collapsed');
-        subtitleSource?.classList.remove('cs-card-source--collapsed');
-        buttonSource?.classList.remove('cs-card-source--collapsed');
-        details.style.display = 'none';
-        details.setAttribute('aria-hidden', 'true');
-      } else {
-        details.style.display = 'block';
-        details.removeAttribute('aria-hidden');
-      }
+    if (opening) {
+      card.classList.add('cs-top');
+      card.classList.add('cs-expanded');
+      card.querySelectorAll<HTMLButtonElement>('button[data-card-toggle]').forEach((button) => {
+        button.innerText = 'Ocultar detalhes';
+      });
+    } else {
+      card.querySelectorAll<HTMLButtonElement>('button[data-card-toggle]').forEach((button) => {
+        button.innerText = 'Ver detalhes';
+      });
     }
 
-    if (opening) card.classList.add('cs-top');
+    if (!details) return;
 
     if (opening) {
-      window.setTimeout(() => {
-        card.classList.add('cs-expanded');
-        card.querySelectorAll<HTMLButtonElement>('button[data-card-toggle]').forEach((button) => {
-          button.innerText = 'Ocultar detalhes';
-        });
-
-        if (!details) return;
-
-        details.style.display = 'block';
-        scheduleCardAnimation(details, () => {
-          titleSource?.classList.add('cs-card-title-source--hidden');
-          titleDetail?.classList.add('cs-card-title-detail--visible');
-        }, CARD_REVEAL_DELAY_MS);
-        scheduleCardAnimation(details, () => {
-          subtitleSource?.classList.add('cs-card-subtitle-source--hidden');
-          subtitleDetail?.classList.add('cs-card-subtitle-detail--visible');
-        }, CARD_REVEAL_DELAY_MS + CARD_STAGGER_MS);
-        scheduleCardAnimation(details, () => {
-          detailText?.classList.add('cs-card-details-text--visible');
-        }, CARD_REVEAL_DELAY_MS + CARD_STAGGER_MS * 2);
-        scheduleCardAnimation(details, () => {
-          buttonSource?.classList.add('cs-card-button-source--hidden');
-          buttonDetail?.classList.add('cs-card-button-detail--visible');
-          expandCadeiraSlider(card, details);
-          card.querySelector('.cs-quick-nav')?.classList.add('cs-quick-nav--visible');
-          titleSource?.classList.add('cs-card-source--collapsed');
-          subtitleSource?.classList.add('cs-card-source--collapsed');
-          buttonSource?.classList.add('cs-card-source--collapsed');
-          details.removeAttribute('aria-hidden');
-        }, CARD_REVEAL_DELAY_MS + CARD_STAGGER_MS * 3);
-      }, 50);
+      details.style.display = 'block';
+      details.removeAttribute('aria-hidden');
+      setReveal(titleDetail, true, 'cs-card-title-detail--visible', CARD_REVEAL_DELAY_MS);
+      setReveal(subtitleDetail, true, 'cs-card-subtitle-detail--visible', CARD_REVEAL_DELAY_MS + CARD_STAGGER_MS);
+      setReveal(detailText, true, 'cs-card-details-text--visible', CARD_REVEAL_DELAY_MS + CARD_STAGGER_MS * 2);
+      setReveal(buttonDetail, true, 'cs-card-button-detail--visible', CARD_REVEAL_DELAY_MS + CARD_STAGGER_MS * 3);
+      titleSource?.classList.remove('cs-card-source--collapsed');
+      subtitleSource?.classList.remove('cs-card-source--collapsed');
+      buttonSource?.classList.remove('cs-card-source--collapsed');
+      titleSource?.classList.remove('cs-card-title-source--hidden');
+      subtitleSource?.classList.remove('cs-card-subtitle-source--hidden');
+      buttonSource?.classList.remove('cs-card-button-source--hidden');
+      card.querySelector('.cs-quick-nav')?.classList.add('cs-quick-nav--visible');
+      expandCadeiraSlider(card, details);
       return;
     }
 
-    card.querySelectorAll<HTMLButtonElement>('button[data-card-toggle]').forEach((button) => {
-      button.innerText = 'Ver detalhes';
-    });
-
-    if (details) {
-      // Keep the yellow box mounted while its contents leave, then start the
-      // card contraction only after the last element has finished moving out.
-      scheduleCardAnimation(details, () => {
-        buttonSource?.classList.remove('cs-card-button-source--hidden');
-        buttonDetail?.classList.remove('cs-card-button-detail--visible');
-        buttonSource?.classList.remove('cs-card-source--collapsed');
-      }, 0);
-      scheduleCardAnimation(details, () => {
-        detailText?.classList.remove('cs-card-details-text--visible');
-      }, CARD_STAGGER_MS);
-      scheduleCardAnimation(details, () => {
-        subtitleSource?.classList.remove('cs-card-subtitle-source--hidden');
-        subtitleDetail?.classList.remove('cs-card-subtitle-detail--visible');
-        subtitleSource?.classList.remove('cs-card-source--collapsed');
-      }, CARD_STAGGER_MS * 2);
-      scheduleCardAnimation(details, () => {
-        titleSource?.classList.remove('cs-card-title-source--hidden');
-        titleDetail?.classList.remove('cs-card-title-detail--visible');
-        titleSource?.classList.remove('cs-card-source--collapsed');
-      }, CARD_STAGGER_MS * 3);
-      scheduleCardAnimation(details, () => {
-        collapseCadeiraSlider(card, details);
-        card.classList.remove('cs-expanded');
-      }, CARD_CONTENT_EXIT_DURATION_MS);
-        scheduleCardAnimation(details, () => {
-          details.style.display = 'none';
-          details.setAttribute('aria-hidden', 'true');
-          card.classList.remove('cs-top');
-          card.querySelector('.cs-quick-nav')?.classList.remove('cs-quick-nav--visible');
-          clearCardAnimationTimers(details);
-        }, CARD_CONTENT_EXIT_DURATION_MS + CARD_WIDTH_TRANSITION_MS);
-      return;
-    }
-
+    setReveal(titleDetail, false, 'cs-card-title-detail--visible', 0);
+    setReveal(subtitleDetail, false, 'cs-card-subtitle-detail--visible', CARD_STAGGER_MS);
+    setReveal(detailText, false, 'cs-card-details-text--visible', CARD_STAGGER_MS * 2);
+    setReveal(buttonDetail, false, 'cs-card-button-detail--visible', CARD_STAGGER_MS * 3);
+    titleSource?.classList.add('cs-card-source--collapsed');
+    subtitleSource?.classList.add('cs-card-source--collapsed');
+    buttonSource?.classList.add('cs-card-source--collapsed');
+    titleSource?.classList.add('cs-card-title-source--hidden');
+    subtitleSource?.classList.add('cs-card-subtitle-source--hidden');
+    buttonSource?.classList.add('cs-card-button-source--hidden');
+    collapseCadeiraSlider(card, details);
+    card.classList.remove('cs-expanded');
+    card.classList.remove('cs-top');
     window.setTimeout(() => {
-      card.classList.remove('cs-expanded');
-      window.setTimeout(() => card.classList.remove('cs-top'), CARD_WIDTH_TRANSITION_MS);
-    }, 50);
+      details.style.display = 'none';
+      details.setAttribute('aria-hidden', 'true');
+      card.querySelector('.cs-quick-nav')?.classList.remove('cs-quick-nav--visible');
+    }, CARD_CONTENT_EXIT_DURATION_MS + CARD_WIDTH_TRANSITION_MS);
   }
 
   function cardToggleFromTarget(target: EventTarget | null): HTMLElement | null {
@@ -351,4 +297,6 @@ import HeroCurveSlider from '../HeroCurveSlider.astro';
     toggleCadeiraCard(card);
   });
 </script>
+
+
 <FibramferFloat asset="f2" mirror />
