@@ -54,9 +54,6 @@
   --color-elevation-tint: var(--color-ink);
 
   --radius-button: var(--radius-md);
-
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-body: 'Source Sans 3', system-ui, -apple-system, sans-serif;
 }
 
 @theme static {
