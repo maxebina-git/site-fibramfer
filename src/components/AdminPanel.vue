@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { Button } from 'ds-grupo-rkb'
-import { Loader2 } from '@lucide/vue'
+import { Loader2, Check, X, Trash } from '@lucide/vue'
 
 interface Post {
   id: string
@@ -31,12 +31,17 @@ const editingId = ref<string | null>(null)
 
 // modal state
 const modalOpen = ref(false)
-const deleteConfirmOpen = ref(false)
-const deletePostId = ref<string | null>(null)
-const tableConfigOpen = ref(false)
+const confirmId = ref<string | null>(null)
+const showLinkConfig = ref(false)
+const linkUrl = ref('')
+const linkNewTab = ref(false)
+const selectedText = ref('')
+const isEditingLink = ref(false)
+const showTableConfig = ref(false)
 const tableRows = ref(3)
 const tableCols = ref(3)
 const formTitle = ref('')
+const loadingSave = ref(false)
 const formDate = ref('')
 const formCategory = ref('')
 const formContent = ref('')
@@ -191,7 +196,7 @@ onUnmounted(() => {
 
 function handleEsc(e: KeyboardEvent) {
   if (e.key === 'Escape') {
-    if (deleteConfirmOpen.value) {
+    if (confirmId.value) {
       cancelDelete()
       return
     }
@@ -248,13 +253,115 @@ function exec(cmd: string, value?: string) {
 
 const TABLE_HTML = '<table class="w-full text-left border-collapse"><tr><th class="p-2 bg-surface-alt">Título</th><th class="p-2 bg-surface-alt">Data</th></tr><tr><td class="p-2"></td><td class="p-2"></td></tr></table>'
 
-function openTableConfig() {
-  tableConfigOpen.value = true
-  tableRows.value = 3
-  tableCols.value = 3
+let savedSelection: Range | null = null
+
+function openLinkConfig() {
+  showLinkConfig.value = !showLinkConfig.value
+  if (showLinkConfig.value) {
+    linkUrl.value = ''
+    linkNewTab.value = false
+    isEditingLink.value = false
+    showTableConfig.value = false
+    // Save current selection in editor and detect existing link
+    if (editorRef.value) {
+      const sel = window.getSelection()
+      if (sel && sel.rangeCount > 0 && editorRef.value.contains(sel.anchorNode)) {
+        savedSelection = sel.getRangeAt(0).cloneRange()
+        selectedText.value = sel.toString().trim()
+        // Detect if selection has a link
+        const anchorNode = sel.anchorNode
+        const linkNode = anchorNode && anchorNode.nodeType === 3 ? anchorNode.parentElement : anchorNode
+        const linkElement = linkNode?.closest ? linkNode.closest('a') : (linkNode as HTMLElement)?.closest('a')
+        if (linkElement) {
+          linkUrl.value = linkElement.href || ''
+          linkNewTab.value = linkElement.target === '_blank'
+          selectedText.value = linkElement.textContent?.trim() || ''
+          isEditingLink.value = true
+        } else {
+          selectedText.value = sel.toString().trim()
+        }
+      }
+    }
+  }
 }
 
-function insertConfiguredTable() {
+function insertLink() {
+  // If linkUrl is empty but we have selected text and saved selection, it's a link removal
+  const isRemoving = !linkUrl.value.trim() && selectedText.value.trim() && savedSelection
+  if (!isRemoving && (!linkUrl.value.trim() || !selectedText.value.trim())) return
+
+  // Focus editor and restore saved selection before inserting/removing
+  if (editorRef.value) {
+    editorRef.value.focus()
+    if (savedSelection) {
+      const sel = window.getSelection()
+      if (sel) {
+        sel.removeAllRanges()
+        sel.addRange(savedSelection)
+      }
+    }
+  }
+
+  if (isRemoving) {
+    // Remove the link
+    exec('unlink')
+  } else {
+    // Insert or update link
+    const textToLink = selectedText.value.trim() || linkUrl.value.trim()
+    const html = linkNewTab.value
+      ? `<a href="${linkUrl.value.trim()}" target="_blank" rel="noopener noreferrer">${selectedText.value.trim()}</a>`
+      : `<a href="${linkUrl.value.trim()}">${selectedText.value.trim()}</a>`
+    exec('insertHTML', html)
+  }
+
+  linkUrl.value = ''
+  linkNewTab.value = false
+  selectedText.value = ''
+  showLinkConfig.value = false
+  savedSelection = null
+}
+
+function cancelLink() {
+  linkUrl.value = ''
+  linkNewTab.value = false
+  isEditingLink.value = false
+  selectedText.value = ''
+  showLinkConfig.value = false
+  savedSelection = null
+}
+
+function removeLink() {
+  if (!selectedText.value.trim() || !savedSelection) return
+  // Focus editor and restore saved selection before removing
+  if (editorRef.value) {
+    editorRef.value.focus()
+    if (savedSelection) {
+      const sel = window.getSelection()
+      if (sel) {
+        sel.removeAllRanges()
+        sel.addRange(savedSelection)
+      }
+    }
+  }
+  exec('unlink')
+  linkUrl.value = ''
+  linkNewTab.value = false
+  isEditingLink.value = false
+  selectedText.value = ''
+  showLinkConfig.value = false
+  savedSelection = null
+}
+
+function openTableConfig() {
+  showTableConfig.value = !showTableConfig.value
+  if (showTableConfig.value) {
+    tableRows.value = 3
+    tableCols.value = 3
+    showLinkConfig.value = false
+  }
+}
+
+function insertTable() {
   const rows = Math.max(1, Number(tableRows.value) || 3)
   const cols = Math.max(1, Number(tableCols.value) || 3)
   let html = '<table class="w-full text-left border-collapse">'
@@ -264,7 +371,15 @@ function insertConfiguredTable() {
   }
   html += '</table>'
   exec('insertHTML', html)
-  tableConfigOpen.value = false
+  tableRows.value = 3
+  tableCols.value = 3
+  showTableConfig.value = false
+}
+
+function cancelTable() {
+  tableRows.value = 3
+  tableCols.value = 3
+  showTableConfig.value = false
 }
 
 function formatDate(iso: string): string {
@@ -284,24 +399,21 @@ function slugify(s: string): string {
 }
 
 function deletePost(id: string) {
-  deletePostId.value = id
-  deleteConfirmOpen.value = true
+  confirmId.value = id
 }
 
 function confirmDelete() {
-  const id = deletePostId.value
+  const id = confirmId.value
   if (!id) return
   posts.value = posts.value.filter((p) => p.id !== id)
   savePosts()
   ;(window as any).__fibramferBlogDirty = true
   ;(window as any).__fibramferBlogSyncPromise = deleteMd(id)
-  deleteConfirmOpen.value = false
-  deletePostId.value = null
+  confirmId.value = null
 }
 
 function cancelDelete() {
-  deleteConfirmOpen.value = false
-  deletePostId.value = null
+  confirmId.value = null
 }
 
 function openModal(post?: Post) {
@@ -348,7 +460,7 @@ function onImageChange(e: Event) {
   reader.readAsDataURL(file)
 }
 
-function savePost() {
+async function savePost() {
   if (!formTitle.value.trim()) return
 
   const imageValue = formImagePreview.value
@@ -386,7 +498,10 @@ function savePost() {
     ;(window as any).__fibramferBlogDirty = true
     ;(window as any).__fibramferBlogSyncPromise = syncMd(synced)
   }
+  loadingSave.value = true
+  await new Promise((r) => setTimeout(r, 1000))
   closeModal()
+  loadingSave.value = false
 }
 </script>
 
@@ -398,7 +513,7 @@ function savePost() {
   <div v-else-if="!authed" class="mx-auto max-w-md">
     <div class="mb-6 text-center">
       <p class="mb-2 font-body text-sm font-semibold uppercase tracking-[0.16em] text-accent-500">Área restrita</p>
-      <h1 class="font-display text-4xl font-black uppercase leading-tight text-primary-500 md:text-6xl">Admin</h1>
+      <h1 class="font-display text-4xl font-bold text-center text-ink mb-2">Admin</h1>
     </div>
     <div class="rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
       <h2 class="mb-6 font-display text-2xl font-bold text-ink">Login</h2>
@@ -440,7 +555,7 @@ function savePost() {
   <!-- ADMIN VIEW -->
   <div v-else class="mx-auto max-w-7xl px-4 md:px-8">
     <div class="mb-6 flex items-center justify-between gap-4">
-      <h1 class="font-display text-3xl font-black uppercase leading-tight text-primary-500 md:text-4xl">Administrar Blog</h1>
+      <h1 class="font-display text-4xl font-bold text-center text-ink mb-2">Administrar Blog</h1>
       <div class="flex items-center gap-3">
         <Button variant="primary" size="sm" @click="openModal()">+ Novo post</Button>
       </div>
@@ -464,7 +579,15 @@ function savePost() {
             <td class="px-6 py-3 font-body text-base text-right">
               <div class="flex items-center justify-end gap-2">
                 <button type="button" class="rounded-md bg-surface-alt px-2 py-1 text-sm font-medium text-primary-500 hover:bg-surface cursor-pointer" @click="openModal(post)">Editar</button>
-                <button type="button" class="rounded-md bg-surface-alt px-2 py-1 text-sm font-medium text-error-500 hover:bg-surface cursor-pointer" @click="deletePost(post.id)">Excluir</button>
+                <div v-if="confirmId === post.id" class="flex items-center justify-end gap-2">
+                  <button type="button" class="rounded-md bg-error-500 px-2 py-1 hover:bg-error-600 cursor-pointer" @click="confirmDelete" aria-label="Confirmar exclusão">
+                    <Check class="w-4 h-4 text-white" />
+                  </button>
+                  <button type="button" class="rounded-md bg-surface-alt px-2 py-1 hover:bg-surface cursor-pointer" @click="cancelDelete" aria-label="Cancelar exclusão">
+                    <X class="w-4 h-4 text-text-secondary" />
+                  </button>
+                </div>
+                <button v-else type="button" class="rounded-md bg-surface-alt px-2 py-1 text-sm font-medium text-error-500 hover:bg-surface cursor-pointer" @click="deletePost(post.id)">Excluir</button>
               </div>
             </td>
           </tr>
@@ -485,7 +608,7 @@ function savePost() {
 
   <!-- MODAL -->
   <Teleport to="body">
-    <Transition name="modal">
+    <Transition name="modal" mode="out-in">
       <div
         v-if="modalOpen"
         class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
@@ -567,83 +690,96 @@ function savePost() {
               <button type="button" title="Sublinhado" aria-label="Aplicar sublinhado" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm underline text-ink hover:bg-surface cursor-pointer" @click="exec('underline')">U</button>
               <button type="button" title="Lista com marcadores" aria-label="Inserir lista com marcadores" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('insertUnorderedList')">• Lista</button>
               <button type="button" title="Citação" aria-label="Aplicar citação" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('formatBlock', '<blockquote>')">❝ Citação</button>
-              <button type="button" title="Inserir tabela" aria-label="Inserir tabela" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="openTableConfig()">▦ Tabela</button>
-              <button type="button" title="Inserir link" aria-label="Inserir link" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="exec('createLink', (prompt('URL do link') || ''))">🔗 Link</button>
+              <button type="button" title="Inserir tabela" aria-label="Inserir tabela" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="openTableConfig">▦ Tabela</button>
+              <button type="button" title="Inserir link" aria-label="Inserir link" class="inline-flex h-8 min-w-[2rem] items-center justify-center rounded px-2 text-sm text-ink hover:bg-surface cursor-pointer" @click="openLinkConfig">🔗 Link</button>
+            </div>
+            
+            <!-- Link Config Panel -->
+            <div v-if="showLinkConfig" class="border-b border-border bg-surface-alt p-2 flex flex-col gap-2">
+              <input
+                v-model="linkUrl"
+                type="url"
+                placeholder="https://exemplo.com"
+                class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink placeholder:text-text-secondary focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                @keydown.enter.prevent="insertLink"
+              />
+              <div class="flex flex-wrap items-center gap-2">
+                <label class="flex items-center gap-2 text-sm text-ink cursor-pointer">
+                  <input type="checkbox" v-model="linkNewTab" class="rounded border-border text-primary-500 focus:ring-primary-500" />
+                  Nova janela
+                </label>
+                <span class="text-text-secondary">|</span>
+                <button type="button" class="rounded-md border border-border bg-surface-alt px-3 py-1.5 hover:bg-surface cursor-pointer flex items-center gap-2" @click="cancelLink">
+                  <X class="w-4 h-4 text-text-secondary" />
+                  Cancelar
+                </button>
+                <span v-if="isEditingLink" class="text-text-secondary">|</span>
+                <button v-if="isEditingLink" type="button" class="rounded-md border border-border bg-surface px-3 py-1.5 hover:bg-surface-alt cursor-pointer flex items-center gap-2 text-text-secondary" @click="removeLink" aria-label="Remover link">
+                  <Trash class="w-4 h-4" />
+                  Remover link
+                </button>
+                <span class="text-text-secondary">|</span>
+                <button type="button" class="rounded-md bg-success-500 px-3 py-1.5 hover:bg-success-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-white" @click="insertLink" :disabled="!linkUrl.trim() || !selectedText.trim()">
+                  <Check class="w-4 h-4" />
+                  Ok
+                </button>
+              </div>
+            </div>
+
+            <!-- Table Config Panel -->
+            <div v-if="showTableConfig" class="border-b border-border bg-surface-alt p-2 flex flex-wrap items-center gap-2">
+              <div class="flex items-center gap-1">
+                <label class="text-sm text-ink">Linhas</label>
+                <input
+                  v-model.number="tableRows"
+                  type="number"
+                  min="1"
+                  max="20"
+                  class="w-16 rounded-lg border border-border bg-surface px-2 py-1.5 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                />
+              </div>
+              <div class="flex items-center gap-1">
+                <label class="text-sm text-ink">Colunas</label>
+                <input
+                  v-model.number="tableCols"
+                  type="number"
+                  min="1"
+                  max="10"
+                  class="w-16 rounded-lg border border-border bg-surface px-2 py-1.5 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600"
+                />
+              </div>
+              <button type="button" class="rounded-md bg-success-500 px-3 py-1.5 hover:bg-success-600 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 text-white" @click="insertTable">
+                  <Check class="w-4 h-4" />
+                  Ok
+                </button>
+              <button type="button" class="rounded-md border border-border bg-surface-alt px-3 py-1.5 hover:bg-surface cursor-pointer flex items-center gap-2" @click="cancelTable">
+                <X class="w-4 h-4 text-text-secondary" />
+                Cancelar
+              </button>
             </div>
             <div
               ref="editorRef"
               id="post-content"
               contenteditable="true"
               @input="formContent = ($event.target as HTMLElement).innerHTML || ''"
-              class="w-full min-h-[12rem] resize-y rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 overflow-auto"
+              class="w-full h-[12rem] rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 overflow-auto"
             ></div>
           </div>
           </div>
 
           <div class="flex items-center justify-end gap-3">
             <Button variant="ghost" size="md" type="button" @click="closeModal">Cancelar</Button>
-            <Button variant="primary" size="md" type="submit">Salvar</Button>
+            <Button variant="primary" size="md" type="submit" :disabled="loadingSave">
+          <span class="flex items-center justify-center gap-2">
+            <Loader2 v-if="loadingSave" class="w-4 h-4 animate-spin" />
+            <span>{{ loadingSave ? 'Salvando...' : 'Salvar' }}</span>
+          </span>
+        </Button>
           </div>
         </form>
       </div>
     </div>
   </Transition>
-  </Teleport>
-
-  <!-- CONFIRM DELETE MODAL -->
-  <Teleport to="body">
-    <Transition name="modal">
-      <div
-        v-if="deleteConfirmOpen"
-        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
-        @click.self="cancelDelete"
-      >
-        <div class="w-full max-w-md rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
-          <div class="mb-4 flex items-center justify-between">
-            <h2 class="font-display text-xl font-bold text-ink">Confirmar exclusão</h2>
-            <button type="button" aria-label="Fechar" class="grid h-9 w-9 place-items-center rounded-md text-text-secondary hover:bg-surface-alt hover:text-ink" @click="cancelDelete">✕</button>
-          </div>
-          <p class="text-text-secondary mb-6">Deseja realmente excluir este post? Esta ação não pode ser desfeita.</p>
-          <div class="flex items-center justify-end gap-3">
-            <Button variant="ghost" size="md" type="button" @click="cancelDelete">Cancelar</Button>
-            <Button variant="primary" size="md" type="button" @click="confirmDelete">Excluir</Button>
-          </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
-
-  <!-- TABLE CONFIG MODAL -->
-  <Teleport to="body">
-    <Transition name="modal">
-      <div
-        v-if="tableConfigOpen"
-        class="fixed inset-0 z-[1000] flex items-center justify-center bg-black/50 p-4"
-        @click.self="tableConfigOpen = false"
-        @keydown.escape.prevent.stop="tableConfigOpen = false"
-      >
-        <div class="w-full max-w-sm rounded-lg border border-border bg-surface p-6 shadow-card md:p-8">
-          <div class="mb-4 flex items-center justify-between">
-            <h2 class="font-display text-xl font-bold text-ink">Inserir Tabela</h2>
-            <button type="button" aria-label="Fechar" class="grid h-9 w-9 place-items-center rounded-md text-text-secondary hover:bg-surface-alt hover:text-ink" @click="tableConfigOpen = false">✕</button>
-          </div>
-          <div class="grid grid-cols-2 gap-4 mb-4">
-            <div class="flex flex-col gap-1.5">
-              <label for="table-rows" class="text-sm font-medium text-ink">Linhas (inclui cabeçalho)</label>
-              <input id="table-rows" v-model.number="tableRows" type="number" min="1" class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink" />
-            </div>
-            <div class="flex flex-col gap-1.5">
-              <label for="table-cols" class="text-sm font-medium text-ink">Colunas</label>
-              <input id="table-cols" v-model.number="tableCols" type="number" min="1" class="w-full rounded-lg border border-border bg-surface px-3 py-2 text-base text-ink" />
-            </div>
-          </div>
-          <div class="flex items-center justify-end gap-3">
-            <Button variant="ghost" size="md" type="button" @click="tableConfigOpen = false">Cancelar</Button>
-            <Button variant="primary" size="md" type="button" @click="insertConfiguredTable">Inserir</Button>
-          </div>
-        </div>
-      </div>
-    </Transition>
   </Teleport>
 </template>
 
@@ -664,5 +800,33 @@ function savePost() {
 .modal-leave-to .w-full.max-w-2xl {
   transform: scale(0.96);
   opacity: 0;
+}
+</style>
+
+<style is:global>
+#post-content a {
+  color: var(--color-primary-500);
+  text-decoration: underline;
+  cursor: pointer;
+}
+#post-content ul {
+  list-style: disc;
+  padding-left: 1.2rem;
+  margin: 0.25rem 0;
+}
+#post-content blockquote {
+  border-left: 3px solid #9ca3af;
+  padding-left: 0.75rem;
+  color: #4b5563;
+  font-style: italic;
+  display: block;
+  margin: 0.25rem 0;
+}
+#post-content strong,
+#post-content b {
+  font-weight: 700;
+}
+#post-content u {
+  text-decoration: underline;
 }
 </style>
