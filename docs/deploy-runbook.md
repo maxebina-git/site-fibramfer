@@ -15,6 +15,8 @@
 
 - [x] Confirmar caminho real `ftp-dir` no host (`/www/site-novo` via FTP: fibramfer.com.br → www → site-novo)
 - [x] Ajustar `.github/workflows/deploy.yml`: `ftp-dir` para `/www/site-novo`
+- [x] Configurar `astro.config.mjs`: `base: '/site-novo/'` (subpasta)
+- [ ] Validar dev/prod (`/site-novo/`) — imagens/lordicon ainda em cheque
 - [x] Adicionar 5 Secrets no GitHub (`Settings → Secrets → Actions`):
   - `FTP_SERVER`: `ftp.fibramfer.com.br`
   - `FTP_USERNAME`: `fibrerbr`
