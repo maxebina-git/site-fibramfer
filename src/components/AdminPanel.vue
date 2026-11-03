@@ -177,9 +177,6 @@ async function syncMd(post: Post): Promise<Post> {
 
   const changed = import.meta.env.PROD ? true : d?.unchanged === false
   if (changed) await waitForBlog(post.id, 'present', post.title)
-  if (import.meta.env.PROD) {
-    try { sessionStorage.removeItem('fibramfer:blog-posts-cache') } catch { /* ignora */ }
-  }
   markBlogDirty(changed)
   return { ...post, id: d.id || post.id, image: d.image || post.image }
 }
@@ -196,9 +193,6 @@ async function deleteMd(id: string): Promise<void> {
   if (!res.ok || d?.ok !== true) throw new Error(d?.error || 'Falha ao excluir post')
   const changed = import.meta.env.PROD ? true : Boolean(d?.deleted)
   if (changed) await waitForBlog(id, 'absent')
-  if (import.meta.env.PROD) {
-    try { sessionStorage.removeItem('fibramfer:blog-posts-cache') } catch { /* ignora */ }
-  }
   markBlogDirty(changed)
 }
 

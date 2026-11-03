@@ -16,48 +16,20 @@ const props = withDefaults(defineProps<{
   devPosts: () => [],
 })
 
-const CACHE_KEY = 'fibramfer:blog-posts-cache'
-const CACHE_TTL_MS = 5 * 60 * 1000
-
 // null = carregando; array vazio = nada publicado; error = falha na API
 const posts = ref<GridPost[] | null>(null)
 const error = ref(false)
-
-function readCache(): GridPost[] | null {
-  try {
-    const raw = sessionStorage.getItem(CACHE_KEY)
-    if (!raw) return null
-    const cached = JSON.parse(raw)
-    if (cached && typeof cached.at === 'number' && Date.now() - cached.at < CACHE_TTL_MS && Array.isArray(cached.posts)) {
-      return cached.posts as GridPost[]
-    }
-  } catch { /* ignora */ }
-  return null
-}
-
-function writeCache(list: GridPost[]) {
-  try {
-    sessionStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), posts: list }))
-  } catch { /* ignora */ }
-}
 
 async function load() {
   if (import.meta.env.DEV) {
     posts.value = props.devPosts
     return
   }
-  const cached = readCache()
-  if (cached) {
-    posts.value = cached
-    return
-  }
   try {
     const res = await fetch(sitePath('/api/admin.php?action=list'), { cache: 'no-store' })
     if (!res.ok) throw new Error('blog api')
     const data = await res.json()
-    const list: GridPost[] = Array.isArray(data?.posts) ? data.posts : []
-    writeCache(list)
-    posts.value = list
+    posts.value = Array.isArray(data?.posts) ? data.posts : []
   } catch {
     posts.value = []
     error.value = true
@@ -69,7 +41,7 @@ onMounted(() => {
 })
 
 function postHref(id: string): string {
-  return sitePath(`/blog/${id}/`)
+  return sitePath('/blog/?post=' + encodeURIComponent(id))
 }
 
 function formatDate(value?: string): string {

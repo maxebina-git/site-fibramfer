@@ -13,7 +13,7 @@ abrem o drawer correspondente no SSR e após F5:
 - `/privacidade/`
 - `/termos/`
 - `/admin/`
-- `/blog/<slug>/`
+- `/blog/<slug>/` (só em dev — em prod `post.php`)
 - `/blog/?post=<id>`
 
 ## Comportamento esperado
@@ -26,10 +26,9 @@ abrem o drawer correspondente no SSR e após F5:
 - Navegação client-side entre drawers mantém o mesmo painel montado e troca
   apenas o slot de conteúdo; a cortina é repetida apenas quando o conteúdo muda.
 - O logo/Home fecha o drawer e retorna para `/` sem deixar a home quebrada.
-- Clicar em um card do blog (link `/blog/<slug>/`) é navegação client-side:
+- Clicar em um card do blog (`/blog/?post=<id>`) é navegação client-side:
   o drawer não desmonta e a cortina fecha sobre a lista e reabre no post,
   como nas outras trocas de rota. Clicar no mesmo post não faz nada.
-  O SSR de `/blog/<slug>/` já garante conteúdo e metadados no HTML (SEO).
 - Back/Forward, resize e troca entre painéis preservam o mesmo contrato.
 - Enquanto o drawer está aberto, somente o backdrop da home (`[data-home-backdrop]`)
   recebe `inert` e `aria-hidden`; nunca o `<main>` que contém o drawer.
@@ -44,30 +43,23 @@ abrem o drawer correspondente no SSR e após F5:
 - `Header.astro`: usa o mesmo helper no SSR e no cliente, incluindo `/admin/` e
   `/blog/<slug>/`.
 - `FibramferDrawers.astro`: calcula `initialPath` e `initialPostId`, inclusive
-  para `/blog/?post=<id>`, e passa ambos ao `NavigationDrawer`.
-- `src/lib/blogBuild.ts`: fonte única de posts para o build. Em dev usa a
-  coleção `blog` local; em prod busca `BLOG_API_URL` (default
-  `http://fibramfer.com.br/site-novo/api/admin.php?action=list` — HTTP porque o
-  SSL do host falha em Node/PowerShell) e cai para a coleção local com aviso se
-  a API estiver indisponível.
-- `pages/blog/[slug].astro`: SSG em dev e prod — cada post vira
-  `/blog/<slug>/` com título/description/`og:`/canonical próprios
-  (`type="article"`). Posts em prod vêm via `getStaticPaths` na build, então
-  publicar exigir build+deploy.
-- `public/.htaccess` + `public/post.php`: fallback para `/blog/<slug>/` dos posts
-  criados após a build — arquivos/diretórios reais passam direto; caminhos
-  `/blog/<slug>/` inexistentes são renderizados na hora pelo PHP (title,
-  description, `og:` e conteúdo próprios). Publicado junto com a dist via FTP.
-- `BlogList.astro`: grade dinâmica via island `BlogListGrid.vue` (`client:load`);
-  busca `admin.php?action=list` no `onMounted` (cache de 5 min em
-  `sessionStorage`, key `fibramfer:blog-posts-cache`). Em dev usa a coleção
-  `.md` local. Necessário para posts criados após a build aparecerem na grade.
-  Cards linkam `/blog/<slug>/` — o fallback PHP garante o acesso antes da build+deploy.
-- `BlogPostStatic.astro`: espelho estático do `BlogPostDrawer` para o HTML do
-  post em prod. Dev continua com `Content` da coleção.
+  para `/blog/?post=<id>`, e passa ambos ao `NavigationDrawer`. Em prod passa
+  `posts=[]` ao `BlogList` (a grade é buscada no cliente); em dev passa a
+  coleção `.md` local.
+- `BlogList.astro`: grade dinámica via island `BlogListGrid.vue` (`client:load`).
+- `BlogListGrid.vue`: em dev renderiza os posts `.md` recebidos por props
+  (`import.meta.env.DEV`); em prod busca `admin.php?action=list` no `onMounted`,
+  sempre fresco (sem sessionStorage). Cards linkam `/blog/?post=<id>`,
+  interceptados no cliente.
 - `NavigationDrawer.vue`: inicializa o post direto, usa um `revealKey` sentinela
   para não repetir a cortina no primeiro paint e aplica `inert` no backdrop.
+- `public/.htaccess` + `public/post.php`: rota universal para `/blog/<slug>/` em
+  prod — o PHP renderiza qualquer slug a partir do banco (busca direta em
+  `admin.php`/DB, com title, description, `og:` completos). Publicado junto
+  com a dist via FTP. Paths inexistentes → 404 amigável.
 - `HomeScene.astro`: marca o backdrop com `data-home-backdrop`.
+- Dev: `src/content/blog/*.md` renderizam rotas Astro normalmente
+  (`blog/[slug].astro` SSG via getStaticPaths, só em dev).
 
 ## Admin
 
@@ -79,21 +71,21 @@ abrem o drawer correspondente no SSR e após F5:
   servidor responde 413 para corpos de requisição acima do limite. Compressão
   local evita o erro independentemente do tamanho original da foto.
 - Imagem anexada no admin: `admin.php?action=save` converte a data URL base64 em
-  arquivo em `uploads/` (hash SHA-1 do conteúdo, igual ao fluxo de dev) e grava
-  apenas o caminho `/uploads/<hash>.<ext>` na coluna `image`. Em falha de
-  escrita, mantém a string original. Data URLs antigas na tabela não são
-  migradas — re-anexe a imagem para persistir como arquivo.
+  arquivo em `uploads/` (hash SHA-1 do conteúdo) e grava apenas o caminho
+  `/uploads/<hash>.<ext>` na coluna `image`. Em falha de escrita, mantem a
+  string original. Data URLs antigas na tabela não são migradas.
 - Posts criados/editados precisam entrar em `routes` e no DOM (`data-blog-post-id`)
   para que a cortina encontre o conteúdo.
 
 ## Checklist de validação
 
 1. `npx astro check` sem erros.
-2. `npm run build` — 9 páginas fixas + 1 página SSG por post (em dev, a partir dos `.md`; em prod, a partir da API).
+2. `npm run build` — 9 páginas fixas (+ 3 SSG dos `.md` em dev).
 3. Em dev, abrir cada rota, atualizar com F5 e confirmar hero + drawer.
-4. Abrir o Blog pelo menu (client-side) e confirmar que a grade de posts aparece sem F5 (grade dinâmica via `admin.php?action=list`).
-5. Abrir `/blog/<slug>/` e conferir no view-source o `<title>`, `<meta name="description">`, `og:image`/`og:` e o conteúdo do post no HTML (SSG).
-6. Abrir `/blog/?post=<id>` direto e confirmar que a lista não pisca antes do post.
-7. Card de post novo (após a build) — a grade exibe, mas `/blog/<slug>/` só existe após build+deploy.
-6. Trocar entre post e lista, fechar pelo logo e voltar para `/`.
-7. Repetir com movimento reduzido, resize e back/forward.
+4. Abrir o Blog pelo menu e confirmar a grade de posts sem F5.
+5. Abrir `/blog/?post=<id>` e clicar num card — cortina fecha/reabre, conteúdo
+   do post aparece dentro da drawer.
+6. Abrir `/blog/<slug>/` direto — em dev o SSR do Astro exibe o post; em prod
+   o `post.php` serve o post com meta próprio.
+7. Trocar entre artigo e grid, fechar pelo logo e voltar para `/`.
+8. Repetir com movimento reduzido, resize e back/forward.

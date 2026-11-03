@@ -1,5 +1,5 @@
 ---
-import { render } from 'astro:content';
+import { getCollection, render } from 'astro:content';
 import FibramferHistoria from './sections/FibramferHistoria.astro';
 import Admin from './sections/Admin.astro';
 import Security from './sections/Security.astro';
@@ -9,13 +9,26 @@ import Privacidade from './sections/Privacidade.astro';
 import Termos from './sections/Termos.astro';
 import BlogList from './BlogList.astro';
 import BlogPostDrawer from './BlogPostDrawer.astro';
-import BlogPostStatic from './BlogPostStatic.astro';
 import DynamicBlogPost from './DynamicBlogPost.vue';
 import NavigationDrawer from './NavigationDrawer.vue';
 import { stripSiteBase } from '../lib/sitePath';
-import { getBlogPostsForBuild } from '../lib/blogBuild';
 
-const blogPosts = await getBlogPostsForBuild();
+const isProd = import.meta.env.PROD;
+
+// Dev: posts .md locais. Prod: a ilha busca /api/admin.php?action=list no browser.
+const blogPosts = isProd
+  ? []
+  : (await getCollection('blog'))
+      .map((post) => ({
+        id: post.id,
+        title: post.data.title,
+        date: post.data.date instanceof Date ? post.data.date.toISOString() : new Date(post.data.date).toISOString(),
+        category: post.data.category,
+        image: post.data.image,
+        description: post.data.description,
+        devPost: post,
+      }))
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
 const blogPostRoutes = blogPosts.map((post) => ({
   id: post.id,
@@ -60,9 +73,11 @@ const initialBlogPostId = queryBlogPostId
   <div slot="blog-posts">
     {renderedBlogPosts.map(({ post, Content }) => (
       <div data-blog-post-id={post.id} hidden={post.id !== initialBlogPostId}>
-        {Content ? <BlogPostDrawer post={{ id: post.id, data: { title: post.title, date: new Date(post.date), category: post.category, image: post.image, description: post.description } }} Content={Content} /> : <BlogPostStatic post={post} />}
+        {Content
+          ? <BlogPostDrawer post={{ id: post.id, data: { title: post.title, date: new Date(post.date), category: post.category, image: post.image, description: post.description } }} Content={Content} />
+          : null}
       </div>
     ))}
-    {import.meta.env.PROD && <DynamicBlogPost client:load />}
+    {isProd && <DynamicBlogPost client:load />}
   </div>
 </NavigationDrawer>
