@@ -53,7 +53,12 @@ abrem o drawer correspondente no SSR e após F5:
   `/blog/<slug>/` com título/description/`og:`/canonical próprios
   (`type="article"`). Posts em prod vêm via `getStaticPaths` na build, então
   publicar exigir build+deploy.
-- `BlogList.astro`: grade estática de cards no SSR (link `/blog/<slug>/`).
+- `BlogList.astro`: grade dinâmica via island `BlogListGrid.vue` (`client:load`);
+  busca `admin.php?action=list` no `onMounted` (cache de 5 min em
+  `sessionStorage`, key `fibramfer:blog-posts-cache`). Em dev usa a coleção
+  `.md` local. Necessário para posts criados após a build aparecerem na grade.
+  Cards sempre linkam `/blog/<slug>/` — para posts criados após a build, a
+  página só existe após o próximo build+deploy.
 - `BlogPostStatic.astro`: espelho estático do `BlogPostDrawer` para o HTML do
   post em prod. Dev continua com `Content` da coleção.
 - `NavigationDrawer.vue`: inicializa o post direto, usa um `revealKey` sentinela
@@ -78,8 +83,9 @@ abrem o drawer correspondente no SSR e após F5:
 1. `npx astro check` sem erros.
 2. `npm run build` — 9 páginas fixas + 1 página SSG por post (em dev, a partir dos `.md`; em prod, a partir da API).
 3. Em dev, abrir cada rota, atualizar com F5 e confirmar hero + drawer.
-4. Abrir o Blog pelo menu (client-side) e confirmar que a grade de cards aparece sem F5.
+4. Abrir o Blog pelo menu (client-side) e confirmar que a grade de posts aparece sem F5 (grade dinâmica via `admin.php?action=list`).
 5. Abrir `/blog/<slug>/` e conferir no view-source o `<title>`, `<meta name="description">`, `og:image`/`og:` e o conteúdo do post no HTML (SSG).
 6. Abrir `/blog/?post=<id>` direto e confirmar que a lista não pisca antes do post.
+7. Card de post novo (após a build) — a grade exibe, mas `/blog/<slug>/` só existe após build+deploy.
 6. Trocar entre post e lista, fechar pelo logo e voltar para `/`.
 7. Repetir com movimento reduzido, resize e back/forward.

@@ -1,6 +1,6 @@
 ---
 import FibramferFloat from './FibramferFloat.astro';
-import { sitePath } from '../lib/sitePath';
+import BlogListGrid from './BlogListGrid.vue';
 
 interface BlogPost {
   id: string;
@@ -17,10 +17,13 @@ interface Props {
 
 const { posts, class: className = '' } = Astro.props;
 
-function formatDate(value: string): string {
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? '—' : d.toLocaleDateString('pt-BR');
-}
+const gridPosts = posts.map((post) => ({
+  id: post.id,
+  title: post.title,
+  date: post.date,
+  image: post.image,
+  description: post.description,
+}));
 ---
 
 <section class={`pb-16 ${className}`}>
@@ -32,20 +35,7 @@ function formatDate(value: string): string {
       id="blog-grid-root"
       class="grid grid-cols-1 md:grid-cols-3 gap-8"
     >
-      {posts.map((post) => (
-        <article class="bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col">
-          {post.image && <img src={sitePath(post.image)} alt={post.title} class="h-48 w-full object-cover bg-surface-alt" />}
-          {!post.image && <div class="h-48 bg-surface-alt"></div>}
-          <div class="p-6 flex flex-col flex-1">
-            <h2 class="font-display text-xl font-bold text-ink mb-2">
-              <a href={sitePath(`/blog/${post.id}/`)} class="hover:underline decoration-accent-500 decoration-2 underline-offset-4">{post.title}</a>
-            </h2>
-            {post.description && <p class="text-text-secondary text-sm mb-4">{post.description}</p>}
-            <time class="text-text-secondary text-sm mt-auto" datetime={post.date}>{formatDate(post.date)}</time>
-          </div>
-        </article>
-      ))}
-      {posts.length === 0 && <p class="text-text-secondary msg-empty-blog">Nenhum post publicado ainda.</p>}
+      <BlogListGrid client:load devPosts={gridPosts} />
     </div>
   </div>
   <FibramferFloat asset="f2" />
