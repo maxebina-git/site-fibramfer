@@ -1,5 +1,6 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import HomeScene from '../../components/HomeScene.astro';
 import FibramferDrawers from '../../components/FibramferDrawers.astro';
 import { getCollection } from 'astro:content';
 
@@ -13,5 +14,6 @@ const { postTitle } = Astro.props;
 ---
 
 <BaseLayout title={`${postTitle} | Fibramfer`}>
+  <HomeScene home />
   <FibramferDrawers />
 </BaseLayout>

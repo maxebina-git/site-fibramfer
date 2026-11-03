@@ -17,6 +17,7 @@ type DrawerSlot = MainDrawerSlot | 'blog-posts'
 
 interface Props {
   initialPath?: string
+  initialPostId?: string
   blogPosts?: Array<{
     id: string
     title: string
@@ -33,6 +34,7 @@ interface RouteDefinition {
 
 const props = withDefaults(defineProps<Props>(), {
   initialPath: '/',
+  initialPostId: undefined,
   blogPosts: () => [],
 })
 
@@ -57,8 +59,9 @@ const legalLinks = [
   { path: '/termos', label: 'Termos' },
 ]
 
-const dynamicPostId = ref<string | undefined>(undefined)
-
+const initialPath = normalizePath(props.initialPath)
+const initialPostId = initialPath === '/blog' ? props.initialPostId : undefined
+const dynamicPostId = ref<string | undefined>(initialPostId)
 
 const routes = computed<RouteDefinition[]>(() => [
   ...mainRoutes,
@@ -80,7 +83,7 @@ const routes = computed<RouteDefinition[]>(() => [
     : []),
 ])
 
-const currentPath = ref(normalizePath(props.initialPath))
+const currentPath = ref(initialPostId ? `/blog/${initialPostId}/` : initialPath)
 
   watch(currentPath, (newPath) => {
     const titles: Record<string, string> = {
@@ -113,7 +116,17 @@ const activeSlot = computed(() => activeRoute.value?.slot)
 const activeRevealKey = computed(() => activeRoute.value?.revealKey ?? '')
 const activePostId = computed(() => activeRoute.value?.postId)
 const isOpen = computed(() => Boolean(activeRoute.value))
-const shouldSkipInitialTransition = computed(() => activeRevealKey.value !== 'a-fibramfer')
+const drawerRevealKey = ref<string | number>('')
+// Abertura direta via ?post=<id> sincroniza a rota em onMounted; esse salto
+// inicial nao deve disparar a cortina nem exibir a lista antes do post.
+let skipNextRevealKeySync = false
+watch(activeRevealKey, (key) => {
+  if (skipNextRevealKeySync) {
+    skipNextRevealKeySync = false
+    return
+  }
+  drawerRevealKey.value = key
+})
 const displayedSlot = ref<DrawerSlot | undefined>(activeSlot.value)
 const displayedPostId = ref<string | undefined>(activePostId.value)
 
@@ -133,6 +146,15 @@ let legalFooterObserver: ResizeObserver | null = null
 function applyLegalContext(active: boolean): void {
   if (typeof document === 'undefined') return
   document.body.toggleAttribute('data-legal-drawer', active)
+}
+
+function applyHomeBackdrop(active: boolean): void {
+  if (typeof document === 'undefined') return
+  document.querySelectorAll<HTMLElement>('[data-home-backdrop]').forEach((element) => {
+    element.toggleAttribute('inert', active)
+    if (active) element.setAttribute('aria-hidden', 'true')
+    else element.removeAttribute('aria-hidden')
+  })
 }
 
 function syncLegalFooterHeight(): void {
@@ -381,7 +403,15 @@ function handleAdminShortcut(event: KeyboardEvent): void {
 }
 
 onMounted(() => {
+  const revealKeyBefore = activeRevealKey.value
   syncFromLocation()
+  if (activeRevealKey.value !== revealKeyBefore) {
+    // Abertura direta via ?post=<id>: exibe o post ja no primeiro paint,
+    // sem passar pela lista e sem fechar/reabrir a cortina.
+    skipNextRevealKeySync = true
+    displayedSlot.value = activeSlot.value
+    displayedPostId.value = activePostId.value
+  }
   if (isLegalRoute.value) {
     startLegalFooterSync()
   }
@@ -399,9 +429,7 @@ onMounted(() => {
     observeDrawerScrollContainer()
     if (isOpen.value) {
       document.body.dataset.fibramferDrawerReady = 'true'
-      if (!shouldSkipInitialTransition.value) {
-        document.body.removeAttribute('data-fibramfer-direct-drawer')
-      }
+      document.body.removeAttribute('data-fibramfer-direct-drawer')
     }
     scheduleDrawerScrollSync()
   })
@@ -440,6 +468,7 @@ function focusCloseButton(): void {
 
 watch(isOpen, async (open, previousOpen) => {
   if (typeof document === 'undefined') return
+  applyHomeBackdrop(open)
   const header = document.querySelector<HTMLElement>('header[data-fibramfer-header="true"]')
   if (!open) {
     document.body.removeAttribute('data-panel-drawer-open')
@@ -511,6 +540,7 @@ watch([displayedPostId, displayedSlot], () => {
   onBeforeUnmount(() => {
   if (legalCloseTimer) { clearTimeout(legalCloseTimer); legalCloseTimer = null }
   applyLegalContext(false)
+  applyHomeBackdrop(false)
   stopLegalFooterSync()
     stopDrawerScrollSync()
     document.body.removeAttribute('data-fibramfer-drawer-ready')
@@ -534,8 +564,8 @@ watch([displayedPostId, displayedSlot], () => {
       :close-on-overlay="false"
       synchronize-fade
       reveal
-      :skip-initial-transition="shouldSkipInitialTransition"
-      :reveal-key="activeRevealKey"
+      skip-initial-transition
+      :reveal-key="drawerRevealKey"
       :reveal-close-delay="DRAWER_REVEAL_CLOSE_DELAY_MS"
       panel-width="three-quarters"
       @update:open="handleOpenUpdate"

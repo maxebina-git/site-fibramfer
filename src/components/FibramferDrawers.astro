@@ -35,12 +35,19 @@ const currentPath = stripSiteBase(Astro.url.pathname).replace(/\/+$/, '') || '/'
 const currentBlogPostId = currentPath.startsWith('/blog/')
   ? currentPath.slice('/blog/'.length)
   : undefined;
-const initialBlogPostId = blogPosts.some((post) => post.id === currentBlogPostId)
-  ? currentBlogPostId
+const queryBlogPostId = currentPath === '/blog'
+  ? Astro.url.searchParams.get('post')?.trim() || undefined
   : undefined;
+const initialBlogPostId = queryBlogPostId
+  ?? (blogPosts.some((post) => post.id === currentBlogPostId) ? currentBlogPostId : undefined);
 ---
 
-<NavigationDrawer client:load initialPath={currentPath} blogPosts={blogPostRoutes}>
+<NavigationDrawer
+  client:load
+  initialPath={currentPath}
+  initialPostId={initialBlogPostId}
+  blogPosts={blogPostRoutes}
+>
   <div slot="a-fibramfer"><FibramferHistoria /></div>
   <div slot="admin"><Admin /></div>
   <div slot="cadeira-suspensa"><CadeiraSuspensa /></div>

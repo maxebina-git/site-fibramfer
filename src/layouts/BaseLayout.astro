@@ -3,6 +3,7 @@ import '../css/global.css';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import { SITE_BASE, sitePath } from '../lib/sitePath';
+import { isDrawerPanelPath, isLegalDrawerPath } from '../lib/drawerRoutes';
 
 interface Props {
   title?: string;
@@ -11,13 +12,8 @@ interface Props {
 
 const { title = 'Site Fibramfer', description } = Astro.props;
 
-const panelRoutes = ['/a-fibramfer', '/cadeira-suspensa', '/seguranca', '/blog', '/contato', '/privacidade', '/termos', '/admin'];
-const legalRoutes = ['/privacidade', '/termos'];
-const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
-const isRouteActive = (route: string): boolean =>
-  currentPath === route || currentPath.startsWith(`${route}/`);
-const isPanelOpen = panelRoutes.some(isRouteActive);
-const isLegalOpen = legalRoutes.some(isRouteActive);
+const isPanelOpen = isDrawerPanelPath(Astro.url.pathname);
+const isLegalOpen = isLegalDrawerPath(Astro.url.pathname);
 ---
 
 <!DOCTYPE html>

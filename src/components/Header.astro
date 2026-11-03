@@ -3,13 +3,13 @@ import { Header as HeaderDS, Button } from 'ds-grupo-rkb';
 import LordIcon from './LordIcon.astro';
 import FibramferLogo from './FibramferLogo.astro';
 import { sitePath, stripSiteBase } from '../lib/sitePath';
+import { isDrawerPanelPath } from '../lib/drawerRoutes';
 
 const path = stripSiteBase(Astro.url.pathname);
 const normalizePath = (value: string): string => value === '/' ? value : value.replace(/\/+$/, '');
-  const panelRoutes = ['/a-fibramfer', '/cadeira-suspensa', '/seguranca', '/blog', '/contato', '/privacidade', '/termos'];
 const normalizedPath = normalizePath(path);
 const homeRoute = normalizedPath === '/';
-const panelOpen = panelRoutes.includes(normalizedPath);
+const panelOpen = isDrawerPanelPath(path);
 const navItems = [
   { label: 'A Fibramfer', href: '/a-fibramfer' },
   { label: 'Cadeira Suspensa', href: '/cadeira-suspensa' },
@@ -152,6 +152,7 @@ const nav = navItems.map((item) => ({
 <script>
   import type { LordIconElement } from '@lordicon/element';
   import { sitePath, stripSiteBase } from '../lib/sitePath';
+  import { isDrawerPanelPath } from '../lib/drawerRoutes';
 
   const desktopMediaQuery = '(min-width: 1024px)';
   let logoSyncFrame: number | null = null;
@@ -345,9 +346,6 @@ const nav = navItems.map((item) => ({
     ['/contato', '/contato/'],
   ]);
 
-  // Rotas legais (links do footer): herdam a mesma animação de logo/h1 do painel.
-  const legalRoutes = ['/privacidade', '/termos'];
-
   const normalizePath = (path: string): string => path === '/' ? path : path.replace(/\/+$/, '');
 
   const routeForHref = (href: string): string | undefined => drawerRoutes.get(normalizePath(stripSiteBase(href)));
@@ -357,17 +355,12 @@ const nav = navItems.map((item) => ({
     return normalizedRoute === currentPath || currentPath.startsWith(`${normalizedRoute}/`);
   };
 
-  const isPanelRoute = (currentPath: string): boolean =>
-    [...drawerRoutes.values()].some((route) => normalizePath(route) === currentPath)
-    || legalRoutes.includes(currentPath)
-    || (currentPath.startsWith('/blog/') && currentPath !== '/blog');
-
   function syncActiveNavigation() {
     const header = document.querySelector('header');
     if (!header) return;
 
     const currentPath = normalizePath(stripSiteBase(window.location.pathname));
-    const panelOpen = isPanelRoute(currentPath);
+    const panelOpen = isDrawerPanelPath(window.location.pathname);
     header.classList.toggle('panel-open', panelOpen);
     header.dataset.panelOpen = String(panelOpen);
 

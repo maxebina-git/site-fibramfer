@@ -51,9 +51,9 @@ diretamente ao estado final acessível, sem desenho sequencial dos paths.
 
 ## Cobertura e limite existente
 
-Os drawers principais, legais e o post aberto a partir da home compartilham
-esse ciclo. O acesso direto/F5 em `/blog/terceiro-post/` já usa `HomeScene` sem
-`home` e não renderiza a cadeira; esse comportamento não foi alterado.
+Os drawers principais, legais, `/admin/` e os posts do blog compartilham esse
+ciclo. Todas as rotas de drawer renderizam `HomeScene home`; no acesso direto/F5
+a cadeira permanece oculta e parada sob o painel, como nas trocas client-side.
 
 Os testes automatizados desta alteração usaram Chromium headless, estilos
 computados e amostras por frame de todos os 118 paths. As fontes externas

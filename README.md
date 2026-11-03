@@ -71,6 +71,9 @@ behind the current content panel.
 | `/seguranca/` | Home background with the `Segurança` drawer open |
 | `/blog/` | Home background with the full Blog drawer open |
 | `/contato/` | Home background with the `Contato` drawer open |
+| `/privacidade/` | Home background with the `Privacidade` legal drawer open |
+| `/termos/` | Home background with the `Termos de Uso` legal drawer open |
+| `/admin/` | Home background with the `Admin` drawer open (Ctrl+Y) |
 | `/blog/<slug>/` | Home background with the selected blog post open in the Drawer |
 
 The main routes and individual blog posts are rendered by the shared
@@ -88,6 +91,9 @@ this consumer; the Design System remains the source of truth for reusable UI com
   curtain over the Blog list, and reveals the selected post in the same Drawer.
 - Clicking the home/logo control navigates back to `/` and closes the drawer.
 - The browser Back/Forward buttons are synchronized through `popstate`.
+- Direct access or refresh (F5) on any drawer route renders the Home background and opens
+  the corresponding Drawer automatically, without replaying the entrance curtain. The
+  Home background is marked `inert` while the Drawer is open.
 - Opening `/blog/<slug>/` directly or refreshing that URL renders the Home background and
   opens the corresponding post Drawer automatically.
 - Navigation drawers are closed only through the Header Home control; their internal
