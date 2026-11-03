@@ -277,12 +277,6 @@ function syncFromLocation(): void {
 
   dynamicPostId.value = queryPostId
   currentPath.value = queryPostId ? `/blog/${queryPostId}/` : path
-
-  const route = routeForPath(currentPath.value)
-  if (route) {
-    displayedSlot.value = route.slot
-    displayedPostId.value = route.postId
-  }
 }
 
 function navigateTo(path: string): void {
@@ -309,12 +303,15 @@ function navigateTo(path: string): void {
     return
   }
 
-  if (normalizePath(stripSiteBase(window.location.pathname)) !== normalizedPath) {
+  const targetUrl = new URL(sitePath(path), window.location.href)
+  const currentUrl = `${window.location.pathname}${window.location.search}`
+  const nextUrl = `${targetUrl.pathname}${targetUrl.search}`
+  if (currentUrl !== nextUrl) {
     // A direct-load lock is only for the first paint after refresh. Once the
     // user navigates, restore the normal transition behavior for route changes.
     document.body.removeAttribute('data-fibramfer-direct-drawer')
     document.body.removeAttribute('data-fibramfer-initializing')
-    window.history.pushState({}, '', sitePath(path))
+    window.history.pushState({}, '', nextUrl)
   }
 
   syncFromLocation()
@@ -323,10 +320,9 @@ function navigateTo(path: string): void {
 
 function handleOpenUpdate(value: boolean): void {
   if (!value) {
-    const current = normalizePath(stripSiteBase(window.location.pathname))
     // Post do blog fecha para a lista; a própria lista /blog/ fecha para a home,
     // igual às outras páginas (senão a rota não muda e a cortina não fecha).
-    if (current.startsWith('/blog/')) {
+    if (currentPath.value.startsWith('/blog/')) {
       navigateTo('/blog/')
     } else {
       navigateTo('/')
