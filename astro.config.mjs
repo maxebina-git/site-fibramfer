@@ -142,6 +142,7 @@ function blogSyncDevPlugin() {
 }
 
 export default defineConfig({
+  base: '/site-novo/',
   integrations: [
     vue()
   ],
