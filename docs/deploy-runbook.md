@@ -6,15 +6,15 @@
 - `src/components/sections/CadeiraSuspensa.astro`: section CTA inserida + margem 48px
 - `src/components/sections/Contact.astro`: placeholder atualizado
 - `lazy-load GSAP`: HeroCurveSlider, FibramferCurveSlider, HeroCurveSliderSquare, ChairDraw, Header
-- `.github/workflows/deploy.yml`: workflow FTP atualizado com `secrets.*`, `ftp-port: 20021`, `protocol: ftp`, `ftp-dir: /public_html/site-novo` (placeholder)
+- `.github/workflows/deploy.yml`: workflow FTP atualizado com `secrets.*`, porta `20021`, protocolo `FTP`, `server-dir: /fibramfer.com.br/www/site-novo/`
 - `DEPLOY.md`: criado no root
 - Repositório GitHub: `https://github.com/maxebina-git/site-fibramfer` (main push feito)
 - GitHub Secrets (Actions): 5 adicionados (`FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, `FTP_PORT`, `FTP_PROTOCOL`)
 
 ## Ainda falta configurar
 
-- [x] Confirmar caminho real `ftp-dir` no host (`/www/site-novo` via FTP: fibramfer.com.br → www → site-novo)
-- [x] Ajustar `.github/workflows/deploy.yml`: `ftp-dir` para `/www/site-novo`
+- [x] Confirmar caminho real `server-dir` no host (`/fibramfer.com.br/www/site-novo/` via FTP)
+- [x] Ajustar `.github/workflows/deploy.yml`: `server-dir` para `/fibramfer.com.br/www/site-novo/`
 - [x] Configurar `astro.config.mjs`: `base: '/site-novo/'` (subpasta)
 - [x] Validar dev (`/site-novo/`) — imagens e Lord Icons retornando `200`
 - [x] Adicionar 5 Secrets no GitHub (`Settings → Secrets → Actions`):
@@ -28,9 +28,9 @@
 - [ ] Verificar Actions -> confirmar deploy sem erro
 - [ ] Validar site no ar: `https://fibramfer.com.br/site-novo/`
 
-## Quando confirmar o `ftp-dir`
+## Quando confirmar o `server-dir`
 
-1. Editar `.github/workflows/deploy.yml`: substituir `/public_html/site-novo` pelo path real
-2. `git add .github/workflows/deploy.yml && git commit -m "fix: ajustar ftp-dir após confirmar host"`
+1. Editar `.github/workflows/deploy.yml` com o caminho real confirmado no FTP
+2. `git add .github/workflows/deploy.yml && git commit -m "fix: ajustar server-dir após confirmar host"`
 3. `git push`
 4. Acompanhar Actions → Deploy Astro site

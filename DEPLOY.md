@@ -38,7 +38,7 @@ Configurar no GitHub: **Settings → Secrets and variables → Actions → New r
    - Settings → Secrets and variables → Actions
    - Clique em **New repository secret** para cada um dos 5 itens da tabela acima
 
-3. O `ftp-dir` já está configurado como `/www/site-novo/`, conforme confirmado no servidor.
+3. O `ftp-dir` já está configurado como `/fibramfer.com.br/www/site-novo/`, conforme confirmado no servidor.
 
 ---
 
@@ -71,4 +71,4 @@ Falha:
 
 - O site é estático (HTML/CSS/JS) gerado pelo Astro
 - `admin.php` em `public/api/` requer **PHP habilitado** no servidor web (conforme confirmado com o host)
-- O `ftp-dir` confirmado no servidor é `/www/site-novo/`.
+- O `ftp-dir` confirmado no servidor é `/fibramfer.com.br/www/site-novo/`.
