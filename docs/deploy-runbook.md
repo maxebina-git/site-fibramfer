@@ -9,15 +9,16 @@
 - `.github/workflows/deploy.yml`: workflow FTP atualizado com `secrets.*`, `ftp-port: 20021`, `protocol: ftp`, `ftp-dir: /public_html/site-novo` (placeholder)
 - `DEPLOY.md`: criado no root
 - Repositório GitHub: `https://github.com/maxebina-git/site-fibramfer` (main push feito)
+- GitHub Secrets (Actions): 5 adicionados (`FTP_SERVER`, `FTP_USERNAME`, `FTP_PASSWORD`, `FTP_PORT`, `FTP_PROTOCOL`)
 
 ## Ainda falta configurar
 
-- [ ] Confirmar caminho real `ftp-dir` no host (`/public_html/site-novo`? `/site-novo`? `/htdocs/site-novo`?) — aguardar host voltar
-- [ ] Ajustar `.github/workflows/deploy.yml`: `ftp-dir` para o path real confirmado
-- [ ] Adicionar 5 Secrets no GitHub (`Settings → Secrets → Actions`):
+- [x] Confirmar caminho real `ftp-dir` no host (`/www/site-novo` via FTP: fibramfer.com.br → www → site-novo)
+- [x] Ajustar `.github/workflows/deploy.yml`: `ftp-dir` para `/www/site-novo`
+- [x] Adicionar 5 Secrets no GitHub (`Settings → Secrets → Actions`):
   - `FTP_SERVER`: `ftp.fibramfer.com.br`
   - `FTP_USERNAME`: `fibrerbr`
-  - `FTP_PASSWORD`: `AY7dikWYmVh`
+  - `FTP_PASSWORD`: `AY7dikWYmVh` (remover do doc depois se possível)
   - `FTP_PORT`: `20021`
   - `FTP_PROTOCOL`: `FTP`
 - [ ] Confirmar se host tem PHP ativo (`public/admin.php` precisa executar)

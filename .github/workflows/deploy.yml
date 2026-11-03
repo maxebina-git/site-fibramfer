@@ -24,4 +24,4 @@ jobs:
           ftp-port: ${{ secrets.FTP_PORT }}
           protocol: ${{ secrets.FTP_PROTOCOL }}
           local-dir: dist/
-          ftp-dir: /public_html/site-novo  # AJUSTAR: caminho real no servidor (ex.: /site-novo, /htdocs/site-novo)
+          ftp-dir: /www/site-novo  # confirmado: ftp root → www → site-novo
