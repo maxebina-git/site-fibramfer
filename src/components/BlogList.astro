@@ -1,25 +1,36 @@
 ---
 import FibramferFloat from './FibramferFloat.astro';
-import { sitePath } from '../lib/sitePath';
+import BlogListGrid from './BlogListGrid.vue';
+
+interface GridPost {
+  id: string;
+  title?: string;
+  date?: string;
+  image?: string;
+}
 
 interface BlogPost {
   id: string;
   data: {
     title: string;
-    description?: string;
     image?: string;
     date: Date;
   };
 }
 
 interface Props {
-  posts: BlogPost[];
+  posts?: BlogPost[];
   class?: string;
 }
 
-const { posts, class: className = '' } = Astro.props;
+const { posts = [], class: className = '' } = Astro.props;
 
-const allPosts = posts;
+const devGridPosts: GridPost[] = posts.map((post) => ({
+  id: post.id,
+  title: post.data.title,
+  date: post.data.date instanceof Date ? post.data.date.toISOString() : String(post.data.date),
+  image: post.data.image,
+}));
 ---
 
 <section class={`pb-16 ${className}`}>
@@ -28,66 +39,12 @@ const allPosts = posts;
     <h1 class="font-display text-4xl font-bold text-center text-ink mb-2">Blog e Novidades</h1>
     <p class="text-text-secondary mb-12 text-center">Fique por dentro das tendências do setor e atualizações técnicas.</p>
     <div
-      class="grid grid-cols-1 md:grid-cols-3 gap-8"
-      data-admin-loaded={import.meta.env.PROD ? 'false' : 'true'}
-      data-api-only={import.meta.env.PROD ? 'true' : 'false'}
       id="blog-grid-root"
+      class="grid grid-cols-1 md:grid-cols-3 gap-8"
     >
-      {allPosts.map((post: any) => (
-        <article class="bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col">
-          {(post.data ? post.data.image : post.image) && <img src={sitePath(post.data ? post.data.image : post.image)} alt={post.data ? post.data.title : post.title} class="h-48 w-full object-cover bg-surface-alt" />}
-          {!(post.data ? post.data.image : post.image) && <div class="h-48 bg-surface-alt"></div>}
-          <div class="p-6 flex flex-col flex-1">
-            <h2 class="font-display text-xl font-bold text-ink mb-2">
-              <a href={sitePath(`/blog/${post.id}/`)} class="hover:underline decoration-accent-500 decoration-2 underline-offset-4">{post.data ? post.data.title : post.title}</a>
-            </h2>
-            <p class="text-text-secondary text-sm mb-4">{post.data ? post.data.description : (post.content ? post.content.substring(0,120)+'...' : '')}</p>
-            <time class="text-text-secondary text-sm mt-auto" datetime={post.data ? post.data.date.toISOString() : post.date}>
-              {(post.data ? post.data.date : new Date(post.date || Date.now())).toLocaleDateString('pt-BR')}
-            </time>
-          </div>
-        </article>
-      ))}
-      {allPosts.length === 0 && <p class="text-text-secondary msg-empty-blog">Nenhum post publicado ainda.</p>}
+      <BlogListGrid client:load devPosts={devGridPosts} />
     </div>
   </div>
   <FibramferFloat asset="f2" />
   <FibramferFloat asset="f2" mirror />
-
-  <script is:inline>
-    (function(){
-      var grid=document.querySelector('#blog-grid-root');
-       if(!grid||grid.getAttribute('data-api-only')!=='true'||grid.getAttribute('data-admin-loaded')==='true') return;
-      var siteBase=(document.body&&document.body.dataset.siteBase)||'/';
-      function siteUrl(path){
-        if(!path||/^(?:[a-z][a-z\d+.-]*:|\/\/|#)/i.test(path)) return path;
-        if(path===siteBase.slice(0,-1)||path.indexOf(siteBase)===0) return path;
-        return siteBase+String(path).replace(/^\/+/, '');
-      }
-      var cacheKey='fibramfer:blog-posts-cache';
-      var cached=null;
-      try { cached=JSON.parse(sessionStorage.getItem(cacheKey)||'null'); } catch(e){}
-      var now=Date.now();
-       function setEmptyMessage(message, visible){ var emptyMsg=grid.querySelector('.msg-empty-blog'); if(emptyMsg){ emptyMsg.textContent=message; emptyMsg.style.display=visible?'block':'none'; } }
-       function finish(posts){ grid.setAttribute('data-admin-loaded','true'); setEmptyMessage(posts.length?'':'Nenhum post publicado ainda.', !posts.length); }
-       if(cached&&cached.at&&now-cached.at<5*60*1000&&Array.isArray(cached.posts)){ cached.posts.forEach(function(p){ renderPost(p); }); finish(cached.posts); return; }
-      function renderPost(p){
-        if(!p)return; var pid=p.id||(p.data&&p.data.id)||''; if(!pid)return;
-        var article=document.createElement('article'); article.className='bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col';
-        var imgWrap=document.createElement('div'); imgWrap.className=(p.image||(p.data&&p.data.image))?'':'h-48 bg-surface-alt';
-         if(p.image||(p.data&&p.data.image)){var img=document.createElement('img');img.src=siteUrl(p.image||(p.data&&p.data.image));img.alt=(p.title||(p.data&&p.data.title))||'';img.className='h-48 w-full object-cover bg-surface-alt';imgWrap.appendChild(img);}
-        article.appendChild(imgWrap); var body=document.createElement('div'); body.className='p-6 flex flex-col flex-1';
-        var h2=document.createElement('h2'); h2.className='font-display text-xl font-bold text-ink mb-2';
-        var href=siteUrl('/blog/?post='+encodeURIComponent(pid)); var a=document.createElement('a'); a.href=href; a.className='hover:underline decoration-accent-500 decoration-2 underline-offset-4'; a.textContent=(p.title||(p.data&&p.data.title))||''; h2.appendChild(a); body.appendChild(h2);
-        var time=document.createElement('time'); time.className='text-text-secondary text-sm mt-auto'; time.setAttribute('datetime',p.date||(p.data&&p.data.date)||''); time.textContent=new Date(p.date||(p.data&&p.data.date)||Date.now()).toLocaleDateString('pt-BR'); body.appendChild(time); article.appendChild(body);
-        grid.appendChild(article);
-      }
-       fetch(siteUrl('/api/admin.php?action=list'), { cache: 'no-store' }).then(function(r){ if(!r.ok) throw new Error('blog api'); return r.json(); }).then(function(d){
-         var posts=Array.isArray(d.posts)?d.posts:[];
-         posts.forEach(function(p){ renderPost(p); });
-         try{ sessionStorage.setItem(cacheKey,JSON.stringify({at:Date.now(),posts:posts})); }catch(e){}
-         finish(posts);
-       }).catch(function(){ grid.setAttribute('data-admin-loaded','true'); setEmptyMessage('Não foi possível carregar os posts.', true); });
-    })();
-  </script>
 </section>

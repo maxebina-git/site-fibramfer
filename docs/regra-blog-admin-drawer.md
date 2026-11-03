@@ -43,6 +43,11 @@ abrem o drawer correspondente no SSR e após F5:
   para `/blog/?post=<id>`, e passa ambos ao `NavigationDrawer`.
 - `NavigationDrawer.vue`: inicializa o post direto, usa um `revealKey` sentinela
   para não repetir a cortina no primeiro paint e aplica `inert` no backdrop.
+- `BlogList.astro`: lista estática do índice do blog; posts renderizados pelo
+  island `BlogListGrid.vue` (`client:load`). Scripts nunca executam quando o
+  slot do blog é montado via `innerHTML` no cliente, então a busca e a
+  renderização vivem em `onMounted` (cache de 5 min em `sessionStorage`, key
+  `fibramfer:blog-posts-cache`). Em dev, a lista usa a coleção `blog` local.
 - `HomeScene.astro`: marca o backdrop com `data-home-backdrop`.
 
 ## Admin
@@ -58,6 +63,7 @@ abrem o drawer correspondente no SSR e após F5:
 1. `npx astro check` sem erros.
 2. `npm run build` com 9 páginas.
 3. Em dev, abrir cada rota, atualizar com F5 e confirmar hero + drawer.
-4. Abrir `/blog/?post=<id>` direto e confirmar que a lista não pisca antes do post.
-5. Trocar entre post e lista, fechar pelo logo e voltar para `/`.
-6. Repetir com movimento reduzido, resize e back/forward.
+4. Abrir o Blog pelo menu (client-side) e confirmar que a grade de posts aparece sem F5; em prod, confirmar 1 chamada `admin.php?action=list` (200) no Network.
+5. Abrir `/blog/?post=<id>` direto e confirmar que a lista não pisca antes do post.
+6. Trocar entre post e lista, fechar pelo logo e voltar para `/`.
+7. Repetir com movimento reduzido, resize e back/forward.
