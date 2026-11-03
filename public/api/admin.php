@@ -12,6 +12,22 @@ function respond($data, $code = 200) {
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
+function databaseErrorReason($exception) {
+    $errorInfo = $exception instanceof PDOException ? ($exception->errorInfo ?? []) : [];
+    $driverCode = (int)($errorInfo[1] ?? 0);
+    $message = $exception->getMessage();
+
+    if (stripos($message, 'could not find driver') !== false) return 'pdo_mysql_missing';
+    if ($driverCode === 1045) return 'credentials_rejected';
+    if ($driverCode === 1049) return 'database_not_found';
+    if ($driverCode === 2002 || $driverCode === 2003) return 'host_unreachable';
+    if ($driverCode === 1054 || $driverCode === 1146) return 'schema_mismatch';
+    if ($driverCode === 1062) return 'duplicate_id';
+    if ($driverCode === 1048 || $driverCode === 1366) return 'invalid_value';
+    if ($driverCode === 1406) return 'value_too_long';
+    return 'query_failed';
+}
+
 // O arquivo preferencial fica fora de site-novo e não entra no deploy.
 $config = [];
 $configPath = getenv('FIBRAMFER_DB_CONFIG');
@@ -50,19 +66,7 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (Exception $e) {
-    $reason = 'unknown';
-    $errorInfo = $e instanceof PDOException ? ($e->errorInfo ?? []) : [];
-    $driverCode = (int)($errorInfo[1] ?? 0);
-    if (stripos($e->getMessage(), 'could not find driver') !== false) {
-        $reason = 'pdo_mysql_missing';
-    } elseif ($driverCode === 1045) {
-        $reason = 'credentials_rejected';
-    } elseif ($driverCode === 1049) {
-        $reason = 'database_not_found';
-    } elseif ($driverCode === 2002 || $driverCode === 2003) {
-        $reason = 'host_unreachable';
-    }
-    respond(['error' => 'DB connection failed', 'reason' => $reason], 500);
+    respond(['error' => 'DB connection failed', 'reason' => databaseErrorReason($e)], 500);
     exit;
 }
 
@@ -96,21 +100,36 @@ if ($method === 'GET' && ($action === 'list' || $action === '')) {
 
 // Save (create or update)
 if (($method === 'POST' || $method === 'PUT') && $action === 'save') {
-    $post = $body['post'] ?? $body;
-    $id = $post['id'] ?? '';
-    $title = trim($post['title'] ?? '');
-    $date = $post['date'] ?? '';
-    $category = $post['category'] ?? '';
-    $image = $post['image'] ?? '';
-    $content = $post['content'] ?? '';
+    try {
+        $post = $body['post'] ?? $body;
+        $id = $post['id'] ?? '';
+        $title = trim($post['title'] ?? '');
+        $date = $post['date'] ?? '';
+        $category = $post['category'] ?? '';
+        $image = $post['image'] ?? '';
+        $content = $post['content'] ?? '';
 
-    if (empty($id)) {
-        $id = $post['id'] ?? (substr(preg_replace('/[^a-z0-9]/i', '-', strtolower($title)), 0, 50) . '-' . time());
-        $stmt = $pdo->prepare("INSERT INTO posts (id, title, date, category, image, content, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
-        $stmt->execute([$id, $title, $date, $category, $image, $content]);
-    } else {
-        $stmt = $pdo->prepare("UPDATE posts SET title = ?, date = ?, category = ?, image = ?, content = ? WHERE id = ?");
-        $stmt->execute([$title, $date, $category, $image, $content, $id]);
+        if (empty($id)) {
+            $id = substr(preg_replace('/[^a-z0-9]/i', '-', strtolower($title)), 0, 50) . '-' . time();
+        }
+
+        $exists = false;
+        if ($id !== '') {
+            $check = $pdo->prepare("SELECT id FROM posts WHERE id = ? LIMIT 1");
+            $check->execute([$id]);
+            $exists = (bool)$check->fetchColumn();
+        }
+
+        if (!$exists) {
+            $stmt = $pdo->prepare("INSERT INTO posts (id, title, date, category, image, content, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())");
+            $stmt->execute([$id, $title, $date, $category, $image, $content]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE posts SET title = ?, date = ?, category = ?, image = ?, content = ? WHERE id = ?");
+            $stmt->execute([$title, $date, $category, $image, $content, $id]);
+        }
+    } catch (Exception $e) {
+        respond(['error' => 'Database query failed', 'reason' => databaseErrorReason($e)], 500);
+        exit;
     }
     respond(['ok' => true, 'id' => $id]);
     exit;
