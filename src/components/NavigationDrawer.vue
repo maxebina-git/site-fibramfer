@@ -111,6 +111,16 @@ function routeForHref(href: string): RouteDefinition | undefined {
   return routeForPath(stripSiteBase(href))
 }
 
+function blogPostIdFromHref(href: string): string | undefined {
+  try {
+    const url = new URL(href, window.location.href)
+    if (normalizePath(stripSiteBase(url.pathname)) !== '/blog') return undefined
+    return url.searchParams.get('post')?.trim() || undefined
+  } catch {
+    return undefined
+  }
+}
+
 const activeRoute = computed(() => routeForPath(currentPath.value))
 const activeSlot = computed(() => activeRoute.value?.slot)
 const activeRevealKey = computed(() => activeRoute.value?.revealKey ?? '')
@@ -380,6 +390,13 @@ function handleDocumentClick(event: MouseEvent): void {
 
   const href = link.getAttribute('href')
   if (!href) return
+
+  const blogPostId = blogPostIdFromHref(href)
+  if (blogPostId) {
+    event.preventDefault()
+    navigateTo(`/blog/?post=${encodeURIComponent(blogPostId)}`)
+    return
+  }
 
   const route = href === '/' ? { path: '/' } : routeForHref(href)
   if (!route) return
