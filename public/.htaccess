@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Arquivos e diretórios reais (SSG, assets, api, uploads) passam direto.
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Posts que não existem como estáticos (criados após o build) → fallback PHP.
+RewriteRule ^blog/([A-Za-z0-9-]+)/?$ post.php?slug=$1 [L,QSA]

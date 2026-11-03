@@ -47,18 +47,22 @@ abrem o drawer correspondente no SSR e após F5:
   para `/blog/?post=<id>`, e passa ambos ao `NavigationDrawer`.
 - `src/lib/blogBuild.ts`: fonte única de posts para o build. Em dev usa a
   coleção `blog` local; em prod busca `BLOG_API_URL` (default
-  `https://fibramfer.com.br/site-novo/api/admin.php?action=list`) e cai para a
-  coleção local com aviso se a API estiver indisponível.
+  `http://fibramfer.com.br/site-novo/api/admin.php?action=list` — HTTP porque o
+  SSL do host falha em Node/PowerShell) e cai para a coleção local com aviso se
+  a API estiver indisponível.
 - `pages/blog/[slug].astro`: SSG em dev e prod — cada post vira
   `/blog/<slug>/` com título/description/`og:`/canonical próprios
   (`type="article"`). Posts em prod vêm via `getStaticPaths` na build, então
   publicar exigir build+deploy.
+- `public/.htaccess` + `public/post.php`: fallback para `/blog/<slug>/` dos posts
+  criados após a build — arquivos/diretórios reais passam direto; caminhos
+  `/blog/<slug>/` inexistentes são renderizados na hora pelo PHP (title,
+  description, `og:` e conteúdo próprios). Publicado junto com a dist via FTP.
 - `BlogList.astro`: grade dinâmica via island `BlogListGrid.vue` (`client:load`);
   busca `admin.php?action=list` no `onMounted` (cache de 5 min em
   `sessionStorage`, key `fibramfer:blog-posts-cache`). Em dev usa a coleção
   `.md` local. Necessário para posts criados após a build aparecerem na grade.
-  Cards sempre linkam `/blog/<slug>/` — para posts criados após a build, a
-  página só existe após o próximo build+deploy.
+  Cards linkam `/blog/<slug>/` — o fallback PHP garante o acesso antes da build+deploy.
 - `BlogPostStatic.astro`: espelho estático do `BlogPostDrawer` para o HTML do
   post em prod. Dev continua com `Content` da coleção.
 - `NavigationDrawer.vue`: inicializa o post direto, usa um `revealKey` sentinela
@@ -70,6 +74,10 @@ abrem o drawer correspondente no SSR e após F5:
 - Sem link no header; abre por `Ctrl+Y` em `/admin/`.
 - Em desenvolvimento usa `localStorage`; em produção usa a API PHP.
 - A edição permanece em modal e não altera a URL.
+- Imagem anexada no admin: redimensionada no navegador antes de salvar (lado
+  maior ≤1600px, JPEG qualidade 0.85; PNG/WebP pequenos ficam intactos), pois o
+  servidor responde 413 para corpos de requisição acima do limite. Compressão
+  local evita o erro independentemente do tamanho original da foto.
 - Imagem anexada no admin: `admin.php?action=save` converte a data URL base64 em
   arquivo em `uploads/` (hash SHA-1 do conteúdo, igual ao fluxo de dev) e grava
   apenas o caminho `/uploads/<hash>.<ext>` na coluna `image`. Em falha de
