@@ -142,7 +142,7 @@ function blogSyncDevPlugin() {
 }
 
 export default defineConfig({
-  base: '/site-novo/',
+  base: import.meta.env.PROD ? '/site-novo/' : '/',
   integrations: [
     vue()
   ],
