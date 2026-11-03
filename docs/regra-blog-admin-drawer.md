@@ -55,6 +55,11 @@ abrem o drawer correspondente no SSR e após F5:
 - Sem link no header; abre por `Ctrl+Y` em `/admin/`.
 - Em desenvolvimento usa `localStorage`; em produção usa a API PHP.
 - A edição permanece em modal e não altera a URL.
+- Imagem anexada no admin: `admin.php?action=save` converte a data URL base64 em
+  arquivo em `uploads/` (hash SHA-1 do conteúdo, igual ao fluxo de dev) e grava
+  apenas o caminho `/uploads/<hash>.<ext>` na coluna `image`. Em falha de
+  escrita, mantém a string original. Data URLs antigas na tabela não são
+  migradas — re-anexe a imagem para persistir como arquivo.
 - Posts criados/editados precisam entrar em `routes` e no DOM (`data-blog-post-id`)
   para que a cortina encontre o conteúdo.
 

@@ -12,6 +12,39 @@ function respond($data, $code = 200) {
     echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
+function persistImage($image) {
+    if (!is_string($image) || $image === '') return $image;
+    if (!preg_match('#^data:(image/[a-zA-Z0-9.+-]+);base64,(.+)$#s', $image, $m)) return $image;
+
+    $mime = strtolower($m[1]);
+    $extByMime = [
+        'image/png' => 'png',
+        'image/jpeg' => 'jpg',
+        'image/jpg' => 'jpg',
+        'image/gif' => 'gif',
+        'image/webp' => 'webp',
+        'image/svg+xml' => 'svg',
+        'image/avif' => 'avif',
+    ];
+    $ext = $extByMime[$mime] ?? 'bin';
+
+    $bytes = base64_decode($m[2], true);
+    if ($bytes === false) return $image;
+
+    $dir = dirname(__DIR__) . '/uploads';
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
+    }
+
+    $file = $dir . '/' . substr(sha1($bytes), 0, 16) . '.' . $ext;
+    if (!is_file($file) && @file_put_contents($file, $bytes) === false) {
+        error_log('fibramfer: failed to persist image to ' . $file);
+        return $image;
+    }
+
+    return '/uploads/' . basename($file);
+}
+
 function databaseErrorReason($exception) {
     $errorInfo = $exception instanceof PDOException ? ($exception->errorInfo ?? []) : [];
     $driverCode = (int)($errorInfo[1] ?? 0);
@@ -106,7 +139,7 @@ if (($method === 'POST' || $method === 'PUT') && $action === 'save') {
         $title = trim($post['title'] ?? '');
         $date = $post['date'] ?? '';
         $category = $post['category'] ?? '';
-        $image = $post['image'] ?? '';
+        $image = persistImage($post['image'] ?? '');
         $content = $post['content'] ?? '';
 
         if (empty($id)) {
@@ -131,7 +164,7 @@ if (($method === 'POST' || $method === 'PUT') && $action === 'save') {
         respond(['error' => 'Database query failed', 'reason' => databaseErrorReason($e)], 500);
         exit;
     }
-    respond(['ok' => true, 'id' => $id]);
+    respond(['ok' => true, 'id' => $id, 'image' => $image]);
     exit;
 }
 

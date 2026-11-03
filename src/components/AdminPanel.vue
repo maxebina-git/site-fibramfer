@@ -163,7 +163,7 @@ async function syncMd(post: Post): Promise<Post> {
   const d = await res.json()
   if (!res.ok || d?.ok !== true) throw new Error(d?.error || 'Falha ao salvar post')
 
-  if (!import.meta.env.PROD && typeof d?.image === 'string' && d.image.startsWith('/uploads/')) {
+  if (typeof d?.image === 'string' && d.image.startsWith('/uploads/')) {
     const idx = posts.value.findIndex((p) => p.id === post.id)
     if (idx !== -1 && posts.value[idx].image !== d.image) {
       posts.value[idx] = { ...posts.value[idx], image: d.image }
