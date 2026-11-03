@@ -26,6 +26,10 @@ abrem o drawer correspondente no SSR e após F5:
 - Navegação client-side entre drawers mantém o mesmo painel montado e troca
   apenas o slot de conteúdo; a cortina é repetida apenas quando o conteúdo muda.
 - O logo/Home fecha o drawer e retorna para `/` sem deixar a home quebrada.
+- Clicar em um card do blog (link `/blog/<slug>/`) é navegação client-side:
+  o drawer não desmonta e a cortina fecha sobre a lista e reabre no post,
+  como nas outras trocas de rota. Clicar no mesmo post não faz nada.
+  O SSR de `/blog/<slug>/` já garante conteúdo e metadados no HTML (SEO).
 - Back/Forward, resize e troca entre painéis preservam o mesmo contrato.
 - Enquanto o drawer está aberto, somente o backdrop da home (`[data-home-backdrop]`)
   recebe `inert` e `aria-hidden`; nunca o `<main>` que contém o drawer.
@@ -41,13 +45,19 @@ abrem o drawer correspondente no SSR e após F5:
   `/blog/<slug>/`.
 - `FibramferDrawers.astro`: calcula `initialPath` e `initialPostId`, inclusive
   para `/blog/?post=<id>`, e passa ambos ao `NavigationDrawer`.
+- `src/lib/blogBuild.ts`: fonte única de posts para o build. Em dev usa a
+  coleção `blog` local; em prod busca `BLOG_API_URL` (default
+  `https://fibramfer.com.br/site-novo/api/admin.php?action=list`) e cai para a
+  coleção local com aviso se a API estiver indisponível.
+- `pages/blog/[slug].astro`: SSG em dev e prod — cada post vira
+  `/blog/<slug>/` com título/description/`og:`/canonical próprios
+  (`type="article"`). Posts em prod vêm via `getStaticPaths` na build, então
+  publicar exigir build+deploy.
+- `BlogList.astro`: grade estática de cards no SSR (link `/blog/<slug>/`).
+- `BlogPostStatic.astro`: espelho estático do `BlogPostDrawer` para o HTML do
+  post em prod. Dev continua com `Content` da coleção.
 - `NavigationDrawer.vue`: inicializa o post direto, usa um `revealKey` sentinela
   para não repetir a cortina no primeiro paint e aplica `inert` no backdrop.
-- `BlogList.astro`: lista estática do índice do blog; posts renderizados pelo
-  island `BlogListGrid.vue` (`client:load`). Scripts nunca executam quando o
-  slot do blog é montado via `innerHTML` no cliente, então a busca e a
-  renderização vivem em `onMounted` (cache de 5 min em `sessionStorage`, key
-  `fibramfer:blog-posts-cache`). Em dev, a lista usa a coleção `blog` local.
 - `HomeScene.astro`: marca o backdrop com `data-home-backdrop`.
 
 ## Admin
@@ -66,9 +76,10 @@ abrem o drawer correspondente no SSR e após F5:
 ## Checklist de validação
 
 1. `npx astro check` sem erros.
-2. `npm run build` com 9 páginas.
+2. `npm run build` — 9 páginas fixas + 1 página SSG por post (em dev, a partir dos `.md`; em prod, a partir da API).
 3. Em dev, abrir cada rota, atualizar com F5 e confirmar hero + drawer.
-4. Abrir o Blog pelo menu (client-side) e confirmar que a grade de posts aparece sem F5; em prod, confirmar 1 chamada `admin.php?action=list` (200) no Network.
-5. Abrir `/blog/?post=<id>` direto e confirmar que a lista não pisca antes do post.
+4. Abrir o Blog pelo menu (client-side) e confirmar que a grade de cards aparece sem F5.
+5. Abrir `/blog/<slug>/` e conferir no view-source o `<title>`, `<meta name="description">`, `og:image`/`og:` e o conteúdo do post no HTML (SSG).
+6. Abrir `/blog/?post=<id>` direto e confirmar que a lista não pisca antes do post.
 6. Trocar entre post e lista, fechar pelo logo e voltar para `/`.
 7. Repetir com movimento reduzido, resize e back/forward.

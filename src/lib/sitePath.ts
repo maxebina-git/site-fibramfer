@@ -1,6 +1,7 @@
 const normalizedBase = import.meta.env.BASE_URL.replace(/\/+$/, '')
 
 export const SITE_BASE = `${normalizedBase}/`
+export const SITE_ORIGIN = 'https://fibramfer.com.br'
 
 export function sitePath(path: string): string {
   const value = String(path || '')

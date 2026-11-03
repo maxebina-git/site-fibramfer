@@ -2,18 +2,30 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import HomeScene from '../../components/HomeScene.astro';
 import FibramferDrawers from '../../components/FibramferDrawers.astro';
-import { getCollection } from 'astro:content';
+import { getBlogPostsForBuild } from '../../lib/blogBuild';
 
 export async function getStaticPaths() {
-  if (import.meta.env.PROD) return [];
-  const posts = await getCollection('blog');
-  return posts.map((post) => ({ params: { slug: post.id }, props: { postTitle: post.data.title } }));
+  const posts = await getBlogPostsForBuild();
+  return posts.map((post) => ({ params: { slug: post.id } }));
 }
 
-const { postTitle } = Astro.props;
+const { slug } = Astro.params;
+const posts = await getBlogPostsForBuild();
+const post = posts.find((p) => p.id === slug);
+
+const description =
+  post?.description ||
+  (post?.contentHtml
+    ? post.contentHtml.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 160)
+    : undefined);
 ---
 
-<BaseLayout title={`${postTitle} | Fibramfer`}>
+<BaseLayout
+  title={post ? `${post.title} | Fibramfer` : 'Blog | Fibramfer'}
+  description={description}
+  image={post?.image}
+  type="article"
+>
   <HomeScene home />
   <FibramferDrawers />
 </BaseLayout>
