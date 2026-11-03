@@ -50,8 +50,19 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (Exception $e) {
-    http_response_code(500);
-    echo json_encode(['error' => 'DB connection failed']);
+    $reason = 'unknown';
+    $errorInfo = $e instanceof PDOException ? ($e->errorInfo ?? []) : [];
+    $driverCode = (int)($errorInfo[1] ?? 0);
+    if (stripos($e->getMessage(), 'could not find driver') !== false) {
+        $reason = 'pdo_mysql_missing';
+    } elseif ($driverCode === 1045) {
+        $reason = 'credentials_rejected';
+    } elseif ($driverCode === 1049) {
+        $reason = 'database_not_found';
+    } elseif ($driverCode === 2002 || $driverCode === 2003) {
+        $reason = 'host_unreachable';
+    }
+    respond(['error' => 'DB connection failed', 'reason' => $reason], 500);
     exit;
 }
 
