@@ -1,4 +1,6 @@
 ﻿---
+import { sitePath } from '../lib/sitePath';
+
 const {
   slides = [
     { src: '/assets/a-fibramfer-1.webp', alt: 'Profissional em trabalho em altura com talabarte e cinto paraquedista Fibramfer' },
@@ -60,7 +62,7 @@ const INITIAL_D = STEP3;
               </clipPath>
             </defs>
             <image
-              href={slide.src}
+              href={sitePath(slide.src)}
               width={VIEW_W}
               height={VIEW_H}
               preserveAspectRatio="xMidYMid slice"

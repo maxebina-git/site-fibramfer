@@ -4,6 +4,7 @@ import SecuritySupport from '../SecuritySupport.vue';
 import SecurityCurveSlider from '../SecurityCurveSlider.astro';
 import LordIcon from '../LordIcon.astro';
 import FibramferFloat from '../FibramferFloat.astro';
+import { sitePath } from '../../lib/sitePath';
 
 const commitments = [
   {
@@ -41,7 +42,7 @@ const commitments = [
           variant="primary"
           size="lg"
           as="a"
-          href="/contato/"
+          href={sitePath('/contato/')}
           class="bg-accent-500 text-ink hover:bg-accent-600 active:bg-accent-600"
         >
           Solicitar Documentação
@@ -54,7 +55,7 @@ const commitments = [
             class="h-5 w-5 shrink-0"
           />
         </Button>
-        <Button id="security-whatsapp-cta" variant="secondary" size="lg" as="a" href="/contato/">
+        <Button id="security-whatsapp-cta" variant="secondary" size="lg" as="a" href={sitePath('/contato/')}>
           Falar no WhatsApp
           <LordIcon
             src="/lordicon/system-outline-4073-email-hover-pinch.json"
@@ -132,7 +133,7 @@ const commitments = [
           variant="primary"
           size="lg"
           as="a"
-          href="/contato/"
+          href={sitePath('/contato/')}
           class="bg-accent-500 text-ink hover:bg-accent-600 active:bg-accent-600"
         >
           Solicitar Orçamento Agora
@@ -150,7 +151,7 @@ const commitments = [
           variant="secondary"
           size="lg"
           as="a"
-          href="/contato/"
+          href={sitePath('/contato/')}
         >
           Falar no WhatsApp
           <LordIcon

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { Drawer } from 'ds-grupo-rkb'
+import { sitePath, stripSiteBase } from '../lib/sitePath'
 
 type MainDrawerSlot =
   | 'a-fibramfer'
@@ -94,7 +95,7 @@ function routeForPath(path: string): RouteDefinition | undefined {
 }
 
 function routeForHref(href: string): RouteDefinition | undefined {
-  return routeForPath(href)
+  return routeForPath(stripSiteBase(href))
 }
 
 const activeRoute = computed(() => routeForPath(currentPath.value))
@@ -259,7 +260,7 @@ watch(isLegalRoute, (active) => {
 })
 
 function syncFromLocation(): void {
-  currentPath.value = normalizePath(window.location.pathname)
+  currentPath.value = normalizePath(stripSiteBase(window.location.pathname))
 }
 
 function navigateTo(path: string): void {
@@ -274,7 +275,7 @@ function navigateTo(path: string): void {
     const pending: Promise<unknown> | undefined = blogState.__fibramferBlogSyncPromise
     blogState.__fibramferBlogDirty = false
     blogState.__fibramferBlogSyncPromise = undefined
-    const go = () => window.location.assign(path)
+    const go = () => window.location.assign(sitePath(path))
     if (pending && typeof pending.then === 'function') {
       Promise.race([
         Promise.resolve(pending).catch(() => undefined),
@@ -286,12 +287,12 @@ function navigateTo(path: string): void {
     return
   }
 
-  if (normalizePath(window.location.pathname) !== normalizedPath) {
+  if (normalizePath(stripSiteBase(window.location.pathname)) !== normalizedPath) {
     // A direct-load lock is only for the first paint after refresh. Once the
     // user navigates, restore the normal transition behavior for route changes.
     document.body.removeAttribute('data-fibramfer-direct-drawer')
     document.body.removeAttribute('data-fibramfer-initializing')
-    window.history.pushState({}, '', path)
+    window.history.pushState({}, '', sitePath(path))
   }
 
   syncFromLocation()
@@ -300,7 +301,7 @@ function navigateTo(path: string): void {
 
 function handleOpenUpdate(value: boolean): void {
   if (!value) {
-    const current = normalizePath(window.location.pathname)
+    const current = normalizePath(stripSiteBase(window.location.pathname))
     // Post do blog fecha para a lista; a própria lista /blog/ fecha para a home,
     // igual às outras páginas (senão a rota não muda e a cortina não fecha).
     if (current.startsWith('/blog/')) {
@@ -353,7 +354,7 @@ function handleAdminShortcut(event: KeyboardEvent): void {
   const active = document.activeElement as HTMLElement | null
   if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)) return
   event.preventDefault()
-  const path = normalizePath(window.location.pathname)
+  const path = normalizePath(stripSiteBase(window.location.pathname))
   if (path === '/admin') {
     navigateTo('/')
   } else {
@@ -540,7 +541,7 @@ watch([displayedPostId, displayedSlot], () => {
         <a
           v-for="link in legalLinks"
           :key="link.path"
-          :href="link.path"
+          :href="sitePath(link.path)"
           :aria-current="currentPath === link.path ? 'page' : undefined"
         >
           {{ link.label }}

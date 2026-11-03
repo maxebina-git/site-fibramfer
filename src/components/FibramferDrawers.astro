@@ -10,6 +10,7 @@ import Termos from './sections/Termos.astro';
 import BlogList from './BlogList.astro';
 import BlogPostDrawer from './BlogPostDrawer.astro';
 import NavigationDrawer from './NavigationDrawer.vue';
+import { stripSiteBase } from '../lib/sitePath';
 
 const blogPosts = (await getCollection('blog')).sort(
   (a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime(),
@@ -27,7 +28,7 @@ const renderedBlogPosts = await Promise.all(
   })),
 );
 
-const currentPath = Astro.url.pathname.replace(/\/+$/, '') || '/';
+const currentPath = stripSiteBase(Astro.url.pathname).replace(/\/+$/, '') || '/';
 const currentBlogPostId = currentPath.startsWith('/blog/')
   ? currentPath.slice('/blog/'.length)
   : undefined;

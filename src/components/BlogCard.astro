@@ -1,4 +1,6 @@
 ---
+import { sitePath } from '../lib/sitePath';
+
 export interface Props {
   title: string;
   subtitle?: string;
@@ -9,8 +11,8 @@ export interface Props {
 const { title, subtitle, date, image, href } = Astro.props;
 ---
 
-<a href={href} class="group block bg-surface rounded-lg shadow-card overflow-hidden">
-  {image && <img src={image} alt={title} class="w-full aspect-video object-cover" />}
+  <a href={sitePath(href)} class="group block bg-surface rounded-lg shadow-card overflow-hidden">
+  {image && <img src={sitePath(image)} alt={title} class="w-full aspect-video object-cover" />}
   <div class="p-5">
     <h3 class="font-display text-xl text-ink group-hover:underline">{title}</h3>
     {subtitle && <p class="text-text-secondary mt-2">{subtitle}</p>}

@@ -1,5 +1,6 @@
 ---
 import FibramferFloat from './FibramferFloat.astro';
+import { sitePath } from '../lib/sitePath';
 
 interface BlogPost {
   id: string;
@@ -29,11 +30,11 @@ const allPosts = posts;
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-admin-loaded="false" id="blog-grid-root">
       {allPosts.map((post: any) => (
         <article class="bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col">
-          {(post.data ? post.data.image : post.image) && <img src={post.data ? post.data.image : post.image} alt={post.data ? post.data.title : post.title} class="h-48 w-full object-cover bg-surface-alt" />}
+          {(post.data ? post.data.image : post.image) && <img src={sitePath(post.data ? post.data.image : post.image)} alt={post.data ? post.data.title : post.title} class="h-48 w-full object-cover bg-surface-alt" />}
           {!(post.data ? post.data.image : post.image) && <div class="h-48 bg-surface-alt"></div>}
           <div class="p-6 flex flex-col flex-1">
             <h2 class="font-display text-xl font-bold text-ink mb-2">
-              <a href={`/blog/${post.id}/`} class="hover:underline decoration-accent-500 decoration-2 underline-offset-4">{post.data ? post.data.title : post.title}</a>
+              <a href={sitePath(`/blog/${post.id}/`)} class="hover:underline decoration-accent-500 decoration-2 underline-offset-4">{post.data ? post.data.title : post.title}</a>
             </h2>
             <p class="text-text-secondary text-sm mb-4">{post.data ? post.data.description : (post.content ? post.content.substring(0,120)+'...' : '')}</p>
             <time class="text-text-secondary text-sm mt-auto" datetime={post.data ? post.data.date.toISOString() : post.date}>
@@ -52,6 +53,12 @@ const allPosts = posts;
     (function(){
       var grid=document.querySelector('#blog-grid-root');
       if(!grid||grid.getAttribute('data-admin-loaded')==='true') return;
+      var siteBase=(document.body&&document.body.dataset.siteBase)||'/';
+      function siteUrl(path){
+        if(!path||/^(?:[a-z][a-z\d+.-]*:|\/\/|#)/i.test(path)) return path;
+        if(path===siteBase.slice(0,-1)||path.indexOf(siteBase)===0) return path;
+        return siteBase+String(path).replace(/^\/+/, '');
+      }
       var cacheKey='fibramfer:blog-posts-cache';
       var cached=null;
       try { cached=JSON.parse(sessionStorage.getItem(cacheKey)||'null'); } catch(e){}
@@ -61,14 +68,14 @@ const allPosts = posts;
         if(!p)return; var pid=p.id||(p.data&&p.data.id)||''; if(!pid)return;
         var article=document.createElement('article'); article.className='bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col';
         var imgWrap=document.createElement('div'); imgWrap.className=(p.image||(p.data&&p.data.image))?'':'h-48 bg-surface-alt';
-        if(p.image||(p.data&&p.data.image)){var img=document.createElement('img');img.src=p.image||(p.data&&p.data.image);img.alt=(p.title||(p.data&&p.data.title))||'';img.className='h-48 w-full object-cover bg-surface-alt';imgWrap.appendChild(img);}
+         if(p.image||(p.data&&p.data.image)){var img=document.createElement('img');img.src=siteUrl(p.image||(p.data&&p.data.image));img.alt=(p.title||(p.data&&p.data.title))||'';img.className='h-48 w-full object-cover bg-surface-alt';imgWrap.appendChild(img);}
         article.appendChild(imgWrap); var body=document.createElement('div'); body.className='p-6 flex flex-col flex-1';
         var h2=document.createElement('h2'); h2.className='font-display text-xl font-bold text-ink mb-2';
-        var a=document.createElement('a'); a.href='/blog/'+pid+'/'; a.className='hover:underline decoration-accent-500 decoration-2 underline-offset-4'; a.textContent=(p.title||(p.data&&p.data.title))||''; h2.appendChild(a); body.appendChild(h2);
+       var a=document.createElement('a'); a.href=siteUrl('/blog/'+pid+'/'); a.className='hover:underline decoration-accent-500 decoration-2 underline-offset-4'; a.textContent=(p.title||(p.data&&p.data.title))||''; h2.appendChild(a); body.appendChild(h2);
         var time=document.createElement('time'); time.className='text-text-secondary text-sm mt-auto'; time.setAttribute('datetime',p.date||(p.data&&p.data.date)||''); time.textContent=new Date(p.date||(p.data&&p.data.date)||Date.now()).toLocaleDateString('pt-BR'); body.appendChild(time); article.appendChild(body);
         grid.appendChild(article);
       }
-      fetch('/api/admin.php?action=list').then(function(r){return r.json()}).then(function(d){
+       fetch(siteUrl('/api/admin.php?action=list')).then(function(r){return r.json()}).then(function(d){
         if(d.posts&&d.posts.length&&grid.getAttribute('data-admin-loaded')==='false'){
           d.posts.forEach(function(p){ renderPost(p); });
           try{ sessionStorage.setItem(cacheKey,{at:Date.now(),posts:d.posts}); }catch(e){}

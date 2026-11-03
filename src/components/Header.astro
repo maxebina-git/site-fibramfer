@@ -2,8 +2,9 @@
 import { Header as HeaderDS, Button } from 'ds-grupo-rkb';
 import LordIcon from './LordIcon.astro';
 import FibramferLogo from './FibramferLogo.astro';
+import { sitePath, stripSiteBase } from '../lib/sitePath';
 
-const path = Astro.url.pathname;
+const path = stripSiteBase(Astro.url.pathname);
 const normalizePath = (value: string): string => value === '/' ? value : value.replace(/\/+$/, '');
   const panelRoutes = ['/a-fibramfer', '/cadeira-suspensa', '/seguranca', '/blog', '/contato', '/privacidade', '/termos'];
 const normalizedPath = normalizePath(path);
@@ -17,6 +18,7 @@ const navItems = [
 ];
 const nav = navItems.map((item) => ({
   ...item,
+  href: sitePath(item.href),
   active: path === item.href || path.startsWith(`${item.href}/`),
 }));
 ---
@@ -39,7 +41,8 @@ const nav = navItems.map((item) => ({
       variant="primary"
       size="sm"
       as="a"
-      href="/contato"
+       href={sitePath('/contato')}
+       data-contact-link="true"
       aria-current={
         path === '/contato' || path.startsWith('/contato/') ? 'page' : undefined
       }>
@@ -148,6 +151,7 @@ const nav = navItems.map((item) => ({
 
 <script>
   import type { LordIconElement } from '@lordicon/element';
+  import { sitePath, stripSiteBase } from '../lib/sitePath';
 
   const desktopMediaQuery = '(min-width: 1024px)';
   let logoSyncFrame: number | null = null;
@@ -346,7 +350,7 @@ const nav = navItems.map((item) => ({
 
   const normalizePath = (path: string): string => path === '/' ? path : path.replace(/\/+$/, '');
 
-  const routeForHref = (href: string): string | undefined => drawerRoutes.get(normalizePath(href));
+  const routeForHref = (href: string): string | undefined => drawerRoutes.get(normalizePath(stripSiteBase(href)));
 
   const isActiveRoute = (route: string, currentPath: string): boolean => {
     const normalizedRoute = normalizePath(route);
@@ -362,7 +366,7 @@ const nav = navItems.map((item) => ({
     const header = document.querySelector('header');
     if (!header) return;
 
-    const currentPath = normalizePath(window.location.pathname);
+    const currentPath = normalizePath(stripSiteBase(window.location.pathname));
     const panelOpen = isPanelRoute(currentPath);
     header.classList.toggle('panel-open', panelOpen);
     header.dataset.panelOpen = String(panelOpen);
@@ -382,17 +386,17 @@ const nav = navItems.map((item) => ({
       }
     });
 
-    header.querySelectorAll('a[href="/contato"], a[href="/contato/"]').forEach((link) => {
+    header.querySelectorAll('a[data-contact-link="true"]').forEach((link) => {
       if (isActiveRoute('/contato/', currentPath)) link.setAttribute('aria-current', 'page');
       else link.removeAttribute('aria-current');
     });
   }
 
   function navigate(path: string) {
-    if (normalizePath(window.location.pathname) !== normalizePath(path)) {
+    if (normalizePath(stripSiteBase(window.location.pathname)) !== normalizePath(path)) {
       document.body.removeAttribute('data-fibramfer-direct-drawer');
       document.body.removeAttribute('data-fibramfer-initializing');
-      window.history.pushState({}, '', path);
+      window.history.pushState({}, '', sitePath(path));
     }
     window.dispatchEvent(new PopStateEvent('popstate'));
     window.dispatchEvent(new CustomEvent('fibramfer:navigate', { detail: { path } }));
@@ -420,7 +424,7 @@ const nav = navItems.map((item) => ({
       if (!href || link.target === '_blank') return;
 
       const hasDrawerShell = document.querySelector('[data-fibramfer-drawers]');
-      const isHome = href === '/' || link.getAttribute('aria-label') === 'Home';
+       const isHome = stripSiteBase(href || '') === '/' || link.getAttribute('aria-label') === 'Home';
       const route = routeForHref(href);
 
       if (!hasDrawerShell || (!isHome && !route)) return;
@@ -1126,9 +1130,12 @@ const nav = navItems.map((item) => ({
   document.addEventListener('mousedown', preloadBlog);
   document.addEventListener('touchstart', preloadBlog);
   function preloadBlog(e) {
-    var a = e.target.closest ? e.target.closest('a[href="/blog"]') : null;
-    if (a) {
-      fetch('/api/admin.php?action=list')
+    var siteBase = (document.body && document.body.dataset.siteBase) || '/';
+    var blogHref = siteBase + 'blog';
+    var blogHrefWithSlash = blogHref + '/';
+    var a = e.target.closest ? e.target.closest('a[href]') : null;
+    if (a && (a.getAttribute('href') === blogHref || a.getAttribute('href') === blogHrefWithSlash)) {
+      fetch(siteBase + 'api/admin.php?action=list')
         .then(function(r) { return r.json(); })
         .then(function(d) {
           if (d.posts) localStorage.setItem('admin_posts', JSON.stringify(d.posts));

@@ -1,3 +1,5 @@
+import { sitePath } from './sitePath'
+
 export type FloatAssetKey = 'f1' | 'f2' | 'f3';
 
 export type FloatAsset = {
@@ -68,7 +70,7 @@ export type FloatAsset = {
 export const FLOAT_ASSETS: Record<FloatAssetKey, FloatAsset> = {
   //. F1: painel em retrato (97x306), o original do drawer A Fibramfer.
   f1: {
-    src: '/assets/f1.png',
+    src: sitePath('/assets/f1.png'),
     width: 1.55,
     height: 4.9,
     depth: 0.62,
@@ -95,7 +97,7 @@ export const FLOAT_ASSETS: Record<FloatAssetKey, FloatAsset> = {
   },
   //. F2: painel paisagem (211x97) com a diagonal de 45° à direita.
   f2: {
-    src: '/assets/f2.png',
+    src: sitePath('/assets/f2.png'),
     width: 4.9,
     height: 2.253,
     depth: 0.62,
@@ -123,7 +125,7 @@ export const FLOAT_ASSETS: Record<FloatAssetKey, FloatAsset> = {
   //. F3: peça quadrada dourada (71x71), a diagonal do topo-direito para o
   //  canto inferior-esquerdo. Entrada/saída na diagonal da peça.
   f3: {
-    src: '/assets/f3.png',
+    src: sitePath('/assets/f3.png'),
     width: 3.2,
     height: 3.2,
     depth: 1,

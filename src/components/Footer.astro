@@ -1,11 +1,12 @@
 ---
 import { Footer as DSFooter } from 'ds-grupo-rkb';
+import { sitePath } from '../lib/sitePath';
 
 const companyInfo = {
   companyName: 'Fibramfer',
   legalLinks: [
-    { label: 'Privacidade', href: '/privacidade' },
-    { label: 'Termos', href: '/termos' },
+    { label: 'Privacidade', href: sitePath('/privacidade') },
+    { label: 'Termos', href: sitePath('/termos') },
   ],
 };
 

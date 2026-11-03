@@ -1,5 +1,6 @@
 ---
 import rawSvg from '../assets/cadeira-suspensa-outline.svg?raw';
+import { sitePath } from '../lib/sitePath';
 
 const chairDrawSvg = rawSvg
   .replace(/\s(?:width|height)="[^"]*"/g, '')
@@ -13,7 +14,7 @@ const chairDrawSvg = rawSvg
 <div class="chair-draw-root" set:html={chairDrawSvg} />
 
 <div class="chair-draw-fill" data-chair-draw-fill aria-hidden="true">
-  <img src="/site-novo/assets/cadeira-suspensa-no-bg.png" alt="" loading="eager" />
+  <img src={sitePath('/assets/cadeira-suspensa-no-bg.png')} alt="" loading="eager" />
 </div>
 
 <noscript>
@@ -25,6 +26,8 @@ const chairDrawSvg = rawSvg
 </noscript>
 
 <script>
+  import { stripSiteBase } from '../lib/sitePath';
+
   const svg = document.querySelector<SVGElement>('svg[data-chair-draw]');
 
   const initChairDraw = async (): Promise<void> => {
@@ -53,7 +56,7 @@ const chairDrawSvg = rawSvg
     // nasça no progresso salvo; Back/Forward e replay de drawers preservam a
     // restauração normal porque o valor anterior volta após o pageshow.
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
-    const isHomeReload = window.location.pathname === '/' && navigation?.type === 'reload';
+    const isHomeReload = stripSiteBase(window.location.pathname) === '/' && navigation?.type === 'reload';
     const previousScrollRestoration = history.scrollRestoration;
     const resetHomeScroll = () => {
       window.scrollTo({ top: 0, left: 0, behavior: 'auto' });

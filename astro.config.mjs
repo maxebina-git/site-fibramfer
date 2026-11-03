@@ -7,6 +7,7 @@ import crypto from 'node:crypto';
 
 const blogDir = path.resolve('src/content/blog');
 const uploadsDir = path.resolve('public/uploads');
+const SITE_BASE = '/site-novo';
 
 const EXT_BY_MIME = {
   'image/png': 'png',
@@ -74,7 +75,13 @@ function blogSyncDevPlugin() {
       suppress(server.ws);
       suppress(server.environments && server.environments.client && server.environments.client.hot);
 
-      server.middlewares.use('/api/blog-sync', (req, res) => {
+      server.middlewares.use((req, res, next) => {
+        const requestPath = (req.url || '').split('?')[0];
+        if (requestPath !== '/api/blog-sync' && requestPath !== `${SITE_BASE}/api/blog-sync`) {
+          next();
+          return;
+        }
+
         if (req.method !== 'POST') {
           res.statusCode = 405;
           res.end(JSON.stringify({ error: 'Method not allowed' }));
@@ -142,7 +149,7 @@ function blogSyncDevPlugin() {
 }
 
 export default defineConfig({
-  base: '/site-novo/',
+  base: `${SITE_BASE}/`,
   icon: '/favicon.svg',
   integrations: [
     vue()

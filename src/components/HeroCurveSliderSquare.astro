@@ -1,4 +1,6 @@
 ﻿---
+import { sitePath } from '../lib/sitePath';
+
 // HeroCurveSlider.astro
 // Slideshow com transição de clip-path SVG animado (variante "curve"),
 // inspirado no Animated SVG Image Slider da CodyHouse (codyhouse.co).
@@ -67,7 +69,7 @@ const INITIAL_D = STEP3;
               </clipPath>
             </defs>
             <image
-              href={slide.src}
+              href={sitePath(slide.src)}
               width={VIEW_W}
               height={VIEW_H}
               preserveAspectRatio="xMidYMid slice"

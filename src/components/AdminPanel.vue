@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue'
 import { Button } from 'ds-grupo-rkb'
+import { sitePath } from '../lib/sitePath'
 import { Loader2, Check, X, Trash } from '@lucide/vue'
 
 interface Post {
@@ -55,7 +56,7 @@ watch(formTitle, (val) => {
 
 function loadPosts() {
   if (import.meta.env.PROD) {
-    fetch('/api/admin.php?action=list')
+    fetch(sitePath('/api/admin.php?action=list'))
       .then((r) => r.json())
       .then((d) => { if (d.posts) posts.value = d.posts })
       .catch(() => { /* fallback localStorage */ });
@@ -96,7 +97,7 @@ function escapeHtml(value: string): string {
 
 async function waitForBlog(id: string, mode: 'present' | 'absent', title?: string): Promise<void> {
   if (import.meta.env.PROD) return
-  const needle = `/blog/${id}/`
+  const needle = sitePath(`/blog/${id}/`)
   const titleNeedle = title ? escapeHtml(title) : null
   const startedAt = Date.now()
   const deadline = startedAt + 9000
@@ -104,7 +105,7 @@ async function waitForBlog(id: string, mode: 'present' | 'absent', title?: strin
   const minWait = 1800
   while (Date.now() < deadline) {
     try {
-      const html = await (await fetch('/blog/', { cache: 'no-store' })).text()
+      const html = await (await fetch(sitePath('/blog/'), { cache: 'no-store' })).text()
       const has = html.includes(needle)
       const titleOk = !titleNeedle || html.includes(titleNeedle)
       const settled = mode === 'present' ? has && titleOk : !has
@@ -115,7 +116,7 @@ async function waitForBlog(id: string, mode: 'present' | 'absent', title?: strin
 }
 
 async function syncAll(list: Post[]) {
-  const url = import.meta.env.PROD ? '/api/admin.php?action=sync' : '/api/blog-sync'
+  const url = import.meta.env.PROD ? sitePath('/api/admin.php?action=sync') : sitePath('/api/blog-sync')
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -143,7 +144,7 @@ function savePosts() {
 }
 
 async function syncMd(post: Post) {
-  const url = import.meta.env.PROD ? '/api/admin.php?action=save' : '/api/blog-sync'
+  const url = import.meta.env.PROD ? sitePath('/api/admin.php?action=save') : sitePath('/api/blog-sync')
   try {
     const res = await fetch(url, {
       method: 'POST',
@@ -165,7 +166,7 @@ async function syncMd(post: Post) {
 }
 
 async function deleteMd(id: string) {
-  const url = import.meta.env.PROD ? '/api/admin.php?action=delete' : '/api/blog-sync'
+  const url = import.meta.env.PROD ? sitePath('/api/admin.php?action=delete') : sitePath('/api/blog-sync')
   const payload = import.meta.env.PROD ? { id } : { id, delete: true }
   try {
     const res = await fetch(url, {

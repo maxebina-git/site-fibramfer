@@ -1,10 +1,11 @@
 ---
+import { sitePath } from '../lib/sitePath';
 const { class: className = '' } = Astro.props;
 ---
 
 <div class={`relative w-full h-48 overflow-hidden rounded-lg bg-surface-alt ${className}`}>
-  <img loading="eager" decoding="async" src="/assets/cadeira-suspensa/007.webp" alt="" class="absolute inset-0 w-full h-full object-cover" style="animation: fadeS3 3.5s infinite; opacity:1" />
-  <img loading="eager" decoding="async" src="/assets/cadeira-suspensa/008.webp" alt="" class="absolute inset-0 w-full h-full object-cover" style="animation: fadeS3 3.5s infinite; animation-delay: 1.75s; opacity:0" />
+  <img loading="eager" decoding="async" src={sitePath('/assets/cadeira-suspensa/007.webp')} alt="" class="absolute inset-0 w-full h-full object-cover" style="animation: fadeS3 3.5s infinite; opacity:1" />
+  <img loading="eager" decoding="async" src={sitePath('/assets/cadeira-suspensa/008.webp')} alt="" class="absolute inset-0 w-full h-full object-cover" style="animation: fadeS3 3.5s infinite; animation-delay: 1.75s; opacity:0" />
 </div>
 <style>
   @keyframes fadeS3 { 0%,50%{opacity:1} 50.33%,100%{opacity:0} }

@@ -16,15 +16,15 @@
 - [x] Confirmar caminho real `ftp-dir` no host (`/www/site-novo` via FTP: fibramfer.com.br → www → site-novo)
 - [x] Ajustar `.github/workflows/deploy.yml`: `ftp-dir` para `/www/site-novo`
 - [x] Configurar `astro.config.mjs`: `base: '/site-novo/'` (subpasta)
-- [ ] Validar dev/prod (`/site-novo/`) — imagens/lordicon ainda em cheque
+- [x] Validar dev (`/site-novo/`) — imagens e Lord Icons retornando `200`
 - [x] Adicionar 5 Secrets no GitHub (`Settings → Secrets → Actions`):
   - `FTP_SERVER`: `ftp.fibramfer.com.br`
   - `FTP_USERNAME`: `fibrerbr`
-  - `FTP_PASSWORD`: `AY7dikWYmVh` (remover do doc depois se possível)
+  - `FTP_PASSWORD`: configurado somente nos Secrets do GitHub Actions
   - `FTP_PORT`: `20021`
   - `FTP_PROTOCOL`: `FTP`
 - [ ] Confirmar se host tem PHP ativo (`public/admin.php` precisa executar)
-- [ ] Fazer `git push` após ajustar `ftp-dir`
+- [x] Fazer `git push` após ajustar `ftp-dir`
 - [ ] Verificar Actions -> confirmar deploy sem erro
 - [ ] Validar site no ar: `https://fibramfer.com.br/site-novo/`
 

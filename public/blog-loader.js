@@ -1,5 +1,11 @@
 console.log('BLOG-LOADER EXECUTADO', document.querySelector('#blog-grid-root') ? 'grid ok' : 'grid faltante', localStorage.getItem('admin_posts') ? 'tem storage' : 'sem storage'); 
 (function(){
+  var siteBase=(document.body&&document.body.dataset.siteBase)||'/';
+  function siteUrl(path){
+    if(!path||/^(?:[a-z][a-z\d+.-]*:|\/\/|#)/i.test(path)) return path;
+    if(path===siteBase.slice(0,-1)||path.indexOf(siteBase)===0) return path;
+    return siteBase+String(path).replace(/^\/+/, '');
+  }
   function render(list){
     var grid=document.querySelector('#blog-grid-root');
     if(!grid)return;
@@ -14,7 +20,7 @@ console.log('BLOG-LOADER EXECUTADO', document.querySelector('#blog-grid-root') ?
       imgWrap.className=(p.image||(p.data&&p.data.image))?'':'h-48 bg-surface-alt';
       if(p.image||(p.data&&p.data.image)){
         var img=document.createElement('img');
-        img.src=p.image||(p.data&&p.data.image);
+         img.src=siteUrl(p.image||(p.data&&p.data.image));
         img.alt=(p.title||(p.data&&p.data.title))||'';
         img.className='h-48 w-full object-cover bg-surface-alt';
         imgWrap.appendChild(img);
@@ -25,7 +31,7 @@ console.log('BLOG-LOADER EXECUTADO', document.querySelector('#blog-grid-root') ?
       var h2=document.createElement('h2');
       h2.className='font-display text-xl font-bold text-ink mb-2';
       var a=document.createElement('a');
-      a.href='/blog/'+pid+'/';
+       a.href=siteUrl('/blog/'+pid+'/');
       a.className='hover:underline decoration-accent-500 decoration-2 underline-offset-4';
       a.textContent=(p.title||(p.data&&p.data.title))||'';
       h2.appendChild(a);
@@ -46,7 +52,7 @@ console.log('BLOG-LOADER EXECUTADO', document.querySelector('#blog-grid-root') ?
     var raw=localStorage.getItem('admin_posts');
     if(raw){var arr=JSON.parse(raw);if(arr&&arr.length)render(arr);}
   }catch(e){}
-  fetch('/api/admin.php?action=list').then(function(r){return r.json();}).then(function(d){if(d.posts&&d.posts.length&&document.querySelector('#blog-grid-root[data-admin-loaded="false"]'))render(d.posts);}).catch(function(){});
+   fetch(siteUrl('/api/admin.php?action=list')).then(function(r){return r.json();}).then(function(d){if(d.posts&&d.posts.length&&document.querySelector('#blog-grid-root[data-admin-loaded="false"]'))render(d.posts);}).catch(function(){});
   setInterval(function(){
     try{
       var raw=localStorage.getItem('admin_posts');

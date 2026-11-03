@@ -1,5 +1,6 @@
 ---
 import FibramferFloat from './FibramferFloat.astro';
+import { sitePath } from '../lib/sitePath';
 
 interface BlogPost {
   id: string;
@@ -22,7 +23,7 @@ const { post, Content } = Astro.props;
 ---
 
 <article class="mx-auto max-w-3xl px-6 py-16">
-  <a href="/blog/" class="font-medium text-primary-500 hover:underline decoration-accent-500 decoration-2 underline-offset-4">
+  <a href={sitePath('/blog/')} class="font-medium text-primary-500 hover:underline decoration-accent-500 decoration-2 underline-offset-4">
     ← Voltar para o Blog
   </a>
   <h1 class="mt-6 mb-4 font-display text-4xl font-bold text-ink">{post.data.title}</h1>
@@ -32,7 +33,7 @@ const { post, Content } = Astro.props;
     {post.data.category && <span>{post.data.category}</span>}
   </div>
   {post.data.image && (
-    <img src={post.data.image} alt={post.data.title} class="mb-8 h-auto w-full rounded-lg border border-border" />
+    <img src={sitePath(post.data.image)} alt={post.data.title} class="mb-8 h-auto w-full rounded-lg border border-border" />
   )}
   {post.data.description && <p class="mb-8 text-lg text-text-secondary">{post.data.description}</p>}
   <div class="prose prose-lg max-w-none">

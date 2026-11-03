@@ -1,4 +1,6 @@
 ---
+import { sitePath } from '../lib/sitePath';
+
 type LordIconTrigger =
   | 'in'
   | 'click'
@@ -40,7 +42,7 @@ const iconStyle = [width && `width:${width}`, height && `height:${height}`].filt
 ---
 
 <lord-icon
-  src={src}
+  src={sitePath(src)}
   trigger={trigger}
   state={state}
   target={target}

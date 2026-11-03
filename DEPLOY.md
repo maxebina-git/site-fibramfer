@@ -18,7 +18,7 @@ Configurar no GitHub: **Settings → Secrets and variables → Actions → New r
 |--------|-------|
 | `FTP_SERVER` | `ftp.fibramfer.com.br` |
 | `FTP_USERNAME` | `fibrerbr` |
-| `FTP_PASSWORD` | `AY7dikWYmVh` |
+| `FTP_PASSWORD` | Configurado somente nos Secrets do GitHub Actions |
 | `FTP_PORT` | `20021` |
 | `FTP_PROTOCOL` | `FTP` |
 
@@ -38,10 +38,7 @@ Configurar no GitHub: **Settings → Secrets and variables → Actions → New r
    - Settings → Secrets and variables → Actions
    - Clique em **New repository secret** para cada um dos 5 itens da tabela acima
 
-3. **Ajustar `ftp-dir` no workflow:**
-   - Editar `.github/workflows/deploy.yml`
-   - Alterar `ftp-dir` para o caminho real no servidor (ex.: `/site-novo`, `/htdocs/site-novo`, `/public_html/site-novo`)
-   - Commit + push para disparar o workflow
+3. O `ftp-dir` já está configurado como `/www/site-novo/`, conforme confirmado no servidor.
 
 ---
 
@@ -74,4 +71,4 @@ Falha:
 
 - O site é estático (HTML/CSS/JS) gerado pelo Astro
 - `admin.php` em `public/api/` requer **PHP habilitado** no servidor web (conforme confirmado com o host)
-- O `ftp-dir` ainda é placeholder até você confirmar o caminho real no servidor (aguardando retorno do host)
+- O `ftp-dir` confirmado no servidor é `/www/site-novo/`.

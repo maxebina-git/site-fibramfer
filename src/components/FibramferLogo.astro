@@ -1,10 +1,11 @@
 ---
 import LordIcon from './LordIcon.astro';
+import { sitePath } from '../lib/sitePath';
 ---
 
 <div class="fibramfer-logo" aria-hidden="true">
   <img
-    src="/site-novo/assets/logo-fibramfer.svg"
+    src={sitePath('/assets/logo-fibramfer.svg')}
     alt=""
     class="fibramfer-logo-image block h-full w-full object-contain"
   />

@@ -24,4 +24,4 @@ jobs:
           port: ${{ secrets.FTP_PORT }}
           protocol: ${{ secrets.FTP_PROTOCOL }}
           local-dir: dist/
-          server-dir: /fibramfer.com.br/www/site-novo/
+          server-dir: /www/site-novo/

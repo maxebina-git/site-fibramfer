@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { AccordionGroup, AccordionItem, Button } from 'ds-grupo-rkb'
+import { sitePath } from '../lib/sitePath'
 
 type SupportTab = 'documents' | 'faq'
 
@@ -47,7 +48,7 @@ const documents = [
             <span class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-accent-500 text-sm font-bold text-ink" aria-hidden="true">✓</span>
             <span class="font-body text-base text-ink">{{ document }}</span>
           </div>
-          <Button variant="secondary" size="sm" as="a" href="/contato/">Solicitar</Button>
+          <Button variant="secondary" size="sm" as="a" :href="sitePath('/contato/')">Solicitar</Button>
         </li>
       </ul>
     </div>
