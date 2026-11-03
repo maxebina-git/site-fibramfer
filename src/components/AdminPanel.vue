@@ -160,8 +160,12 @@ async function syncMd(post: Post): Promise<Post> {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ post })
   })
+  if (!res.ok) {
+    if (res.status === 413) throw new Error('http_413')
+    throw new Error('Falha ao salvar post')
+  }
   const d = await res.json()
-  if (!res.ok || d?.ok !== true) throw new Error(d?.error || 'Falha ao salvar post')
+  if (d?.ok !== true) throw new Error(d?.error || 'Falha ao salvar post')
 
   if (typeof d?.image === 'string' && d.image.startsWith('/uploads/')) {
     const idx = posts.value.findIndex((p) => p.id === post.id)
@@ -480,16 +484,51 @@ function closeModal() {
   formImagePreview.value = null
 }
 
+const MAX_IMAGE_DIMENSION = 1600
+const MAX_ORIGINAL_IMAGE_BYTES = 512 * 1024
+
 function onImageChange(e: Event) {
   const target = e.target as HTMLInputElement
   const file = target.files && target.files[0]
   if (!file) return
   formImage.value = file
-  const reader = new FileReader()
-  reader.onload = () => {
-    formImagePreview.value = reader.result as string
+
+  // O servidor da VPS rejeita corpos maiores (413). Fotos de celular estouram o limite,
+  // então reduzidas aqui antes de virar data URL.
+  if (file.type === 'image/png' || file.type === 'image/webp') {
+    if (file.size <= MAX_ORIGINAL_IMAGE_BYTES) {
+      const reader = new FileReader()
+      reader.onload = () => { formImagePreview.value = reader.result as string }
+      reader.readAsDataURL(file)
+      return
+    }
   }
-  reader.readAsDataURL(file)
+
+  const objectUrl = URL.createObjectURL(file)
+  const img = new Image()
+  img.onload = () => {
+    URL.revokeObjectURL(objectUrl)
+    const scale = Math.min(1, MAX_IMAGE_DIMENSION / Math.max(img.width, img.height))
+    const canvas = document.createElement('canvas')
+    canvas.width = Math.max(1, Math.round(img.width * scale))
+    canvas.height = Math.max(1, Math.round(img.height * scale))
+    const ctx = canvas.getContext('2d')
+    if (!ctx) {
+      const reader = new FileReader()
+      reader.onload = () => { formImagePreview.value = reader.result as string }
+      reader.readAsDataURL(file)
+      return
+    }
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
+    formImagePreview.value = canvas.toDataURL('image/jpeg', 0.85)
+  }
+  img.onerror = () => {
+    URL.revokeObjectURL(objectUrl)
+    const reader = new FileReader()
+    reader.onload = () => { formImagePreview.value = reader.result as string }
+    reader.readAsDataURL(file)
+  }
+  img.src = objectUrl
 }
 
 async function savePost() {
@@ -530,8 +569,10 @@ async function savePost() {
 
     savePosts()
     closeModal()
-  } catch {
-    apiError.value = 'Não foi possível salvar o post. Verifique a conexão com o banco de dados.'
+  } catch (err: unknown) {
+    apiError.value = err instanceof Error && err.message === 'http_413'
+      ? 'A imagem é grande demais para o servidor. Reduza o tamanho do arquivo e salve novamente.'
+      : 'Não foi possível salvar o post. Verifique a conexão com o banco de dados.'
   } finally {
     loadingSave.value = false
   }
