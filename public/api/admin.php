@@ -7,18 +7,51 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
-// Configurar conforme ambiente (mude ao instalar)
-$dbHost = 'localhost';
-$dbName = 'fibramfer';
-$dbUser = 'root';
-$dbPass = '';
+function respond($data, $code = 200) {
+    http_response_code($code);
+    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+}
+
+// O arquivo preferencial fica fora de site-novo e não entra no deploy.
+$config = [];
+$configPath = getenv('FIBRAMFER_DB_CONFIG');
+$configPaths = array_filter([
+    $configPath !== false ? $configPath : null,
+    dirname(__DIR__, 2) . '/.fibramfer-db.php',
+    __DIR__ . '/config.php',
+]);
+foreach ($configPaths as $path) {
+    if (!is_file($path)) continue;
+    $loaded = require $path;
+    if (is_array($loaded)) $config = $loaded;
+    break;
+}
+
+$readConfig = function ($key) use ($config) {
+    $envKey = 'FIBRAMFER_DB_' . strtoupper($key);
+    $envValue = getenv($envKey);
+    return trim((string)($envValue !== false ? $envValue : ($config[$key] ?? '')));
+};
+
+$dbHost = $readConfig('host');
+$dbName = $readConfig('name');
+$dbUser = $readConfig('user');
+$dbPass = $readConfig('pass');
+$dbPort = $readConfig('port');
+
+if ($dbHost === '' || $dbName === '' || $dbUser === '') {
+    respond(['error' => 'Database is not configured'], 500);
+    exit;
+}
 
 try {
-    $pdo = new PDO("mysql:host=$dbHost;dbname=$dbName;charset=utf8mb4", $dbUser, $dbPass);
+    $dsn = "mysql:host=$dbHost;dbname=$dbName" . ($dbPort !== '' ? ";port=$dbPort" : '') . ";charset=utf8mb4";
+    $pdo = new PDO($dsn, $dbUser, $dbPass);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'DB connection failed: ' . $e->getMessage()]);
+    echo json_encode(['error' => 'DB connection failed']);
     exit;
 }
 
@@ -29,11 +62,6 @@ $body = [];
 if ($method === 'POST') {
     $input = file_get_contents('php://input');
     $body = json_decode($input, true) ?: $_POST;
-}
-
-function respond($data, $code = 200) {
-    http_response_code($code);
-    echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 }
 
 // Login check
@@ -73,13 +101,6 @@ if (($method === 'POST' || $method === 'PUT') && $action === 'save') {
         $stmt = $pdo->prepare("UPDATE posts SET title = ?, date = ?, category = ?, image = ?, content = ? WHERE id = ?");
         $stmt->execute([$title, $date, $category, $image, $content, $id]);
     }
-    // Escrever .md para Astro (server-side / static)
-    $mdDir = dirname(__DIR__, 2) . '/src/content/blog';
-    if (!is_dir($mdDir)) mkdir($mdDir, 0777, true);
-    $mdFile = $mdDir . '/' . $id . '.md';
-    $mdContent = "---\ntitle: " . $title . "\ndate: " . $date . "\ncategory: " . ($category ?: "") . "\n---\n\n" . $content . "\n";
-    file_put_contents($mdFile, $mdContent);
-
     respond(['ok' => true, 'id' => $id]);
     exit;
 }
@@ -88,34 +109,7 @@ if (($method === 'POST' || $method === 'PUT') && $action === 'save') {
 if (($method === 'POST' || $method === 'DELETE') && $action === 'delete' && !empty($body['id'])) {
     $stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
     $stmt->execute([$body['id']]);
-    // Deletar .md também
-    $mdFile = dirname(__DIR__, 2) . '/src/content/blog/' . $body['id'] . '.md';
-    if (file_exists($mdFile)) unlink($mdFile);
-
     respond(['ok' => true]);
-    exit;
-}
-
-// Sync .md with DB
-if ($method === 'GET' && $action === 'sync') {
-    $stmt = $pdo->query("SELECT id, title, date, category, image, content FROM posts ORDER BY date DESC, created_at DESC");
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    $dbIds = array_column($rows, 'id');
-    $mdDir = dirname(__DIR__, 2) . '/src/content/blog';
-    $existing = glob($mdDir . '/*.md');
-    foreach ($existing as $f) {
-        $fname = basename($f, '.md');
-        if (!in_array($fname, $dbIds)) {
-            @unlink($f);
-        }
-    }
-    foreach ($rows as $r) {
-        $mdFile = $mdDir . '/' . $r['id'] . '.md';
-        $content = ($r['content'] ?? '') ? $r['content'] : '';
-        $mdData = "---\ntitle: " . ($r['title'] ?? '') . "\ndate: " . ($r['date'] ?? '') . "\ncategory: " . ($r['category'] ?? '') . "\n---\n\n" . $content . "\n";
-        file_put_contents($mdFile, $mdData);
-    }
-    respond(['ok' => true, 'synced' => count($rows)]);
     exit;
 }
 

@@ -57,6 +57,7 @@ const legalLinks = [
   { path: '/termos', label: 'Termos' },
 ]
 
+const dynamicPostId = ref<string | undefined>(undefined)
 
 
 const routes = computed<RouteDefinition[]>(() => [
@@ -68,6 +69,15 @@ const routes = computed<RouteDefinition[]>(() => [
     revealKey: `blog-post-${post.id}`,
     postId: post.id,
   })),
+  ...(dynamicPostId.value
+    ? [{
+        path: `/blog/${dynamicPostId.value}/`,
+        title: 'Blog',
+        slot: 'blog-posts' as const,
+        revealKey: `blog-post-${dynamicPostId.value}`,
+        postId: dynamicPostId.value,
+      }]
+    : []),
 ])
 
 const currentPath = ref(normalizePath(props.initialPath))
@@ -260,7 +270,19 @@ watch(isLegalRoute, (active) => {
 })
 
 function syncFromLocation(): void {
-  currentPath.value = normalizePath(stripSiteBase(window.location.pathname))
+  const path = normalizePath(stripSiteBase(window.location.pathname))
+  const queryPostId = path === '/blog'
+    ? new URLSearchParams(window.location.search).get('post')?.trim() || undefined
+    : undefined
+
+  dynamicPostId.value = queryPostId
+  currentPath.value = queryPostId ? `/blog/${queryPostId}/` : path
+
+  const route = routeForPath(currentPath.value)
+  if (route) {
+    displayedSlot.value = route.slot
+    displayedPostId.value = route.postId
+  }
 }
 
 function navigateTo(path: string): void {

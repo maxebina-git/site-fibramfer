@@ -4,6 +4,7 @@ import FibramferDrawers from '../../components/FibramferDrawers.astro';
 import { getCollection } from 'astro:content';
 
 export async function getStaticPaths() {
+  if (import.meta.env.PROD) return [];
   const posts = await getCollection('blog');
   return posts.map((post) => ({ params: { slug: post.id }, props: { postTitle: post.data.title } }));
 }

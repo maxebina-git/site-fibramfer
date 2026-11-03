@@ -27,7 +27,12 @@ const allPosts = posts;
     <p class="mb-2 text-center font-body text-sm font-semibold uppercase tracking-[0.16em] text-accent-500">Novidades do setor</p>
     <h1 class="font-display text-4xl font-bold text-center text-ink mb-2">Blog e Novidades</h1>
     <p class="text-text-secondary mb-12 text-center">Fique por dentro das tendências do setor e atualizações técnicas.</p>
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8" data-admin-loaded="false" id="blog-grid-root">
+    <div
+      class="grid grid-cols-1 md:grid-cols-3 gap-8"
+      data-admin-loaded={import.meta.env.PROD ? 'false' : 'true'}
+      data-api-only={import.meta.env.PROD ? 'true' : 'false'}
+      id="blog-grid-root"
+    >
       {allPosts.map((post: any) => (
         <article class="bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col">
           {(post.data ? post.data.image : post.image) && <img src={sitePath(post.data ? post.data.image : post.image)} alt={post.data ? post.data.title : post.title} class="h-48 w-full object-cover bg-surface-alt" />}
@@ -43,7 +48,7 @@ const allPosts = posts;
           </div>
         </article>
       ))}
-      {allPosts.length === 0 && <p class="text-text-secondary msg-empty-blog" style="display:none;">Nenhum post publicado ainda.</p>}
+      {allPosts.length === 0 && <p class="text-text-secondary msg-empty-blog">Nenhum post publicado ainda.</p>}
     </div>
   </div>
   <FibramferFloat asset="f2" />
@@ -52,7 +57,7 @@ const allPosts = posts;
   <script is:inline>
     (function(){
       var grid=document.querySelector('#blog-grid-root');
-      if(!grid||grid.getAttribute('data-admin-loaded')==='true') return;
+       if(!grid||grid.getAttribute('data-api-only')!=='true'||grid.getAttribute('data-admin-loaded')==='true') return;
       var siteBase=(document.body&&document.body.dataset.siteBase)||'/';
       function siteUrl(path){
         if(!path||/^(?:[a-z][a-z\d+.-]*:|\/\/|#)/i.test(path)) return path;
@@ -63,7 +68,9 @@ const allPosts = posts;
       var cached=null;
       try { cached=JSON.parse(sessionStorage.getItem(cacheKey)||'null'); } catch(e){}
       var now=Date.now();
-      if(cached&&cached.at&&now-cached.at<5*60*1000){ cached.posts.forEach(function(p){ renderPost(p); }); grid.setAttribute('data-admin-loaded','true'); var emptyMsg=grid.querySelector('.msg-empty-blog'); if(emptyMsg) emptyMsg.style.display='none'; return; }
+       function setEmptyMessage(message, visible){ var emptyMsg=grid.querySelector('.msg-empty-blog'); if(emptyMsg){ emptyMsg.textContent=message; emptyMsg.style.display=visible?'block':'none'; } }
+       function finish(posts){ grid.setAttribute('data-admin-loaded','true'); setEmptyMessage(posts.length?'':'Nenhum post publicado ainda.', !posts.length); }
+       if(cached&&cached.at&&now-cached.at<5*60*1000&&Array.isArray(cached.posts)){ cached.posts.forEach(function(p){ renderPost(p); }); finish(cached.posts); return; }
       function renderPost(p){
         if(!p)return; var pid=p.id||(p.data&&p.data.id)||''; if(!pid)return;
         var article=document.createElement('article'); article.className='bg-surface rounded-lg shadow-card border border-border overflow-hidden flex flex-col';
@@ -71,17 +78,16 @@ const allPosts = posts;
          if(p.image||(p.data&&p.data.image)){var img=document.createElement('img');img.src=siteUrl(p.image||(p.data&&p.data.image));img.alt=(p.title||(p.data&&p.data.title))||'';img.className='h-48 w-full object-cover bg-surface-alt';imgWrap.appendChild(img);}
         article.appendChild(imgWrap); var body=document.createElement('div'); body.className='p-6 flex flex-col flex-1';
         var h2=document.createElement('h2'); h2.className='font-display text-xl font-bold text-ink mb-2';
-       var a=document.createElement('a'); a.href=siteUrl('/blog/'+pid+'/'); a.className='hover:underline decoration-accent-500 decoration-2 underline-offset-4'; a.textContent=(p.title||(p.data&&p.data.title))||''; h2.appendChild(a); body.appendChild(h2);
+        var href=siteUrl('/blog/?post='+encodeURIComponent(pid)); var a=document.createElement('a'); a.href=href; a.className='hover:underline decoration-accent-500 decoration-2 underline-offset-4'; a.textContent=(p.title||(p.data&&p.data.title))||''; h2.appendChild(a); body.appendChild(h2);
         var time=document.createElement('time'); time.className='text-text-secondary text-sm mt-auto'; time.setAttribute('datetime',p.date||(p.data&&p.data.date)||''); time.textContent=new Date(p.date||(p.data&&p.data.date)||Date.now()).toLocaleDateString('pt-BR'); body.appendChild(time); article.appendChild(body);
         grid.appendChild(article);
       }
-       fetch(siteUrl('/api/admin.php?action=list')).then(function(r){return r.json()}).then(function(d){
-        if(d.posts&&d.posts.length&&grid.getAttribute('data-admin-loaded')==='false'){
-          d.posts.forEach(function(p){ renderPost(p); });
-          try{ sessionStorage.setItem(cacheKey,{at:Date.now(),posts:d.posts}); }catch(e){}
-          grid.setAttribute('data-admin-loaded','true'); var emptyMsg=grid.querySelector('.msg-empty-blog'); if(emptyMsg) emptyMsg.style.display='none';
-        }
-      }).catch(function(){});
+       fetch(siteUrl('/api/admin.php?action=list'), { cache: 'no-store' }).then(function(r){ if(!r.ok) throw new Error('blog api'); return r.json(); }).then(function(d){
+         var posts=Array.isArray(d.posts)?d.posts:[];
+         posts.forEach(function(p){ renderPost(p); });
+         try{ sessionStorage.setItem(cacheKey,JSON.stringify({at:Date.now(),posts:posts})); }catch(e){}
+         finish(posts);
+       }).catch(function(){ grid.setAttribute('data-admin-loaded','true'); setEmptyMessage('Não foi possível carregar os posts.', true); });
     })();
   </script>
 </section>

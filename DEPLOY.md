@@ -40,6 +40,25 @@ Configurar no GitHub: **Settings → Secrets and variables → Actions → New r
 
 3. O `ftp-dir` já está configurado como `/fibramfer.com.br/www/site-novo/`, conforme confirmado no servidor.
 
+## Banco do blog
+
+As credenciais do MySQL não ficam no repositório nem no diretório publicado pelo site.
+Crie manualmente no host o arquivo oculto `/fibramfer.com.br/www/.fibramfer-db.php`:
+
+```php
+<?php
+return [
+    'host' => 'localhost',
+    'name' => 'NOME_DO_BANCO',
+    'user' => 'USUARIO_DO_BANCO',
+    'pass' => 'SENHA_DO_BANCO',
+    'port' => '3306',
+];
+```
+
+Não envie a senha por chat nem faça commit desse arquivo. A API em
+`site-novo/api/admin.php` procura esse arquivo automaticamente.
+
 ---
 
 ## Como rodar o deploy

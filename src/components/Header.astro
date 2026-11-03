@@ -1125,22 +1125,3 @@ const nav = navItems.map((item) => ({
     }
   }
 </style>
-<script is:inline>
-  document.addEventListener('click', preloadBlog);
-  document.addEventListener('mousedown', preloadBlog);
-  document.addEventListener('touchstart', preloadBlog);
-  function preloadBlog(e) {
-    var siteBase = (document.body && document.body.dataset.siteBase) || '/';
-    var blogHref = siteBase + 'blog';
-    var blogHrefWithSlash = blogHref + '/';
-    var a = e.target.closest ? e.target.closest('a[href]') : null;
-    if (a && (a.getAttribute('href') === blogHref || a.getAttribute('href') === blogHrefWithSlash)) {
-      fetch(siteBase + 'api/admin.php?action=list')
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          if (d.posts) localStorage.setItem('admin_posts', JSON.stringify(d.posts));
-        })
-        .catch(function() {});
-    }
-  }
-</script>

@@ -49,6 +49,8 @@ const formContent = ref('')
 const formImage = ref<File | null>(null)
 const formImagePreview = ref<string | null>(null)
 const formSlug = ref('')
+const apiError = ref('')
+const loadingDelete = ref<string | null>(null)
 
 watch(formTitle, (val) => {
   formSlug.value = val ? val.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') : ''
@@ -57,9 +59,15 @@ watch(formTitle, (val) => {
 function loadPosts() {
   if (import.meta.env.PROD) {
     fetch(sitePath('/api/admin.php?action=list'))
-      .then((r) => r.json())
-      .then((d) => { if (d.posts) posts.value = d.posts })
-      .catch(() => { /* fallback localStorage */ });
+      .then(async (r) => {
+        const d = await r.json()
+        if (!r.ok || !Array.isArray(d.posts)) throw new Error('api')
+        posts.value = d.posts
+      })
+      .catch(() => {
+        posts.value = []
+        apiError.value = 'Não foi possível carregar os posts. Verifique a conexão com o banco de dados.'
+      });
     return;
   }
   try {
@@ -135,50 +143,59 @@ async function syncAll(list: Post[]) {
 }
 
 function savePosts() {
-  try {
-    localStorage.setItem(POSTS_KEY, JSON.stringify(posts.value))
-  } catch { /* quota excedida: mantém em memória e sincroniza via .md */ }
+  if (!import.meta.env.PROD) {
+    try {
+      localStorage.setItem(POSTS_KEY, JSON.stringify(posts.value))
+    } catch { /* quota excedida: mantém em memória e sincroniza via .md */ }
+  }
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent('fibramfer:posts-updated', { detail: { count: posts.value.length } }))
   }
 }
 
-async function syncMd(post: Post) {
+async function syncMd(post: Post): Promise<Post> {
   const url = import.meta.env.PROD ? sitePath('/api/admin.php?action=save') : sitePath('/api/blog-sync')
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ post })
-    })
-    const d = await res.json()
-    if (!import.meta.env.PROD && typeof d?.image === 'string' && d.image.startsWith('/uploads/')) {
-      const idx = posts.value.findIndex((p) => p.id === post.id)
-      if (idx !== -1 && posts.value[idx].image !== d.image) {
-        posts.value[idx] = { ...posts.value[idx], image: d.image }
-        savePosts()
-      }
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ post })
+  })
+  const d = await res.json()
+  if (!res.ok || d?.ok !== true) throw new Error(d?.error || 'Falha ao salvar post')
+
+  if (!import.meta.env.PROD && typeof d?.image === 'string' && d.image.startsWith('/uploads/')) {
+    const idx = posts.value.findIndex((p) => p.id === post.id)
+    if (idx !== -1 && posts.value[idx].image !== d.image) {
+      posts.value[idx] = { ...posts.value[idx], image: d.image }
+      savePosts()
     }
-    const changed = import.meta.env.PROD ? true : d?.unchanged === false
-    if (changed) await waitForBlog(post.id, 'present', post.title)
-    markBlogDirty(changed)
-  } catch { /* ignore */ }
+  }
+
+  const changed = import.meta.env.PROD ? true : d?.unchanged === false
+  if (changed) await waitForBlog(post.id, 'present', post.title)
+  if (import.meta.env.PROD) {
+    try { sessionStorage.removeItem('fibramfer:blog-posts-cache') } catch { /* ignora */ }
+  }
+  markBlogDirty(changed)
+  return { ...post, id: d.id || post.id, image: d.image || post.image }
 }
 
-async function deleteMd(id: string) {
+async function deleteMd(id: string): Promise<void> {
   const url = import.meta.env.PROD ? sitePath('/api/admin.php?action=delete') : sitePath('/api/blog-sync')
   const payload = import.meta.env.PROD ? { id } : { id, delete: true }
-  try {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-    const d = await res.json()
-    const changed = import.meta.env.PROD ? true : Boolean(d?.deleted)
-    if (changed) await waitForBlog(id, 'absent')
-    markBlogDirty(changed)
-  } catch { /* ignore */ }
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  const d = await res.json()
+  if (!res.ok || d?.ok !== true) throw new Error(d?.error || 'Falha ao excluir post')
+  const changed = import.meta.env.PROD ? true : Boolean(d?.deleted)
+  if (changed) await waitForBlog(id, 'absent')
+  if (import.meta.env.PROD) {
+    try { sessionStorage.removeItem('fibramfer:blog-posts-cache') } catch { /* ignora */ }
+  }
+  markBlogDirty(changed)
 }
 
 onMounted(() => {
@@ -403,14 +420,28 @@ function deletePost(id: string) {
   confirmId.value = id
 }
 
-function confirmDelete() {
+async function confirmDelete() {
   const id = confirmId.value
   if (!id) return
-  posts.value = posts.value.filter((p) => p.id !== id)
-  savePosts()
-  ;(window as any).__fibramferBlogDirty = true
-  ;(window as any).__fibramferBlogSyncPromise = deleteMd(id)
-  confirmId.value = null
+  apiError.value = ''
+  loadingDelete.value = id
+  try {
+    if (import.meta.env.PROD) {
+      await deleteMd(id)
+    } else {
+      ;(window as any).__fibramferBlogDirty = true
+      ;(window as any).__fibramferBlogSyncPromise = deleteMd(id).catch(() => {
+        apiError.value = 'Não foi possível sincronizar a exclusão com o blog local.'
+      })
+    }
+    posts.value = posts.value.filter((p) => p.id !== id)
+    savePosts()
+    confirmId.value = null
+  } catch {
+    apiError.value = 'Não foi possível excluir o post. Nenhuma alteração foi feita.'
+  } finally {
+    loadingDelete.value = null
+  }
 }
 
 function cancelDelete() {
@@ -462,27 +493,14 @@ function onImageChange(e: Event) {
 }
 
 async function savePost() {
-  if (!formTitle.value.trim()) return
+  if (!formTitle.value.trim() || loadingSave.value) return
 
+  apiError.value = ''
   const imageValue = formImagePreview.value
-
-  let synced: Post | undefined
-  if (editingId.value) {
-    const idx = posts.value.findIndex((p) => p.id === editingId.value)
-    if (idx !== -1) {
-      posts.value[idx] = {
-        ...posts.value[idx],
-        title: formTitle.value.trim(),
-        date: formDate.value,
-        category: formCategory.value.trim(),
-        image: imageValue,
-        content: formContent.value,
-      }
-      synced = posts.value[idx]
-    }
-  } else {
-    const id = formSlug.value || slugify(formTitle.value) || 'post'
-    const created: Post = {
+  loadingSave.value = true
+  try {
+    const id = editingId.value || formSlug.value || slugify(formTitle.value) || 'post'
+    const draft: Post = {
       id,
       title: formTitle.value.trim(),
       date: formDate.value,
@@ -490,19 +508,33 @@ async function savePost() {
       image: imageValue,
       content: formContent.value,
     }
-    posts.value.unshift(created)
-    synced = created
-  }
 
-  savePosts()
-  if (synced) {
-    ;(window as any).__fibramferBlogDirty = true
-    ;(window as any).__fibramferBlogSyncPromise = syncMd(synced)
+    if (import.meta.env.PROD) {
+      const saved = await syncMd(draft)
+      const idx = posts.value.findIndex((p) => p.id === saved.id)
+      if (idx === -1) posts.value.unshift(saved)
+      else posts.value[idx] = saved
+    } else {
+      if (editingId.value) {
+        const idx = posts.value.findIndex((p) => p.id === editingId.value)
+        if (idx !== -1) posts.value[idx] = draft
+      } else {
+        posts.value.unshift(draft)
+      }
+      savePosts()
+      ;(window as any).__fibramferBlogDirty = true
+      ;(window as any).__fibramferBlogSyncPromise = syncMd(draft).catch(() => {
+        apiError.value = 'Não foi possível sincronizar o post com o blog local.'
+      })
+    }
+
+    savePosts()
+    closeModal()
+  } catch {
+    apiError.value = 'Não foi possível salvar o post. Verifique a conexão com o banco de dados.'
+  } finally {
+    loadingSave.value = false
   }
-  loadingSave.value = true
-  await new Promise((r) => setTimeout(r, 1000))
-  closeModal()
-  loadingSave.value = false
 }
 </script>
 
@@ -561,6 +593,7 @@ async function savePost() {
         <Button variant="primary" size="sm" @click="openModal()">+ Novo post</Button>
       </div>
     </div>
+    <p v-if="apiError" class="mb-4 rounded-lg border border-error-500 bg-surface-alt px-4 py-3 text-sm text-error-500" role="alert">{{ apiError }}</p>
 
     <div class="overflow-x-auto rounded-lg border border-border shadow-card">
       <table class="w-full text-left border-collapse">
@@ -581,14 +614,14 @@ async function savePost() {
               <div class="flex items-center justify-end gap-2">
                 <button type="button" class="rounded-md bg-surface-alt px-2 py-1 text-sm font-medium text-primary-500 hover:bg-surface cursor-pointer" @click="openModal(post)">Editar</button>
                 <div v-if="confirmId === post.id" class="flex items-center justify-end gap-2">
-                  <button type="button" class="rounded-md bg-error-500 px-2 py-1 hover:bg-error-600 cursor-pointer" @click="confirmDelete" aria-label="Confirmar exclusão">
+                   <button type="button" class="rounded-md bg-error-500 px-2 py-1 hover:bg-error-600 cursor-pointer disabled:opacity-50" @click="confirmDelete" :disabled="loadingDelete === post.id" aria-label="Confirmar exclusão">
                     <Check class="w-4 h-4 text-white" />
                   </button>
                   <button type="button" class="rounded-md bg-surface-alt px-2 py-1 hover:bg-surface cursor-pointer" @click="cancelDelete" aria-label="Cancelar exclusão">
                     <X class="w-4 h-4 text-text-secondary" />
                   </button>
                 </div>
-                <button v-else type="button" class="rounded-md bg-surface-alt px-2 py-1 text-sm font-medium text-error-500 hover:bg-surface cursor-pointer" @click="deletePost(post.id)">Excluir</button>
+                 <button v-else type="button" class="rounded-md bg-surface-alt px-2 py-1 text-sm font-medium text-error-500 hover:bg-surface cursor-pointer disabled:opacity-50" @click="deletePost(post.id)" :disabled="loadingDelete === post.id">Excluir</button>
               </div>
             </td>
           </tr>
