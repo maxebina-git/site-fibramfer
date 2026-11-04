@@ -834,7 +834,7 @@ async function savePost() {
               id="post-content"
               contenteditable="true"
               @input="formContent = ($event.target as HTMLElement).innerHTML || ''"
-              class="w-full h-[12rem] rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 overflow-auto"
+              class="w-full h-[369px] rounded-lg border border-border bg-surface px-3.5 py-3 text-base text-ink focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary-600 overflow-auto"
             ></div>
           </div>
           </div>
