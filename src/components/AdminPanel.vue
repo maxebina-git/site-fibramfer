@@ -454,7 +454,9 @@ function openModal(post?: Post) {
       formCategory.value = post.category
       formContent.value = post.content
       setTimeout(() => { if (editorRef.value) editorRef.value.innerHTML = post.content || '' }, 0)
-      formImagePreview.value = post.image
+      formImagePreview.value = (post.image && (post.image.startsWith('http') || post.image.startsWith('/')))
+        ? (post.image.startsWith('/') ? sitePath(post.image) : post.image)
+        : post.image
       formImage.value = null
       formSlug.value = post ? (post.id || slugify(post.title) || '') : ''
     } else {
@@ -749,6 +751,7 @@ async function savePost() {
                   :src="formImagePreview"
                   alt="Preview"
                   class="mt-2 h-40 w-full rounded-lg object-cover bg-surface-alt"
+                  @error="formImagePreview = null"
                 />
               </div>
             </div>
