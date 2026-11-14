@@ -1,0 +1,191 @@
+---
+import LordIcon from './LordIcon.astro';
+
+// Scroll hint da home: mouse + seta + pontinho piscante. Posicionado via JS na
+// borda esquerda do CTA do header, no centro vertical do #hero — a mesma
+// posição visual de quando ficava dentro do slot CTA do Header.
+---
+
+<div class="home-scroll-hint pointer-events-none" data-scroll-hint="pending" data-scroll-hint-positioned="false" aria-hidden="true">
+  <div class="home-scroll-hint-icons flex h-full w-full items-center justify-center text-text-secondary">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      class="h-6 w-6"
+    >
+      <rect width="14" height="20" x="5" y="2" rx="7" ry="7"></rect>
+      <path d="M12 6v4"></path>
+      <circle class="home-scroll-hint-dot fill-error-500" cx="12" cy="8" r="1.8"></circle>
+    </svg>
+    <LordIcon
+      src="/lordicon/system-outline-219-arrows-up-down-loop-cycle.json"
+      trigger="hover"
+      currentColor
+      width="1.5rem"
+      height="1.5rem"
+      class="h-6 w-6"
+    />
+  </div>
+</div>
+
+<style>
+  .home-scroll-hint {
+    position: fixed;
+    left: 0;
+    top: 50vh;
+    z-index: 60;
+    width: 96px;
+    height: 56px;
+    opacity: 0;
+  }
+
+  @media (max-width: 767px) {
+    .home-scroll-hint {
+      display: none;
+    }
+  }
+
+  .home-scroll-hint[data-scroll-hint-positioned='true'] {
+    opacity: 1;
+  }
+
+  .home-scroll-hint[data-scroll-hint='pending'] .home-scroll-hint-dot,
+  .home-scroll-hint[data-scroll-hint='pending'] .home-scroll-hint-icons {
+    animation: none;
+  }
+
+  .home-scroll-hint-dot {
+    animation: scroll-hint-dot-blink 1s step-end infinite;
+  }
+
+  @keyframes scroll-hint-dot-blink {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+
+  .home-scroll-hint-icons {
+    opacity: 0;
+    animation: scroll-hint-fade-cycle 12s ease-in-out infinite;
+  }
+
+  @keyframes scroll-hint-fade-cycle {
+    0%,
+    33.333% {
+      opacity: 0;
+    }
+    37.5%,
+    66.666% {
+      opacity: 1;
+    }
+    70.833% {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-scroll-hint-dot {
+      animation: none;
+    }
+
+    .home-scroll-hint-icons {
+      opacity: 1;
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  import type { LordIconElement } from '@lordicon/element';
+
+  const hint = document.querySelector<HTMLElement>('[data-scroll-hint]');
+  const icon = hint?.querySelector<LordIconElement>('lord-icon') ?? null;
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  const drawerBlocked = (): boolean => {
+    return document.body.dataset.panelDrawerOpen === 'true'
+      || Boolean(document.querySelector('[data-fibramfer-drawers] aside[role="dialog"]'));
+  };
+
+  function syncIcon(): void {
+    if (!hint || !icon) return;
+    const playing = hint.dataset.scrollHint === 'playing'
+      && !drawerBlocked()
+      && !reducedMotion.matches
+      && hint.getClientRects().length > 0;
+
+    if (playing) {
+      if (icon.getAttribute('trigger') !== 'loop') icon.setAttribute('trigger', 'loop');
+      return;
+    }
+    icon.removeAttribute('trigger');
+    if (icon.ready) icon.stop();
+  }
+
+  function setHintPending(): void {
+    if (!hint) return;
+    hint.dataset.scrollHint = 'pending';
+    syncIcon();
+  }
+
+  function setHintPlaying(): void {
+    if (!hint) return;
+    if (drawerBlocked() || hint.getClientRects().length === 0) {
+      setHintPending();
+      return;
+    }
+    hint.dataset.scrollHint = 'playing';
+    syncIcon();
+  }
+
+  function syncHintPosition(): void {
+    if (!hint) return;
+    const hero = document.querySelector<HTMLElement>('#hero');
+    if (!hero) return;
+
+    const heroRect = hero.getBoundingClientRect();
+    if (!heroRect.height) return;
+
+    const cta = document.querySelector<HTMLElement>('#header-contact-cta');
+    const anchorLeft = cta?.getBoundingClientRect().left ?? Math.max(0, heroRect.right - 96);
+    const top = heroRect.top + heroRect.height / 2 - hint.offsetHeight / 2;
+
+    hint.style.left = `${anchorLeft}px`;
+    hint.style.top = `${top}px`;
+    hint.dataset.scrollHintPositioned = 'true';
+  }
+
+  function evaluateHint(): void {
+    syncHintPosition();
+    if (drawerBlocked()) setHintPending();
+    else setHintPlaying();
+  }
+
+  const observer = new MutationObserver(evaluateHint);
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['data-panel-drawer-open'],
+  });
+
+  window.addEventListener('resize', evaluateHint);
+  window.addEventListener('fibramfer:home-chrome-resize', syncHintPosition);
+  window.matchMedia('(min-width: 1024px)').addEventListener('change', syncHintPosition);
+  reducedMotion.addEventListener('change', syncIcon);
+
+  icon?.addEventListener('ready', syncIcon);
+
+  syncHintPosition();
+  if (document.fonts?.ready) document.fonts.ready.then(setHintPlaying, setHintPlaying);
+  else setHintPlaying();
+</script>

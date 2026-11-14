@@ -8,11 +8,8 @@ type SupportTab = 'documents' | 'faq'
 const activeTab = ref<SupportTab>('documents')
 
 const documents = [
-  'Certificado de Aprovação (CA)',
   'Manual de instruções e uso',
-  'Ficha técnica do equipamento',
   'Relatório de ensaios e testes',
-  'Termo de garantia',
 ]
 </script>
 

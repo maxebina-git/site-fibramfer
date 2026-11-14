@@ -1,5 +1,7 @@
 ---
 import TrueHero from './sections/TrueHero.astro';
+import HomeScrollHint from './HomeScrollHint.astro';
+import HomeBadges from './HomeBadges.astro';
 
 interface Props {
   home?: boolean;
@@ -20,4 +22,6 @@ const { home = false } = Astro.props;
     <TrueHero home={home} />
   </div>
 </div>
+{home && <HomeBadges />}
+{home && <HomeScrollHint />}
 {home && <div class="home-scroll-track" data-home-scroll-track aria-hidden="true"></div>}

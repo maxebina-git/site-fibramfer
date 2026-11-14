@@ -14,7 +14,7 @@ const chairDrawSvg = rawSvg
 <div class="chair-draw-root" set:html={chairDrawSvg} />
 
 <div class="chair-draw-fill" data-chair-draw-fill aria-hidden="true">
-  <img src={sitePath('/assets/cadeira-suspensa-no-bg.png')} alt="" loading="eager" />
+  <img src={sitePath('/assets/cadeira-suspensa-no-bg.png')} alt="" loading="eager" data-chair-draw-img />
 </div>
 
 <noscript>
@@ -28,7 +28,45 @@ const chairDrawSvg = rawSvg
 <script>
   import { stripSiteBase } from '../lib/sitePath';
 
-  const svg = document.querySelector<SVGElement>('svg[data-chair-draw]');
+  const svg = document.querySelector<SVGSVGElement>('svg[data-chair-draw]');
+
+  // No mobile (<=767px) o viewBox é recortado ao redor da arte para a
+  // cadeira preencher a mídia. No desktop o frame original 555×449 e o
+  // aspect-ratio 1 são preservados (a largura padrão estava boa). A imagem de
+  // preenchimento recebe o mesmo recorte com geometria absoluta.
+  const fillImg = document.querySelector<HTMLImageElement>('[data-chair-draw-img]');
+  const isMobile = window.matchMedia('(max-width: 767px)').matches;
+  if (svg && isMobile) {
+    try {
+      const vb = svg.viewBox.baseVal;
+      const vbW = vb.width;
+      const vbH = vb.height;
+      const bbox = svg.getBBox();
+      const pad = Math.max(bbox.width, bbox.height) * 0.025;
+      const x = bbox.x - pad;
+      const y = bbox.y - pad;
+      const w = bbox.width + 2 * pad;
+      const h = bbox.height + 2 * pad;
+      svg.setAttribute('viewBox', `${x} ${y} ${w} ${h}`);
+      const media = document.querySelector<HTMLElement>('.home-true-hero-media');
+      if (media) media.style.aspectRatio = `${w} / ${h}`;
+      if (fillImg) {
+        const sx = x / vbW;
+        const sy = y / vbH;
+        const sw = w / vbW;
+        const sh = h / vbH;
+        fillImg.style.position = 'absolute';
+        fillImg.style.left = `${-(sx / sw) * 100}%`;
+        fillImg.style.top = `${-(sy / sh) * 100}%`;
+        fillImg.style.width = `${(1 / sw) * 100}%`;
+        fillImg.style.height = `${(1 / sh) * 100}%`;
+        fillImg.style.maxWidth = 'none';
+        fillImg.style.objectFit = 'fill';
+      }
+    } catch {
+      // Fallback: viewBox e layout originais (aspect-ratio 1).
+    }
+  }
 
   const initChairDraw = async (): Promise<void> => {
     const { gsap } = await import('gsap');
@@ -43,6 +81,8 @@ const chairDrawSvg = rawSvg
     const fill = document.querySelector<HTMLElement>('[data-chair-draw-fill]');
     const track = document.querySelector<HTMLElement>('[data-home-scroll-track]');
     const drawerShell = document.querySelector<HTMLElement>('[data-fibramfer-drawers]');
+    const media = document.querySelector<HTMLElement>('.home-true-hero-media');
+    const mobileQuery = window.matchMedia('(max-width: 767px)');
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let drawTimeline: ReturnType<typeof gsap.timeline> | null = null;
     let scrollTimeline: ReturnType<typeof gsap.timeline> | null = null;
@@ -94,6 +134,49 @@ const chairDrawSvg = rawSvg
       scrollTimeline?.scrollTrigger?.refresh();
     };
 
+    // No mobile o hero flui: a mídia da cadeira é pinada no centro da viewport
+    // quando chega lá e o scrub do reveal acompanha o scroll. O draw do
+    // contorno dispara no onEnter do pin (não no load).
+    const setupMobilePin = () => {
+      if (!fill || !media || drawerOpen || fill.dataset.scrollReady === 'true') return;
+      fill.dataset.scrollReady = 'true';
+      replayScrollStart = replayAfterDrawer ? window.scrollY : null;
+      publishChairProgress(0, true);
+
+      scrollTimeline = gsap
+        .timeline({
+          defaults: { ease: 'none' },
+          onUpdate: () => publishChairProgress(scrollTimeline?.progress() ?? 0),
+          scrollTrigger: {
+            trigger: media,
+            start: () => replayScrollStart ?? 'center center',
+            end: () => {
+              if (replayScrollStart !== null) {
+                return Math.max(replayScrollStart + 1, ScrollTrigger.maxScroll(window));
+              }
+              return `+=${Math.round(window.innerHeight * 2)}`;
+            },
+            pin: media,
+            scrub: 1,
+            invalidateOnRefresh: true,
+          },
+        })
+        .fromTo(
+          fill,
+          { '--chair-reveal-front': '0%' },
+          { '--chair-reveal-front': '118%', duration: 1 },
+          0
+        )
+        .to(svg, { opacity: 0, duration: 0.5 }, 0.5);
+
+      if (replayAfterDrawer) {
+        window.addEventListener('scroll', rebaseReplayScroll, { passive: true });
+      }
+      homeChromeResizeHandler = () => ScrollTrigger.refresh();
+      window.addEventListener('fibramfer:home-chrome-resize', homeChromeResizeHandler);
+      window.requestAnimationFrame(() => ScrollTrigger.refresh());
+    };
+
     const releaseFillOnScroll = () => {
       if (!fill || drawerOpen) return;
 
@@ -101,6 +184,11 @@ const chairDrawSvg = rawSvg
         publishChairProgress(1, true);
         gsap.set(fill, { '--chair-reveal-front': '118%' });
         gsap.set(svg, { opacity: 0 });
+        return;
+      }
+
+      if (mobileQuery.matches) {
+        setupMobilePin();
         return;
       }
 
@@ -234,14 +322,17 @@ const chairDrawSvg = rawSvg
       // O painel permanece no DOM até o fim da saída do DS. Observar somente
       // sua presença mantém a cadeira parada também nas trocas de conteúdo e
       // nas saídas canceladas por uma reabertura rápida, sem timers paralelos.
+      const drawerOpenNow = () => Boolean(drawerShell?.querySelector('aside[role="dialog"]'));
       const drawerObserver = new MutationObserver(() => {
-        const open = Boolean(drawerShell?.querySelector('aside[role="dialog"]'));
+        const open = drawerOpenNow();
         if (open === drawerOpen) return;
         drawerOpen = open;
         reset();
         if (!open) {
           replayAfterDrawer = true;
-          start();
+          // No mobile o contorno é estático — marcamos completo outra vez.
+          if (mobileQuery.matches) showComplete();
+          else start();
         }
       });
 
@@ -250,10 +341,16 @@ const chairDrawSvg = rawSvg
       }
 
       if (drawerOpen) reset();
+      // No mobile o contorno aparece inteiro no load, sem animação — o
+      // contorno estático fica sob a imagem real, revelada pelo scroll.
+      else if (mobileQuery.matches) showComplete();
       else start();
 
     const desktopQuery = window.matchMedia('(min-width: 768px)');
     desktopQuery.addEventListener('change', start);
+    // Trocar de breakpoint recicla tudo: reload garante um estado limpo do
+    // pin/track (estado misto desktop/mobile não é suportado).
+    mobileQuery.addEventListener('change', () => window.location.reload());
     }
   };
 

@@ -1,0 +1,741 @@
+---
+// Badges da home:
+// - "Conformidade Total com a NR-18": ancorada na borda esquerda do CTA do
+//   header, centrada verticalmente no #hero (mesma posição de quando ficava
+//   no slot CTA do Header).
+// - "Alta Capacidade de Carga": fixa sobre o canto superior direito de
+//   .home-true-hero-media (só >= 768px).
+// Animações de contorno, char-flip e reveal no scroll renderizadas por
+// cadeira (fibramfer:chair-progress) — movidas do Header sem alteração.
+---
+
+<div class="home-hero-marker pointer-events-none" data-marker-motion="pending">
+  <div class="home-hero-badge" data-badge-draw="pending" data-badge-delay="250">
+    <svg class="home-hero-badge-stroke" aria-hidden="true">
+      <rect class="home-hero-badge-stroke-rect" x="0" y="0" width="100%" height="100%" rx="3.25" ry="3.25"></rect>
+    </svg>
+    <h2 class="font-display text-xl font-bold leading-tight text-ink">Conformidade Total com a NR-18</h2>
+    <p class="home-hero-badge-description text-sm leading-snug text-text-secondary">
+      Equipamento certificado e em total acordo com a Norma Regulamentadora nº 18 (Portaria 13 de 09.07.2002) do Ministério do Trabalho e Emprego.
+    </p>
+    <noscript>
+      <style>
+        [data-badge-draw='pending'] .home-hero-badge-stroke-rect {
+          stroke-dashoffset: 0 !important;
+        }
+        [data-badge-draw='pending'].home-hero-badge h2 {
+          opacity: 1 !important;
+        }
+        [data-badge-draw='pending'].home-hero-badge {
+          background-color: var(--color-surface-brand) !important;
+          clip-path: none !important;
+          height: auto !important;
+          width: max-content !important;
+        }
+        [data-badge-draw='pending'] .home-hero-badge-description {
+          display: block !important;
+        }
+      </style>
+    </noscript>
+  </div>
+</div>
+
+<div class="home-chair-badge-marker home-hero-marker pointer-events-none" data-marker-motion="pending">
+  <div class="home-hero-badge" data-badge-draw="pending" data-badge-delay="500">
+    <svg class="home-hero-badge-stroke" aria-hidden="true">
+      <rect class="home-hero-badge-stroke-rect" x="0" y="0" width="100%" height="100%" rx="3.25" ry="3.25"></rect>
+    </svg>
+    <h2 class="font-display text-xl font-bold leading-tight text-ink">Alta Capacidade de Carga</h2>
+    <p class="home-hero-badge-description text-sm leading-snug text-text-secondary">
+      Suporta até 140 kg, computando o peso do operador somado a ferramentas e materiais de trabalho.
+    </p>
+    <noscript>
+      <style>
+        [data-badge-draw='pending'] .home-hero-badge-stroke-rect {
+          stroke-dashoffset: 0 !important;
+        }
+        [data-badge-draw='pending'].home-hero-badge h2,
+        [data-badge-draw='pending'] .home-hero-badge-description {
+          opacity: 1 !important;
+          display: block !important;
+        }
+        [data-badge-draw='pending'].home-hero-badge {
+          background-color: var(--color-surface-brand) !important;
+          height: auto !important;
+          width: max-content !important;
+        }
+      </style>
+    </noscript>
+  </div>
+</div>
+
+<style>
+  .home-hero-marker {
+    position: fixed;
+    top: 50vh;
+    left: 0;
+    width: 96px;
+    height: 56px;
+    z-index: 60;
+  }
+
+  @media (max-width: 767px) {
+    .home-hero-marker {
+      display: none;
+    }
+  }
+
+  /* Badge com o contorno na mesma espessura/cor do traço da cadeira
+   * (stroke-width 2 num viewBox de 555 renderizado a ~460px ≈ 1.6px). O
+   * contorno é um <rect> SVG para poder ser desenhado via stroke-dashoffset. */
+  .home-hero-badge {
+    position: absolute;
+    top: calc(100% + 0.5rem - 250px);
+    left: calc(50% - 109px);
+    transform: translateX(-50%);
+    white-space: nowrap;
+    padding: 0.25rem 0.5rem;
+    background: var(--color-surface);
+    box-sizing: border-box;
+    overflow: hidden;
+    /* Mesmo raio do <rect> do contorno (rx/ry = 3.25): o fundo arredonda
+     * junto com o path. */
+    border-radius: 3.25px;
+  }
+
+  .home-chair-badge-marker {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 0;
+    height: 0;
+    z-index: 20;
+  }
+
+  .home-chair-badge-marker .home-hero-badge {
+    top: auto;
+    right: calc(100% + 1rem);
+    bottom: calc(100% + 1rem);
+    left: auto;
+    transform: translate(203px, 446px);
+  }
+
+  @media (min-width: 768px) {
+    .home-chair-badge-marker {
+      display: block;
+    }
+  }
+
+  .home-hero-badge-description {
+    display: none;
+    margin: 0.35rem 0 0;
+    white-space: normal;
+  }
+
+  .home-hero-badge[data-badge-layout='ready'] .home-hero-badge-description {
+    display: block;
+  }
+
+.home-hero-badge[data-badge-layout='ready'] {
+    will-change: height, background-color;
+  }
+
+  .home-hero-badge-stroke {
+    position: absolute;
+    top: 0.75px;
+    left: 0.75px;
+    /* O <svg> é um replaced element: com width/height auto ele cai no tamanho
+     * intrínseco 300×150 e o inset não estica. Tamanho explícito = o stroke
+     * abraça o badge inteiro. */
+    width: calc(100% - 1.5px);
+    height: calc(100% - 1.5px);
+    fill: none;
+    stroke: var(--color-ink);
+    stroke-width: 1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  /* Estado inicial (padrão da cadeira): dash maior que o perímetro esconde o
+   * traço; o JS mede o comprimento real com getTotalLength(). O contorno não
+   * existe no load e se desenha pelo path com 1s de delay. */
+  [data-badge-draw='pending'] .home-hero-badge-stroke-rect {
+    stroke-dasharray: var(--badge-stroke-length, 2000);
+    stroke-dashoffset: var(--badge-stroke-length, 2000);
+  }
+
+  [data-badge-draw='playing'] .home-hero-badge-stroke-rect {
+    animation: badge-stroke-draw 1s ease-out 1s both;
+  }
+
+  /* A badge de capacidade inicia o desenho do contorno ligeiramente antes da
+   * badge de conformidade, sem alterar o sincronismo da cadeira no scroll. */
+  .home-chair-badge-marker [data-badge-draw='playing'] .home-hero-badge-stroke-rect {
+    animation-delay: 0.8s;
+  }
+
+  /* O estado oculto e a revelação pelo path vivem dentro da keyframe: trocar
+   * de pending para playing remove as regras CSS do pending, então o from/to
+   * precisam ser autocontidos (fill both mantém o traço oculto durante o delay). */
+  @keyframes badge-stroke-draw {
+    from {
+      stroke-dasharray: var(--badge-stroke-length, 2000);
+      stroke-dashoffset: var(--badge-stroke-length, 2000);
+    }
+    to {
+      stroke-dasharray: var(--badge-stroke-length, 2000);
+      stroke-dashoffset: 0;
+    }
+  }
+
+  /* Fundo é o último a entrar: transparente (α 0%) durante o traço — e anima
+   * para α 100% (branco --color-surface) JUNTO com a primeira letra, no mesmo
+   * relógio do flip (delay 2.1s do estado playing), sem JS extra. COMPOUND
+   * sem espaço: o data-badge-draw fica NO PRÓPRIO badge — com espaço o
+   * seletor exigiria um ascendente com o atributo e nunca casaria (o fundo
+   * base aparecia desde o load). No hero branco o fade só se nota onde o
+   * badge cobre o desenho da cadeira. */
+  [data-badge-draw='pending'].home-hero-badge,
+  [data-badge-draw='playing'].home-hero-badge {
+    background-color: transparent;
+  }
+
+  [data-badge-draw='playing'].home-hero-badge {
+    animation: badge-bg-fade 0.5s ease-out 2.1s both;
+  }
+
+  /* A partir do primeiro avanço do scroll, a badge deixa de disputar o fundo
+   * com a entrada temporizada e passa a seguir o progresso da cadeira. */
+  body.home-page .home-hero-badge[data-badge-scroll='active'] {
+    animation: none;
+    background-color: var(--color-surface);
+    background-color: color-mix(
+      in srgb,
+      var(--color-surface-brand) var(--badge-bg-progress, 0%),
+      var(--color-surface) calc(100% - var(--badge-bg-progress, 0%))
+    );
+  }
+
+  @keyframes badge-bg-fade {
+    from {
+      background-color: transparent;
+    }
+    to {
+      background-color: var(--color-surface);
+    }
+  }
+
+  /* Entrada do texto em letreiro: depois do contorno, cada letra gira de -90°
+   * para 0 com cascata. A Conformidade começa em 2.3s; a badge de capacidade
+   * usa 2.1s para preservar a diferença de 200ms entre as duas. */
+  /* Os chars são criados pelo JS em runtime e não recebem o data-astro-cid
+   * do build → as regras precisam de :global() senão nenhum seletor casa. */
+  .home-hero-badge :global(.home-hero-badge-char) {
+    display: inline-block;
+    transform-origin: 50% 0;
+  }
+
+  /* Oculto enquanto o contorno desenha (pending) e durante o delay do flip
+   * (playing): a keyframe com fill both assume o from e não há flash. O h2
+   * escondido no pending também evita que o texto SSR apareça no primeiro
+   * paint antes do JS separar as letras. */
+  [data-badge-draw='pending'].home-hero-badge h2 {
+    opacity: 0;
+  }
+
+  [data-badge-draw='pending'] :global(.home-hero-badge-char),
+  [data-badge-draw='playing'] :global(.home-hero-badge-char) {
+    opacity: 0;
+  }
+
+  [data-badge-draw='playing'] :global(.home-hero-badge-char) {
+    animation: badge-char-flip 0.4s ease-out both;
+    animation-delay: calc(2.3s + var(--char-index, 0) * 0.035s);
+  }
+
+  .home-chair-badge-marker [data-badge-draw='playing'] :global(.home-hero-badge-char) {
+    animation-delay: calc(2.1s + var(--char-index, 0) * 0.035s);
+  }
+
+  @keyframes badge-char-flip {
+    from {
+      opacity: 0;
+      transform: perspective(260px) rotateX(-90deg);
+    }
+    to {
+      opacity: 1;
+      transform: perspective(260px) rotateX(0deg);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    [data-badge-draw='pending'] .home-hero-badge-stroke-rect,
+    [data-badge-draw='playing'] .home-hero-badge-stroke-rect {
+      animation: none;
+      stroke-dashoffset: 0;
+    }
+
+    [data-badge-draw='pending'].home-hero-badge h2,
+    [data-badge-draw='pending'] :global(.home-hero-badge-char),
+    [data-badge-draw='playing'] :global(.home-hero-badge-char) {
+      opacity: 1;
+      animation: none;
+    }
+
+    [data-badge-draw='pending'].home-hero-badge,
+    [data-badge-draw='playing'].home-hero-badge {
+      background-color: var(--color-surface);
+      animation: none;
+    }
+
+    .home-hero-badge[data-badge-layout='ready'] .home-hero-badge-description {
+      display: block;
+    }
+
+    [data-badge-draw='pending'].home-hero-badge[data-badge-layout='ready'],
+    [data-badge-draw='playing'].home-hero-badge[data-badge-layout='ready'] {
+      background-color: var(--color-surface-brand);
+    }
+  }
+</style>
+
+<script>
+  const desktopMediaQuery = '(min-width: 1024px)';
+  let badgeSyncFrame: number | null = null;
+
+  let heroBadgeEase: ((progress: number) => number) | null = null;
+  let heroBadgeEasePromise: Promise<(progress: number) => number> | null = null;
+
+  const loadHeroBadgeEase = async (): Promise<(progress: number) => number> => {
+    if (heroBadgeEase) return heroBadgeEase;
+    if (!heroBadgeEasePromise) {
+      heroBadgeEasePromise = import('gsap').then(({ gsap }) => {
+        const ease = gsap.parseEase('power2.inOut');
+        heroBadgeEase = ease;
+        return ease;
+      });
+    }
+    return heroBadgeEasePromise;
+  };
+
+  function syncBadgePositions(): void {
+    // Badge "Conformidade Total com a NR-18": borda esquerda do CTA do header,
+    // centro vertical do hero — mesma posição de quando ficava no slot CTA.
+    const hero = document.querySelector<HTMLElement>('#hero');
+    const nr18 = document.querySelector<HTMLElement>('.home-hero-marker:not(.home-chair-badge-marker)');
+    if (hero && nr18) {
+      const heroRect = hero.getBoundingClientRect();
+      if (heroRect.height) {
+        const cta = document.querySelector<HTMLElement>('#header-contact-cta');
+        const anchorLeft = cta?.getBoundingClientRect().left ?? Math.max(0, heroRect.right - 96);
+        nr18.style.left = `${anchorLeft}px`;
+        nr18.style.top = `${heroRect.top + heroRect.height / 2 - nr18.offsetHeight / 2}px`;
+      }
+    }
+
+    // Badge "Alta Capacidade de Carga": fixa no canto de .home-true-hero-media.
+    const chair = document.querySelector<HTMLElement>('.home-chair-badge-marker');
+    const media = document.querySelector<HTMLElement>('.home-true-hero-media');
+    if (chair && media) {
+      const mediaRect = media.getBoundingClientRect();
+      if (mediaRect.width && mediaRect.height) {
+        chair.style.left = `${mediaRect.left}px`;
+        chair.style.top = `${mediaRect.top}px`;
+      }
+    }
+  }
+
+  function scheduleBadgePositionSync(): void {
+    if (badgeSyncFrame !== null) return;
+    badgeSyncFrame = window.requestAnimationFrame(() => {
+      badgeSyncFrame = null;
+      syncBadgePositions();
+    });
+  }
+
+  interface HeroMarkerPlayback {
+    version: number;
+    frame: number;
+    starting: boolean;
+  }
+
+  const heroMarkerPlayback = new WeakMap<HTMLElement, HeroMarkerPlayback>();
+  const markerReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  let heroMarkerObserver: MutationObserver | null = null;
+
+  function heroMarkerBlocked(): boolean {
+    return document.body.dataset.panelDrawerOpen === 'true'
+      || Boolean(document.querySelector('[data-fibramfer-drawers] aside[role="dialog"]'));
+  }
+
+  function currentChairProgress(): number {
+    const value = Number.parseFloat(
+      window.getComputedStyle(document.documentElement).getPropertyValue('--fibramfer-chair-progress')
+    );
+    return Number.isFinite(value) ? Math.min(1, Math.max(0, value)) : 0;
+  }
+
+  const HERO_BADGE_PROGRESS_DELAY = 500;
+  interface ChairProgressSample {
+    time: number;
+    progress: number;
+  }
+
+  const renderedBadgeProgress = new WeakMap<HTMLElement, number>();
+  const chairProgressSamples: ChairProgressSample[] = [
+    { time: performance.now(), progress: currentChairProgress() },
+  ];
+  let delayedProgressFrame: number | null = null;
+
+  function badgeProgressDelay(badge: HTMLElement): number {
+    const value = Number.parseFloat(badge.dataset.badgeDelay ?? '');
+    return Number.isFinite(value) && value >= 0 ? value : HERO_BADGE_PROGRESS_DELAY;
+  }
+
+  function applyHeroBadgeProgress(badge: HTMLElement, progress: number): void {
+    if (badge.dataset.badgeLayout !== 'ready') return;
+
+    const revealHeight = Number.parseFloat(badge.dataset.badgeRevealHeight ?? '0');
+    const collapsedHeight = Number.parseFloat(badge.dataset.badgeCollapsedHeight ?? '0');
+    const expandedHeight = Number.parseFloat(badge.dataset.badgeExpandedHeight ?? '0');
+    const normalizedProgress = Math.min(1, Math.max(0, progress));
+    const visibleHeight = collapsedHeight + revealHeight * normalizedProgress;
+    const rect = badge.querySelector<SVGRectElement>('.home-hero-badge-stroke-rect');
+
+    if (rect && expandedHeight > 0) {
+      const currentHeight = Math.min(expandedHeight, visibleHeight);
+      badge.style.height = `${currentHeight}px`;
+      rect.setAttribute('height', String(Math.max(0, currentHeight - 1.5)));
+      try {
+        const box = rect.getBBox();
+        if (box.width > 0 && box.height > 0) {
+          const rx = 3.25;
+          const straightW = Math.max(0, box.width - 2 * rx);
+          const straightH = Math.max(0, box.height - 2 * rx);
+          badge.style.setProperty(
+            '--badge-stroke-length',
+            String(2 * straightW + 2 * straightH + 2 * Math.PI * rx)
+          );
+        }
+      } catch {
+        // A hidden mobile slot has no SVG box yet; the next lifecycle pass retries.
+      }
+    }
+    badge.style.setProperty('--badge-clip-bottom', `${revealHeight * (1 - normalizedProgress)}px`);
+    badge.style.setProperty('--badge-bg-progress', `${normalizedProgress * 100}%`);
+
+    if (normalizedProgress > 0 && !markerReducedMotion.matches) {
+      badge.dataset.badgeScroll = 'active';
+    }
+  }
+
+  function syncHeroBadgeProgress(progress: number): void {
+    const normalized = Math.min(1, Math.max(0, progress));
+    document.querySelectorAll<HTMLElement>('.home-hero-badge').forEach((badge) => {
+      renderedBadgeProgress.set(badge, normalized);
+      applyHeroBadgeProgress(badge, normalized);
+    });
+  }
+
+  async function syncDelayedHeroBadgeProgress(now: number): Promise<void> {
+    const badges = Array.from(document.querySelectorAll<HTMLElement>('.home-hero-badge'));
+    for (const badge of badges) {
+      const progress = delayedProgressAt(now - badgeProgressDelay(badge));
+      if (progress === null) continue;
+      // O easing atua somente na curva visual; os endpoints e os atrasos de
+      // 500/250 ms continuam determinados pelo histórico do scroll.
+      const badgeEase = await loadHeroBadgeEase();
+      const easedProgress = badgeEase(progress);
+      renderedBadgeProgress.set(badge, easedProgress);
+      applyHeroBadgeProgress(badge, easedProgress);
+    }
+  }
+
+  function delayedProgressAt(targetTime: number): number | null {
+    if (chairProgressSamples.length === 0) return null;
+
+    const first = chairProgressSamples[0];
+    if (targetTime <= first.time) return first.progress;
+
+    for (let index = 1; index < chairProgressSamples.length; index++) {
+      const after = chairProgressSamples[index];
+      if (after.time < targetTime) continue;
+
+      const before = chairProgressSamples[index - 1];
+      const span = after.time - before.time;
+      if (span <= 0) return after.progress;
+      const ratio = (targetTime - before.time) / span;
+      return before.progress + (after.progress - before.progress) * ratio;
+    }
+
+    return chairProgressSamples.at(-1)?.progress ?? null;
+  }
+
+  async function flushDelayedBadgeProgress(): Promise<void> {
+    delayedProgressFrame = null;
+    const now = performance.now();
+      await syncDelayedHeroBadgeProgress(now);
+
+    const latest = chairProgressSamples.at(-1);
+    const maxDelay = Math.max(
+      HERO_BADGE_PROGRESS_DELAY,
+      ...Array.from(document.querySelectorAll<HTMLElement>('.home-hero-badge'), badgeProgressDelay)
+    );
+    if (latest && now < latest.time + maxDelay) {
+      delayedProgressFrame = requestAnimationFrame(flushDelayedBadgeProgress);
+    } else if (latest) {
+      while (
+        chairProgressSamples.length > 2
+        && chairProgressSamples[1].time <= now - maxDelay
+      ) {
+        chairProgressSamples.shift();
+      }
+      // Mantém a última amostra como âncora para que uma nova descida, depois
+      // de uma pausa longa, também aguarde os 500 ms completos.
+      chairProgressSamples.splice(0, chairProgressSamples.length, latest);
+    await syncDelayedHeroBadgeProgress(now);
+    }
+  }
+
+  function queueDelayedBadgeProgress(progress: number): void {
+    const normalized = Math.min(1, Math.max(0, progress));
+    const now = performance.now();
+    const latest = chairProgressSamples.at(-1);
+
+    if (latest && now - latest.time >= HERO_BADGE_PROGRESS_DELAY) {
+      // Depois de uma pausa longa, a nova descida começa a contar o atraso
+      // a partir do estado já renderizado, sem interpolar desde uma amostra
+      // antiga e saltar imediatamente para o progresso da cadeira.
+      chairProgressSamples.splice(0, chairProgressSamples.length, {
+        time: now,
+        progress: latest.progress,
+      });
+    }
+
+    if (!latest || now >= latest.time) {
+      chairProgressSamples.push({ time: now, progress: normalized });
+    } else {
+      chairProgressSamples[chairProgressSamples.length - 1] = { time: now, progress: normalized };
+    }
+
+    if (delayedProgressFrame === null) {
+      delayedProgressFrame = requestAnimationFrame(flushDelayedBadgeProgress);
+    }
+  }
+
+  function resetDelayedBadgeProgress(progress: number): void {
+    if (delayedProgressFrame !== null) {
+      cancelAnimationFrame(delayedProgressFrame);
+      delayedProgressFrame = null;
+    }
+
+    const normalized = Math.min(1, Math.max(0, progress));
+    chairProgressSamples.splice(0, chairProgressSamples.length, {
+      time: performance.now(),
+      progress: normalized,
+    });
+    syncHeroBadgeProgress(normalized);
+  }
+
+  function layoutHeroBadge(
+    badge: HTMLElement,
+    description: HTMLElement,
+    rect: SVGRectElement
+  ): boolean {
+    const progress = renderedBadgeProgress.get(badge)
+      ?? delayedProgressAt(performance.now() - badgeProgressDelay(badge))
+      ?? currentChairProgress();
+
+    badge.removeAttribute('data-badge-layout');
+    badge.style.removeProperty('width');
+    badge.style.removeProperty('height');
+    badge.style.removeProperty('--badge-clip-bottom');
+    badge.style.removeProperty('--badge-bg-progress');
+    description.style.removeProperty('display');
+
+    // O texto descritivo fica fora do layout inicial (display:none no CSS),
+    // então esta medição usa somente o título, como na badge original.
+    const collapsedWidth = badge.getBoundingClientRect().width;
+    if (!collapsedWidth) return false;
+
+    badge.style.width = `${collapsedWidth}px`;
+    description.style.display = 'block';
+    const expandedHeight = badge.scrollHeight;
+    description.style.display = 'none';
+    const collapsedHeight = badge.scrollHeight;
+    description.style.removeProperty('display');
+
+    badge.dataset.badgeLayout = 'ready';
+    badge.dataset.badgeRevealHeight = String(Math.max(0, expandedHeight - collapsedHeight));
+    badge.dataset.badgeCollapsedHeight = String(collapsedHeight);
+    badge.dataset.badgeExpandedHeight = String(expandedHeight);
+    badge.style.height = `${expandedHeight}px`;
+    rect.setAttribute('height', String(Math.max(0, collapsedHeight - 1.5)));
+    applyHeroBadgeProgress(badge, progress);
+
+    return true;
+  }
+
+  function resetHeroMarker(marker: HTMLElement, state: HeroMarkerPlayback): void {
+    state.version++;
+    cancelAnimationFrame(state.frame);
+    state.starting = false;
+    marker.dataset.markerMotion = 'pending';
+    marker.querySelectorAll<HTMLElement>('.home-hero-badge').forEach((badge) => {
+      badge.setAttribute('data-badge-draw', 'pending');
+      delete badge.dataset.badgeScroll;
+      applyHeroBadgeProgress(badge, 0);
+    });
+  }
+
+  // Prepara as letras uma única vez, inclusive nas cópias dos slots do Vue.
+  function initHeroBadge() {
+    document.querySelectorAll<HTMLElement>('.home-hero-marker').forEach((marker) => {
+      const badge = marker.querySelector<HTMLElement>('.home-hero-badge');
+      if (!badge) return;
+      const rect = badge.querySelector<SVGRectElement>('.home-hero-badge-stroke-rect');
+      const heading = badge.querySelector<HTMLElement>('h2');
+      const description = badge.querySelector<HTMLElement>('.home-hero-badge-description');
+      if (!rect || !heading || !description) return;
+
+      let state = heroMarkerPlayback.get(marker);
+      if (!state) {
+        state = { version: 0, frame: 0, starting: false };
+        heroMarkerPlayback.set(marker, state);
+        resetHeroMarker(marker, state);
+      }
+      const playback = state;
+
+      if (badge.dataset.badgeReady !== 'true') {
+        badge.dataset.badgeReady = 'true';
+        const text = heading.textContent ?? '';
+        heading.textContent = '';
+        Array.from(text).forEach((char, index) => {
+          const span = document.createElement('span');
+          span.className = 'home-hero-badge-char';
+          span.style.setProperty('--char-index', String(index));
+          span.textContent = char === ' ' ? '\u00A0' : char;
+          heading.appendChild(span);
+        });
+      }
+
+      layoutHeroBadge(badge, description, rect);
+
+      if (heroMarkerBlocked() || marker.getClientRects().length === 0) {
+        if (playback.starting || marker.dataset.markerMotion !== 'pending') resetHeroMarker(marker, playback);
+        return;
+      }
+      if (playback.starting || marker.dataset.markerMotion === 'playing') return;
+      playback.starting = true;
+      const version = ++playback.version;
+      const canStart = () => {
+        if (playback.version !== version) return false;
+        const ready = marker.isConnected && !heroMarkerBlocked() && marker.getClientRects().length > 0;
+        if (!ready) playback.starting = false;
+        return ready;
+      };
+
+      // Mede o perímetro e dispara o traço só depois das fontes finais: medindo
+      // cedo, a Barlow Condensed entra depois, alarga o badge e sobra uma
+      // "pontinha" do path no início do retângulo (o rect fecha o loop por lá).
+      // O rect usa width/height 100% (sem viewBox) e o getTotalLength() devolve
+      // 0 para geometria percentual em Chrome → mede pela getBBox e calcula o
+      // perímetro do retângulo arredondado (rx = 3.25). Badge ainda sem layout
+      // (display:none, ex.: instância oculta) devolve 0×0 → não seta nada e o
+      // fallback CSS (2000) mantém o traço oculto.
+      const startDraw = () => {
+        if (!canStart()) return;
+        layoutHeroBadge(badge, description, rect);
+        let strokeLength = 0;
+        try {
+          const box = rect.getBBox();
+          if (box.width > 0 && box.height > 0) {
+            const rx = 3.25;
+            const straightW = Math.max(0, box.width - 2 * rx);
+            const straightH = Math.max(0, box.height - 2 * rx);
+            strokeLength = 2 * straightW + 2 * straightH + 2 * Math.PI * rx;
+          }
+        } catch {
+          strokeLength = 0;
+        }
+        if (strokeLength > 0) {
+          badge.style.setProperty('--badge-stroke-length', String(strokeLength));
+        }
+
+        // Cada fechamento ganha um novo relógio. Versão + cancelamento impedem
+        // fontes tardias ou frames de uma abertura anterior de disparar o replay.
+        playback.frame = requestAnimationFrame(() => {
+          if (!canStart()) return;
+          playback.frame = requestAnimationFrame(() => {
+            if (!canStart()) return;
+            playback.starting = false;
+            marker.dataset.markerMotion = 'playing';
+            badge.setAttribute('data-badge-draw', 'playing');
+          });
+        });
+      };
+
+      if (document.fonts && document.fonts.ready) {
+        document.fonts.ready.then(startDraw, startDraw);
+      } else {
+        startDraw();
+      }
+    });
+  }
+
+  function initHeroMarkerLifecycle() {
+    heroMarkerObserver?.disconnect();
+    heroMarkerObserver = new MutationObserver(initHeroBadge);
+    // O painel só é removido no fim da transição. A hidratação/menu mobile
+    // pode criar novas cópias do slot, que precisam do mesmo estado inicial.
+    document.querySelectorAll('header[data-fibramfer-header="true"], [data-fibramfer-drawers]').forEach((shell) => {
+      heroMarkerObserver?.observe(shell, { childList: true, subtree: true });
+    });
+    heroMarkerObserver.observe(document.body, { attributes: true, attributeFilter: ['data-panel-drawer-open'] });
+    initHeroBadge();
+  }
+
+  const positionObserver = new MutationObserver(scheduleBadgePositionSync);
+  positionObserver.observe(document.body, {
+    childList: true,
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['data-panel-drawer-open'],
+  });
+
+  window.addEventListener('fibramfer:chair-progress', (event) => {
+    const detail = (event as CustomEvent<{ progress?: number; immediate?: boolean }>).detail;
+    if (typeof detail?.progress !== 'number') return;
+
+    if (detail.immediate || markerReducedMotion.matches) {
+      resetDelayedBadgeProgress(detail.progress);
+    } else {
+      queueDelayedBadgeProgress(detail.progress);
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    scheduleBadgePositionSync();
+    initHeroBadge();
+  });
+  window.addEventListener('fibramfer:home-chrome-resize', scheduleBadgePositionSync);
+  window.matchMedia(desktopMediaQuery).addEventListener('change', scheduleBadgePositionSync);
+  markerReducedMotion.addEventListener('change', () => {
+    document.querySelectorAll<HTMLElement>('.home-hero-marker').forEach((marker) => {
+      const state = heroMarkerPlayback.get(marker);
+      if (state) resetHeroMarker(marker, state);
+    });
+    initHeroBadge();
+  });
+
+  const initBadges = () => {
+    syncBadgePositions();
+    initHeroMarkerLifecycle();
+  };
+
+  document.addEventListener('astro:page-load', initBadges);
+  initBadges();
+</script>

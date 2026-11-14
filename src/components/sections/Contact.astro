@@ -87,3 +87,13 @@ const { class: className = '' } = Astro.props;
     <FibramferFloat asset="f3" mirror />
   </div>
 </section>
+
+<style>
+  /* Somente no mobile o rótulo do botão de envio fica menor. */
+  @media (max-width: 767px) {
+    #contact-submit-cta {
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+    }
+  }
+</style>

@@ -8,8 +8,8 @@ import { sitePath } from '../../lib/sitePath';
 
 const commitments = [
   {
-    title: 'CA VÁLIDO E RASTREÁVEL',
-    text: 'Todos os produtos possuem CA emitido pelo Ministério do Trabalho, com número gravado no equipamento e validade atualizada.',
+    title: 'CERTIFICADO VÁLIDO E RASTREÁVEL',
+    text: 'Todos os produtos possuem certificado emitido pelo Ministério do Trabalho, com número gravado no equipamento e validade atualizada.',
   },
   {
     title: 'TESTES DE CARGA RIGOROSOS',
@@ -19,22 +19,18 @@ const commitments = [
     title: 'RASTREABILIDADE COMPLETA',
     text: 'Do recebimento da matéria-prima à entrega final, cada etapa é documentada e auditável.',
   },
-  {
-    title: 'SUPORTE TÉCNICO ESPECIALIZADO',
-    text: 'Equipe técnica disponível para orientar sobre uso correto, manutenção e descarte dos equipamentos.',
-  },
 ];
 ---
 
 <Section id="seguranca-hero" size="none" tone="surface" class="mb-12">
   <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-12 px-4 md:grid-cols-2 md:px-8">
-    <div>
-      <p class="mb-4 font-body text-sm font-semibold uppercase tracking-[0.16em] text-accent-500">Segurança Fibramfer</p>
+    <div class="text-center md:text-left">
+      <p class="mb-4 mt-10 font-body text-sm font-semibold uppercase tracking-[0.16em] text-accent-500 md:mt-0">Segurança Fibramfer</p>
       <h1 class="font-display text-4xl font-bold text-ink mb-2">
         Conformidade total com a NR-18: segurança que salva vidas
       </h1>
       <p class="mb-8 font-body text-lg leading-relaxed text-text-secondary">
-        Todos os equipamentos Fibramfer atendem rigorosamente à Portaria 13/2002 do Ministério do Trabalho, com Certificado de Aprovação (CA) válido e rastreável.
+        Todos os equipamentos Fibramfer atendem rigorosamente à Portaria 13/2002 do Ministério do Trabalho, com Certificado de Aprovação válido e rastreável.
       </p>
       <div class="flex flex-col gap-4 sm:flex-row">
         <Button
@@ -79,10 +75,10 @@ const commitments = [
         Por que a NR-18 importa?
       </h2>
       <p class="font-body text-base leading-relaxed text-text-secondary">
-        A NR-18 é a principal legislação brasileira para segurança no trabalho na construção civil. Ela define os requisitos mínimos para proteção de trabalhadores em altura, incluindo o uso obrigatório de EPIs certificados. A Fibramfer não apenas cumpre a norma — nossos produtos são desenvolvidos para atender e superar esses requisitos.
+        A NR-18 é a principal legislação brasileira para segurança no trabalho na construção civil. Ela define os requisitos mínimos para proteção de trabalhadores em altura, incluindo o uso obrigatório de EPI certificado. A Fibramfer não apenas cumpre a norma — nossos produtos são desenvolvidos para atender e superar esses requisitos.
       </p>
     </div>
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 md:col-span-3">
+    <div class="grid grid-cols-1 gap-6 md:col-span-3 md:grid-cols-3">
       {commitments.map((commitment) => (
         <Card
           padding="md"
@@ -169,3 +165,17 @@ const commitments = [
 
 <FibramferFloat asset="f1" />
 <FibramferFloat asset="f1" mirror />
+
+<style>
+  /* Somente no mobile os rótulos dos CTAs da página ficam menores (evita
+   * quebra em duas linhas). */
+  @media (max-width: 767px) {
+    #security-documentation-cta,
+    #security-whatsapp-cta,
+    #security-quote-cta,
+    #security-final-whatsapp-cta {
+      font-size: 0.875rem;
+      line-height: 1.25rem;
+    }
+  }
+</style>
