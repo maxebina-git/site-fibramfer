@@ -1,9 +1,21 @@
-RewriteEngine On
+# Cache dos assets estáticos do /site-novo (Apache, via FTP do GitHub Actions).
+# Só tem efeito se o host permitir .htaccess na pasta (AllowOverride/Options) e
+# mod_headers habilitado; caso contrário, configure no painel do host — ver
+# docs/adr/002-pagespeed-perf-pass.md.
 
-# Arquivos e diretórios reais (SSG, assets, api, uploads) passam direto.
-RewriteCond %{REQUEST_FILENAME} -f [OR]
-RewriteCond %{REQUEST_FILENAME} -d
-RewriteRule ^ - [L]
+<IfModule mod_headers.c>
+  # Assets do build Astro (_astro/*): nome com hash, nunca mudam de conteúdo.
+  <FilesMatch "\.(js|css|woff2|woff)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
 
-# Posts que não existem como estáticos (criados após o build) → fallback PHP.
-RewriteRule ^blog/([A-Za-z0-9-]+)/?$ post.php?slug=$1 [L,QSA]
+  # Imagens/ícones do public/ e do blog (uploads): não têm hash no nome.
+  <FilesMatch "\.(png|jpe?g|gif|webp|avif|svg|ico|json)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+
+  # HTML sempre revalidado (ETag/Last-Modified do servidor cuidam do resto).
+  <FilesMatch "\.html$">
+    Header set Cache-Control "no-cache"
+  </FilesMatch>
+</IfModule>

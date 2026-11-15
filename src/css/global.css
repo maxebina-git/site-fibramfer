@@ -1,5 +1,18 @@
 @import 'tailwindcss';
 @import 'ds-grupo-rkb/style.css';
+@import '@fontsource/barlow-condensed/400.css';
+@import '@fontsource/barlow-condensed/600.css';
+@import '@fontsource/barlow-condensed/700.css';
+@import '@fontsource/barlow-condensed/800.css';
+@import '@fontsource/barlow-condensed/900.css';
+@import '@fontsource/inter/300.css';
+@import '@fontsource/inter/400.css';
+@import '@fontsource/inter/500.css';
+@import '@fontsource/inter/600.css';
+@import '@fontsource/inter/700.css';
+@import '@fontsource/jetbrains-mono/400.css';
+@import '@fontsource/jetbrains-mono/500.css';
+@import '@fontsource/jetbrains-mono/700.css';
 @plugin '@tailwindcss/typography';
 
 /*
@@ -697,23 +710,35 @@ body[data-legal-drawer='true'] footer {
   }
 }
 
-/* O painel legal precisa ficar acima do Footer, que também usa z-50. Como o
- * Footer vem depois do shell do Drawer no DOM, um empate de z-index faria a
- * barra cobrir o painel. Os links legais flutuantes permanecem acima dos
- * dois para continuar acessíveis durante a leitura.
- * A camada do drawer legal sobe ACIMA do Header (z-60): a moldura transparente
- * mantém o header visível atrás, mas o painel passa à frente para cliques —
- * o botão fechar fica acima de todos os elementos, em qualquer breakpoint. */
+/* No mobile, a camada do drawer legal fica ABAIXO do Header (z-60): a barra
+ * translúcida e o logo permanecem visíveis acima do véu. Não há sobreposição
+ * a resolver — o painel já começa abaixo da barra
+ * (--drawer-reveal-inset-top = altura medida do header) e o Header é
+ * pointer-events:none (só o logo captura), então o X do drawer, abaixo da
+ * barra, continua clicável. 52 mantém a camada acima do Footer legal (z-50). */
 body[data-legal-drawer='true'] [data-fibramfer-drawers] aside[role='dialog'] {
-  z-index: 64;
+  z-index: 52;
 }
 
-/* A versão synchronize-fade coloca o painel dentro de uma camada z-40. Essa
- * camada é um stacking context, então elevar apenas o aside não o coloca
- * acima do Footer z-50. A camada inteira do drawer legal precisa subir —
- * e acima do Header, para o botão fechar ficar à frente de tudo. */
 body[data-legal-drawer='true'] [data-fibramfer-drawers] [data-drawer-fade-layer] {
-  z-index: 62;
+  z-index: 52;
+}
+
+@media (min-width: 768px) {
+  /* No desktop a camada legal sobe ACIMA do Header (z-60): a moldura
+   * transparente mantém o header visível atrás, mas o painel passa à frente
+   * para cliques — o botão fechar fica acima de todos os elementos. */
+  body[data-legal-drawer='true'] [data-fibramfer-drawers] aside[role='dialog'] {
+    z-index: 64;
+  }
+
+  /* A versão synchronize-fade coloca o painel dentro de uma camada z-40. Essa
+   * camada é um stacking context, então elevar apenas o aside não o coloca
+   * acima do Footer z-50. A camada inteira do drawer legal precisa subir —
+   * e acima do Header, para o botão fechar ficar à frente de tudo. */
+  body[data-legal-drawer='true'] [data-fibramfer-drawers] [data-drawer-fade-layer] {
+    z-index: 62;
+  }
 }
 
 /* Mesmo padding compacto do footer da home, para não mudar de altura. */

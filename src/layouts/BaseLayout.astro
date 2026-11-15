@@ -45,12 +45,6 @@ const isLegalOpen = isLegalDrawerPath(Astro.url.pathname);
     <meta name="twitter:description" content={finalDescription} />
     {finalImage && <meta name="twitter:image" content={finalImage} />}
     <link rel="icon" type="image/svg+xml" href={sitePath('/favicon.svg')} />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link rel="preload" href="https://fonts.gstatic.com/s/barlowcondensed/v13/HTxwL3I-JCGChYJ8VI-L6OO_au7B47b1z3bWuQ.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v20/UcCO3FwrK3iLTeHuS_nVMrMxCp50SjIw2boKoduKmMEVuLyfAZ9hiA.woff2" as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v20/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7.woff2" as="font" type="font/woff2" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
   </head>
   <body data-theme="fibramfer" data-site-base={SITE_BASE} class="home-page min-h-screen flex flex-col"
     data-panel-drawer-open={isPanelOpen ? 'true' : undefined}
@@ -101,8 +95,11 @@ const isLegalOpen = isLegalDrawerPath(Astro.url.pathname);
     </main>
     <Footer />
     <script type="module">
-      import { defineElement } from '@lordicon/element'
-      defineElement()
+      window.addEventListener('load', () => {
+        const register = () => import('@lordicon/element').then((m) => m.defineElement()).catch(() => {});
+        if ('requestIdleCallback' in window) window.requestIdleCallback(register, { timeout: 3000 });
+        else register();
+      }, { once: true });
     </script>
   </body>
 </html>

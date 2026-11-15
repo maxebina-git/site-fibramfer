@@ -48,7 +48,7 @@
 - Astro 7 + Tailwind v4: `@import 'tailwindcss'` **antes** de `ds-grupo-rkb/style.css`
   no `global.css`; Vue via `@astrojs/vue`.
 - Tema da marca: `<body data-theme="fibramfer">` definido no `BaseLayout.astro`
-  (mais Google Fonts Barlow Condensed/Inter/JetBrains Mono).
+  (fontes auto-hospedadas via Fontsource — ver docs/adr/002-pagespeed-perf-pass.md).
 - Título da página: prop `title` do `BaseLayout` (nunca `<title slot="title">`).
 - Blog: coleção `blog` (`src/content.config.js`, glob loader); links usam `post.id`;
   render com `render(post)` + `<Content />`.

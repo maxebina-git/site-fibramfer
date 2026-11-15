@@ -26,8 +26,11 @@
         [data-badge-draw='pending'].home-hero-badge h2 {
           opacity: 1 !important;
         }
-        [data-badge-draw='pending'].home-hero-badge {
+        [data-badge-draw='pending'].home-hero-badge::before {
+          opacity: 1 !important;
           background-color: var(--color-surface-brand) !important;
+        }
+        [data-badge-draw='pending'].home-hero-badge {
           clip-path: none !important;
           height: auto !important;
           width: max-content !important;
@@ -59,8 +62,11 @@
           opacity: 1 !important;
           display: block !important;
         }
-        [data-badge-draw='pending'].home-hero-badge {
+        [data-badge-draw='pending'].home-hero-badge::before {
+          opacity: 1 !important;
           background-color: var(--color-surface-brand) !important;
+        }
+        [data-badge-draw='pending'].home-hero-badge {
           height: auto !important;
           width: max-content !important;
         }
@@ -95,11 +101,13 @@
     transform: translateX(-50%);
     white-space: nowrap;
     padding: 0.25rem 0.5rem;
-    background: var(--color-surface);
     box-sizing: border-box;
     overflow: hidden;
-    /* Mesmo raio do <rect> do contorno (rx/ry = 3.25): o fundo arredonda
-     * junto com o path. */
+    /* O fill vive num ::before para animar opacity (composto) em vez de
+     * background-color. isolation mantém o ::before (z-index -1) atrás do
+     * conteúdo, dentro do badge. Mesmo raio do <rect> do contorno: o fill
+     * arredonda junto com o path. */
+    isolation: isolate;
     border-radius: 3.25px;
   }
 
@@ -137,8 +145,19 @@
     display: block;
   }
 
+  .home-hero-badge::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: var(--color-surface);
+    opacity: 1;
+    z-index: -1;
+    pointer-events: none;
+  }
+
 .home-hero-badge[data-badge-layout='ready'] {
-    will-change: height, background-color;
+    will-change: height, opacity;
   }
 
   .home-hero-badge-stroke {
@@ -191,26 +210,28 @@
     }
   }
 
-  /* Fundo é o último a entrar: transparente (α 0%) durante o traço — e anima
-   * para α 100% (branco --color-surface) JUNTO com a primeira letra, no mesmo
-   * relógio do flip (delay 2.1s do estado playing), sem JS extra. COMPOUND
-   * sem espaço: o data-badge-draw fica NO PRÓPRIO badge — com espaço o
-   * seletor exigiria um ascendente com o atributo e nunca casaria (o fundo
-   * base aparecia desde o load). No hero branco o fade só se nota onde o
-   * badge cobre o desenho da cadeira. */
-  [data-badge-draw='pending'].home-hero-badge,
-  [data-badge-draw='playing'].home-hero-badge {
-    background-color: transparent;
+  /* O fill vive no ::before e anima opacity (composto): pending mantém o
+   * ::before invisível (α 0) durante o traço — e anima para α 100% (fill
+   * --color-surface) JUNTO com a primeira letra, no mesmo relógio do flip
+   * (delay 2.1s do estado playing), sem JS extra. COMPOUND sem espaço: o
+   * data-badge-draw fica NO PRÓPRIO badge — com espaço o seletor exigiria
+   * um ascendente com o atributo e nunca casaria (o fundo aparecia desde o
+   * load). No hero branco o fade só se nota onde o badge cobre o desenho da
+   * cadeira. */
+  [data-badge-draw='pending'].home-hero-badge::before,
+  [data-badge-draw='playing'].home-hero-badge::before {
+    opacity: 0;
   }
 
-  [data-badge-draw='playing'].home-hero-badge {
+  [data-badge-draw='playing'].home-hero-badge::before {
     animation: badge-bg-fade 0.5s ease-out 2.1s both;
   }
 
   /* A partir do primeiro avanço do scroll, a badge deixa de disputar o fundo
    * com a entrada temporizada e passa a seguir o progresso da cadeira. */
-  body.home-page .home-hero-badge[data-badge-scroll='active'] {
+  body.home-page .home-hero-badge[data-badge-scroll='active']::before {
     animation: none;
+    opacity: 1;
     background-color: var(--color-surface);
     background-color: color-mix(
       in srgb,
@@ -221,10 +242,10 @@
 
   @keyframes badge-bg-fade {
     from {
-      background-color: transparent;
+      opacity: 0;
     }
     to {
-      background-color: var(--color-surface);
+      opacity: 1;
     }
   }
 
@@ -285,9 +306,10 @@
       animation: none;
     }
 
-    [data-badge-draw='pending'].home-hero-badge,
-    [data-badge-draw='playing'].home-hero-badge {
+    [data-badge-draw='pending'].home-hero-badge::before,
+    [data-badge-draw='playing'].home-hero-badge::before {
       background-color: var(--color-surface);
+      opacity: 1;
       animation: none;
     }
 
@@ -295,8 +317,8 @@
       display: block;
     }
 
-    [data-badge-draw='pending'].home-hero-badge[data-badge-layout='ready'],
-    [data-badge-draw='playing'].home-hero-badge[data-badge-layout='ready'] {
+    [data-badge-draw='pending'].home-hero-badge[data-badge-layout='ready']::before,
+    [data-badge-draw='playing'].home-hero-badge[data-badge-layout='ready']::before {
       background-color: var(--color-surface-brand);
     }
   }
