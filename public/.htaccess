@@ -10,7 +10,7 @@
   </FilesMatch>
 
   # Imagens/ícones do public/ e do blog (uploads): não têm hash no nome.
-  <FilesMatch "\.(png|jpe?g|gif|webp|avif|svg|ico|json)$">
+  <FilesMatch "\.(png|jpe?g|gif|webp|avif|svg|ico|json|mp4|webm)$">
     Header set Cache-Control "public, max-age=2592000"
   </FilesMatch>
 

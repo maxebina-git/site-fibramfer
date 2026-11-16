@@ -114,6 +114,25 @@ import { sitePath } from '../../lib/sitePath';
     </div>
   </div>
 
+<Section id="cadeira-suspensa-video" size="none" tone="surface" class="mb-4 mt-12">
+  <div class="mx-auto max-w-4xl text-center">
+    <p class="mb-2 font-body text-sm font-semibold uppercase tracking-[0.16em] text-accent-500">Veja em ação</p>
+    <h2 class="mb-6 font-display text-3xl font-bold text-ink">Cadeira Suspensa em operação</h2>
+    <video
+      controls
+      preload="none"
+      playsinline
+      poster={sitePath('/assets/cadeira-suspensa/cover-video.webp')}
+      aria-label="Vídeo da Cadeira Suspensa Fibramfer em operação"
+      class="w-full rounded-lg border border-border shadow-card"
+    >
+      <source src={sitePath('/assets/cadeira-suspensa/cadeira-suspensa.mp4')} type="video/mp4" />
+      <a href={sitePath('/assets/cadeira-suspensa/cadeira-suspensa.mp4')}>Baixar o vídeo da Cadeira Suspensa</a>
+    </video>
+    <p class="mt-4 text-sm text-text-secondary">Demonstração do equipamento em uso real, com total conformidade à NR-18.</p>
+  </div>
+</Section>
+
 <Section id="cadeira-suspensa-cta" size="none" tone="surface" class="mb-12 mt-12">
   <div class="mx-auto max-w-5xl rounded-lg bg-surface-alt px-4 py-16 text-ink md:px-8 md:py-20">
     <div class="mx-auto max-w-3xl text-center">
